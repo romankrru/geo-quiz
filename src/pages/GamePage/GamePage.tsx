@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button } from '@shared/ui'
 import { COUNTRIES } from '@entities/country/model/country.data'
 import * as styles from './GamePage.css'
+import { ButtonQuiz, type ButtonQuizVariant } from '@shared/ui/ButtonQuiz/ButtonQuiz'
 
 type GameStatus = 'idle' | 'playing' | 'finished'
 
@@ -22,7 +23,9 @@ const generateQuestions = (n = 10): Question[] => {
       .slice(0, 3)
       .map((c) => c.name)
 
-    const options = [...distractors, country.name].sort(() => Math.random() - 0.5)
+    const options = [...distractors, country.name].sort(
+      () => Math.random() - 0.5,
+    )
 
     return {
       id: country.id,
@@ -34,8 +37,10 @@ const generateQuestions = (n = 10): Question[] => {
 }
 
 export function GamePage() {
-  const [questions, setQuestions] = useState<Question[]>(() => generateQuestions())
-  const [gameStatus, setGameStatus] = useState<GameStatus>('idle')
+  const [questions, setQuestions] = useState<Question[]>(() =>
+    generateQuestions(),
+  )
+  const [gameStatus, setGameStatus] = useState<GameStatus>('playing')
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
@@ -64,13 +69,6 @@ export function GamePage() {
     }
   }
 
-  const getOptionClassName = (option: string): string | undefined => {
-    if (selectedAnswer === null) return undefined
-    if (option === questions[currentQuestionIndex].correctAnswer) return styles.correctAnswer
-    if (option === selectedAnswer) return styles.wrongAnswer
-    return undefined
-  }
-
   if (gameStatus === 'idle') {
     return (
       <div>
@@ -94,30 +92,54 @@ export function GamePage() {
 
   const question = questions[currentQuestionIndex]
 
+  const getOptionVariant = (
+    option: string,
+  ): ButtonQuizVariant => {
+    if (selectedAnswer === null) {
+      return 'default'
+    }
+
+    if (option === question.correctAnswer) {
+      return 'success'
+    }
+
+    if (option === selectedAnswer) {
+      return 'error'
+    }
+
+    return 'default'
+  }
+
   return (
-    <div>
-      <div>
-        Question {currentQuestionIndex + 1} / {questions.length} · Score: {score}
-      </div>
-      <div style={{ fontSize: '6rem' }}>{question.flagEmoji}</div>
-      <p>Which country does this flag belong to?</p>
-      <div>
-        {question.options.map((option) => (
-          <Button
-            key={option}
-            onClick={() => handleSelectAnswer(option)}
-            disabled={selectedAnswer !== null}
-            className={getOptionClassName(option)}
-          >
-            {option}
-          </Button>
-        ))}
+    <>
+      <div className={styles.questionCard}>
+        <div>
+          Question {currentQuestionIndex + 1} / {questions.length} · Score:{' '}
+          {score}
+        </div>
+        <h2>Which country does this flag belong to?</h2>
+        <div style={{ fontSize: '6rem' }}>{question.flagEmoji}</div>
+        <div className={styles.answerButtons}>
+          {question.options.map((option, index) => (
+            <ButtonQuiz
+              count={index + 1}
+              key={option}
+              onClick={() => handleSelectAnswer(option)}
+              disabled={selectedAnswer !== null}
+              variant={getOptionVariant(option)}
+            >
+              {option}
+            </ButtonQuiz>
+          ))}
+        </div>
       </div>
       {selectedAnswer !== null && (
-        <Button onClick={handleNext}>
-          {currentQuestionIndex === questions.length - 1 ? 'See Results' : 'Next'}
+        <Button onClick={handleNext} className={styles.nextButton}>
+          {currentQuestionIndex === questions.length - 1
+            ? 'See Results'
+            : 'Next'}
         </Button>
       )}
-    </div>
+    </>
   )
 }

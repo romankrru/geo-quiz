@@ -1,12 +1,23 @@
-import { style } from '@vanilla-extract/css';
-import { vars } from '@shared/theme';
+import { style } from '@vanilla-extract/css'
+import { vars } from '@shared/theme'
 
-export const correctAnswer = style({
-  backgroundColor: vars.color.success,
-  color: 'white',
-});
+export const questionCard = style({
+  backgroundColor: vars.color.background,
+  boxShadow: vars.shadows.primary,
+  borderRadius: vars.radii.lg,
+  margin: 20,
+  padding: 48,
+})
 
-export const wrongAnswer = style({
-  backgroundColor: vars.color.error,
-  color: 'white',
-});
+export const answerButtons = style({
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: 16,
+})
+
+export const nextButton = style({
+  display: 'block',
+  marginTop: 16,
+  marginLeft: 'auto',
+  marginRight: 'auto',
+})
