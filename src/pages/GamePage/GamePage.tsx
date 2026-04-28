@@ -1,8 +1,11 @@
 import { useState } from 'react'
-import { Button } from '@shared/ui'
+import { Button, ProgressBar } from '@shared/ui'
 import { COUNTRIES } from '@entities/country/model/country.data'
 import * as styles from './GamePage.css'
-import { ButtonQuiz, type ButtonQuizVariant } from '@shared/ui/ButtonQuiz/ButtonQuiz'
+import {
+  ButtonQuiz,
+  type ButtonQuizVariant,
+} from '@shared/ui/ButtonQuiz/ButtonQuiz'
 
 type GameStatus = 'idle' | 'playing' | 'finished'
 
@@ -91,10 +94,10 @@ export function GamePage() {
   }
 
   const question = questions[currentQuestionIndex]
+  const answeredQuestionsCount =
+    currentQuestionIndex + (selectedAnswer !== null ? 1 : 0)
 
-  const getOptionVariant = (
-    option: string,
-  ): ButtonQuizVariant => {
+  const getOptionVariant = (option: string): ButtonQuizVariant => {
     if (selectedAnswer === null) {
       return 'default'
     }
@@ -112,11 +115,16 @@ export function GamePage() {
 
   return (
     <>
-      <div className={styles.questionCard}>
-        <div>
-          Question {currentQuestionIndex + 1} / {questions.length} · Score:{' '}
-          {score}
+      <div className={styles.progressSection}>
+        <div className={styles.progressHeader}>
+          <span>
+            Progress: {answeredQuestionsCount} / {questions.length}
+          </span>
+          <span>Score: {score}</span>
         </div>
+        <ProgressBar value={answeredQuestionsCount} max={questions.length} />
+      </div>
+      <div className={styles.questionCard}>
         <h2>Which country does this flag belong to?</h2>
         <div style={{ fontSize: '6rem' }}>{question.flagEmoji}</div>
         <div className={styles.answerButtons}>

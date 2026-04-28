@@ -1,11 +1,26 @@
 import { style } from '@vanilla-extract/css'
 import { vars } from '@shared/theme'
 
+export const progressSection = style({
+  maxWidth: 720,
+  margin: '0 auto',
+})
+
+export const progressHeader = style({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 8,
+  color: vars.color.primary,
+  fontWeight: 600,
+})
+
 export const questionCard = style({
   backgroundColor: vars.color.background,
   boxShadow: vars.shadows.primary,
   borderRadius: vars.radii.lg,
-  margin: 20,
+  margin: '20px',
+  maxWidth: 720,
   padding: 48,
 })
 
