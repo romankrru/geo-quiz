@@ -1,6 +1,7 @@
-import { type CSSProperties, useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@shared/ui'
 import { COUNTRIES } from '@entities/country/model/country.data'
+import * as styles from './GamePage.css'
 
 type GameStatus = 'idle' | 'playing' | 'finished'
 
@@ -63,12 +64,11 @@ export function GamePage() {
     }
   }
 
-  const getOptionStyle = (option: string): CSSProperties => {
-    if (selectedAnswer === null) return {}
-    if (option === questions[currentQuestionIndex].correctAnswer)
-      return { backgroundColor: 'green', color: 'white' }
-    if (option === selectedAnswer) return { backgroundColor: 'red', color: 'white' }
-    return {}
+  const getOptionClassName = (option: string): string | undefined => {
+    if (selectedAnswer === null) return undefined
+    if (option === questions[currentQuestionIndex].correctAnswer) return styles.correctAnswer
+    if (option === selectedAnswer) return styles.wrongAnswer
+    return undefined
   }
 
   if (gameStatus === 'idle') {
@@ -107,7 +107,7 @@ export function GamePage() {
             key={option}
             onClick={() => handleSelectAnswer(option)}
             disabled={selectedAnswer !== null}
-            style={getOptionStyle(option)}
+            className={getOptionClassName(option)}
           >
             {option}
           </Button>

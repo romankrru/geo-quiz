@@ -4,5 +4,10 @@ import * as style from './Buttons.css'
 type ButtonProps = ComponentProps<'button'>
 
 export const Button = ({ className, ...props }: ButtonProps) => {
-  return <button {...props} className={style.button} />
+  return (
+    <button
+      {...props}
+      className={[style.button, className].filter(Boolean).join(' ')}
+    />
+  )
 }
