@@ -28,7 +28,7 @@ export const button = style({
       borderColor: hoverAccent,
     },
     '&:not(:disabled):active': {
-      transform: 'translateY(2px)',
+      transform: 'translateY(4px)',
     },
   },
 })
