@@ -166,17 +166,24 @@ export function GamePage() {
           ))}
         </div>
       </div>
-      <HomeCorner className={homeCornerStyles.afterCard} />
-      {selectedAnswer !== null && (
-        <div className={styles.nextSection}>
-          <Button onClick={handleNext} className={styles.nextButton}>
-            {currentQuestionIndex === questions.length - 1
-              ? 'See Results'
-              : 'Next'}
-          </Button>
-          <span className={styles.nextHint}>or press Space</span>
+      <div className={styles.bottomBar}>
+        <div className={styles.bottomBarLeft}>
+          <HomeCorner className={homeCornerStyles.inBottomBar} />
         </div>
-      )}
+        <div className={styles.bottomBarCenter}>
+          {selectedAnswer !== null && (
+            <>
+              <Button onClick={handleNext} className={styles.nextButton}>
+                {currentQuestionIndex === questions.length - 1
+                  ? 'See Results'
+                  : 'Next'}
+              </Button>
+              <span className={styles.nextHint}>or press Space</span>
+            </>
+          )}
+        </div>
+        <div className={styles.bottomBarRight} aria-hidden />
+      </div>
     </div>
   )
 }

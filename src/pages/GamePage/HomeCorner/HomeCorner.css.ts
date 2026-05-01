@@ -1,8 +1,6 @@
 import { style } from '@vanilla-extract/css'
 
-export const afterCard = style({
-  maxWidth: 720,
-  margin: '16px auto 0',
+export const inBottomBar = style({
   display: 'flex',
   justifyContent: 'flex-start',
 })

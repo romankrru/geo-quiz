@@ -38,11 +38,32 @@ export const answerButtons = style({
   gap: 16,
 })
 
-export const nextSection = style({
+export const bottomBar = style({
+  display: 'grid',
+  gridTemplateColumns: '1fr auto 1fr',
+  alignItems: 'start',
+  marginTop: 16,
+  maxWidth: 820,
+  margin: '0 auto',
+  boxSizing: 'border-box',
+})
+
+export const bottomBarLeft = style({
+  display: 'flex',
+  justifyContent: 'flex-start',
+  paddingLeft: 20,
+  minWidth: 0,
+})
+
+export const bottomBarCenter = style({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  marginTop: 12,
+})
+
+export const bottomBarRight = style({
+  minWidth: 0,
+  paddingRight: 20,
 })
 
 export const nextButton = style({
