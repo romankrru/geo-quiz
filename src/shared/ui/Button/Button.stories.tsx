@@ -1,0 +1,42 @@
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { fn } from 'storybook/test'
+
+import { Button } from './Button'
+
+const meta = {
+  title: 'shared/ui/Button',
+  component: Button,
+  parameters: {
+    layout: 'centered',
+  },
+  tags: ['autodocs'],
+  args: {
+    children: 'Button',
+    type: 'button' as const,
+    onClick: fn(),
+  },
+} satisfies Meta<typeof Button>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const Default: Story = {}
+
+export const Disabled: Story = {
+  args: {
+    disabled: true,
+  },
+}
+
+export const LongLabel: Story = {
+  args: {
+    children: 'Start geography quiz',
+  },
+}
+
+export const Submit: Story = {
+  args: {
+    type: 'submit',
+    children: 'Submit answer',
+  },
+}
