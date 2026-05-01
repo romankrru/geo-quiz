@@ -24,3 +24,6 @@ dist-ssr
 *.sln
 *.sw?
 skills-lock.json
+
+*storybook.log
+storybook-static
