@@ -34,9 +34,5 @@ Aliases: `@shared/*` → `src/shared/*`, `@entities/*` → `src/entities/*`.
 - Styles: `vanilla-extract`, `*.css.ts` files next to component.
 - Components: `PascalCase/` folder with `Component.tsx` and `Component.css.ts`.
 - Folder public API via `index.ts` (re-export).
-- Prettier: no `;`, single quotes. Run `prettier:fix` and `lint` before commit.
+- Prettier: no `;`, single quotes. Run `prettier:fix` and `lint` as needed for TS/style changes.
 - TS strict (`noUnusedLocals`, `noUnusedParameters`, `verbatimModuleSyntax`).
-
-## Git
-
-- Commit titles: short imperative lines matching recent history (`Add …`, `Fix …`). Avoid Conventional Commits-style prefixes such as `fix(hooks):`.
