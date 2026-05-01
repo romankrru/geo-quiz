@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { useKeyPress } from '@shared/hooks'
 import { Button, ProgressBar } from '@shared/ui'
 import { COUNTRIES } from '@entities/country/model/country.data'
 import * as styles from './GamePage.css'
@@ -56,12 +57,25 @@ export function GamePage() {
     setGameStatus('playing')
   }
 
-  const handleSelectAnswer = (answer: string) => {
-    setSelectedAnswer(answer)
-    if (answer === questions[currentQuestionIndex].correctAnswer) {
-      setScore((s) => s + 1)
-    }
-  }
+  const handleSelectAnswer = useCallback(
+    (answer: string) => {
+      setSelectedAnswer(answer)
+      if (answer === questions[currentQuestionIndex].correctAnswer) {
+        setScore((s) => s + 1)
+      }
+    },
+    [questions, currentQuestionIndex],
+  )
+
+  useKeyPress(
+    ['1', '2', '3', '4'],
+    (e) => {
+      const idx = Number(e.key) - 1
+      const option = questions[currentQuestionIndex]?.options[idx]
+      if (option) handleSelectAnswer(option)
+    },
+    { enabled: gameStatus === 'playing' && selectedAnswer === null },
+  )
 
   const handleNext = () => {
     if (currentQuestionIndex === questions.length - 1) {
