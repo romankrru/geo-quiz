@@ -128,7 +128,7 @@ export function GamePage() {
   }
 
   return (
-    <>
+    <div className={styles.container}>
       <div className={styles.progressSection}>
         <div className={styles.progressHeader}>
           <span>
@@ -164,6 +164,6 @@ export function GamePage() {
             : 'Next'}
         </Button>
       )}
-    </>
+    </div>
   )
 }

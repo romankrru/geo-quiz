@@ -1,6 +1,10 @@
 import { style } from '@vanilla-extract/css'
 import { vars } from '@shared/theme'
 
+export const container = style({
+  margin: '20px',
+})
+
 export const progressSection = style({
   maxWidth: 720,
   margin: '0 auto',
