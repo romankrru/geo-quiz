@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { useKeyPress, useSfx } from '@shared/hooks'
+import { useKeyPress, useSfx, useStopwatch } from '@shared/hooks'
 import { Button, ProgressBar } from '@shared/ui'
 import { COUNTRIES } from '@entities/country/model/country.data'
 import { quizService, type QuizQuestion } from '@entities/quiz'
@@ -24,6 +24,16 @@ export function GamePage() {
 
   const playSuccess = useSfx(successSoundUrl)
   const playFail = useSfx(failSoundUrl)
+
+  const elapsedMs = useStopwatch(gameStatus === 'playing')
+
+  const formatElapsed = (ms: number) => {
+    const totalTenths = Math.floor(ms / 100)
+    const m = Math.floor(totalTenths / 600)
+    const s = Math.floor((totalTenths % 600) / 10)
+    const t = totalTenths % 10
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${t}`
+  }
 
   const handleStart = () => {
     setQuestions(quizService.generateQuizQuestions(COUNTRIES))
@@ -89,6 +99,7 @@ export function GamePage() {
         <p>
           Score: {score} / {questions.length}
         </p>
+        <p>Time: {formatElapsed(elapsedMs)}</p>
         <Button onClick={handleStart}>Play Again</Button>
       </div>
     )
@@ -122,6 +133,7 @@ export function GamePage() {
             Progress: {answeredQuestionsCount} / {questions.length}
           </span>
           <span>Score: {score}</span>
+          <span className={styles.timer}>{formatElapsed(elapsedMs)}</span>
         </div>
         <ProgressBar value={answeredQuestionsCount} max={questions.length} />
       </div>

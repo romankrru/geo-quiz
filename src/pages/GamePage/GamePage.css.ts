@@ -56,3 +56,7 @@ export const nextHint = style({
   color: vars.color.text,
   opacity: 0.65,
 })
+
+export const timer = style({
+  fontVariantNumeric: 'tabular-nums',
+})
