@@ -27,6 +27,7 @@ export const vars = createGlobalTheme(':root', {
     error: 'rgb(186 26 26)',
     errorSoft: lighten(0.52, 'rgb(186 26 26)'),
     warning: 'rgb(95 70 0)',
+    amber: 'rgb(227 179 60)',
     background: 'rgb(255 255 255)',
   },
   radii: {

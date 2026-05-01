@@ -59,6 +59,20 @@ export const nextHint = style({
 
 export const timer = style({
   fontVariantNumeric: 'tabular-nums',
-  fontSize: 24,
-  fontFamily: vars.fontFamily.heading,
+  fontSize: 18,
+  fontFamily: 'system-ui',
+  fontWeight: 'bold',
+  backgroundColor: vars.color.background,
+  boxShadow: vars.shadows.primary,
+  padding: '8px 16px',
+  borderRadius: vars.radii.md,
+  border: `1px solid ${vars.color.secondary}`,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+})
+
+export const timerIcon = style({
+  color: vars.color.amber,
+  flexShrink: 0,
 })

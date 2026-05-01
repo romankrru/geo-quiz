@@ -3,6 +3,7 @@ import { useKeyPress, useSfx, useStopwatch } from '@shared/hooks'
 import { Button, ProgressBar } from '@shared/ui'
 import { COUNTRIES } from '@entities/country/model/country.data'
 import { quizService, type QuizQuestion } from '@entities/quiz'
+import { Clock } from 'lucide-react'
 import * as styles from './GamePage.css'
 import {
   ButtonQuiz,
@@ -133,7 +134,10 @@ export function GamePage() {
             Progress: {answeredQuestionsCount} / {questions.length}
           </span>
           <span>Score: {score}</span>
-          <div className={styles.timer}>{formatElapsed(elapsedMs)}</div>
+          <div className={styles.timer}>
+            <Clock className={styles.timerIcon} strokeWidth={3} size={20} />
+            {formatElapsed(elapsedMs)}
+          </div>
         </div>
         <ProgressBar value={answeredQuestionsCount} max={questions.length} />
       </div>
