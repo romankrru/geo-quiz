@@ -5,6 +5,10 @@ export const container = style({
   margin: '20px',
 })
 
+export const title = style({
+  marginBottom: 0,
+})
+
 export const progressSection = style({
   maxWidth: 720,
   margin: '0 auto',

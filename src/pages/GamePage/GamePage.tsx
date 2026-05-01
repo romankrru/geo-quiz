@@ -126,7 +126,9 @@ export function GamePage() {
         <ProgressBar value={answeredQuestionsCount} max={questions.length} />
       </div>
       <div className={styles.questionCard}>
-        <h2>Which country does this flag belong to?</h2>
+        <h2 className={styles.title}>
+          Which country does this flag belong to?
+        </h2>
         <div style={{ fontSize: '6rem', textAlign: 'center' }}>
           {question.flagEmoji}
         </div>
