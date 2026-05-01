@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { useKeyPress } from '@shared/hooks'
+import { useKeyPress, useSfx } from '@shared/hooks'
 import { Button, ProgressBar } from '@shared/ui'
 import { COUNTRIES } from '@entities/country/model/country.data'
 import * as styles from './GamePage.css'
@@ -7,6 +7,8 @@ import {
   ButtonQuiz,
   type ButtonQuizVariant,
 } from '@shared/ui/ButtonQuiz/ButtonQuiz'
+import failSoundUrl from '../../assets/fail.wav?url'
+import successSoundUrl from '../../assets/success.wav?url'
 
 type GameStatus = 'idle' | 'playing' | 'finished'
 
@@ -49,6 +51,9 @@ export function GamePage() {
   const [score, setScore] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
 
+  const playSuccess = useSfx(successSoundUrl)
+  const playFail = useSfx(failSoundUrl)
+
   const handleStart = () => {
     setQuestions(generateQuestions())
     setCurrentQuestionIndex(0)
@@ -60,11 +65,15 @@ export function GamePage() {
   const handleSelectAnswer = useCallback(
     (answer: string) => {
       setSelectedAnswer(answer)
-      if (answer === questions[currentQuestionIndex].correctAnswer) {
+      const correct = answer === questions[currentQuestionIndex].correctAnswer
+      if (correct) {
         setScore((s) => s + 1)
+        playSuccess()
+      } else {
+        playFail()
       }
     },
-    [questions, currentQuestionIndex],
+    [questions, currentQuestionIndex, playSuccess, playFail],
   )
 
   useKeyPress(
