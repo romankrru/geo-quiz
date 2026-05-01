@@ -36,3 +36,7 @@ Aliases: `@shared/*` → `src/shared/*`, `@entities/*` → `src/entities/*`.
 - Folder public API via `index.ts` (re-export).
 - Prettier: no `;`, single quotes. Run `prettier:fix` and `lint` before commit.
 - TS strict (`noUnusedLocals`, `noUnusedParameters`, `verbatimModuleSyntax`).
+
+## Git
+
+- Commit titles: short imperative lines matching recent history (`Add …`, `Fix …`). Avoid Conventional Commits-style prefixes such as `fix(hooks):`.
