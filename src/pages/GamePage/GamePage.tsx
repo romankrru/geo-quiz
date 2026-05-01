@@ -17,7 +17,7 @@ import { FinishedState } from './FinishedState/FinishedState'
 
 type GameStatus = 'idle' | 'playing' | 'finished'
 
-const quizCount = 2
+const quizCount = 10
 
 export function GamePage() {
   const [questions, setQuestions] = useState<QuizQuestion[]>(() =>
