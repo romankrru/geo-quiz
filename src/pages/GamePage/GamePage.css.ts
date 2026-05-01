@@ -19,7 +19,7 @@ export const questionCard = style({
   backgroundColor: vars.color.background,
   boxShadow: vars.shadows.primary,
   borderRadius: vars.radii.lg,
-  margin: '20px',
+  margin: '20px auto',
   maxWidth: 720,
   padding: 48,
 })
