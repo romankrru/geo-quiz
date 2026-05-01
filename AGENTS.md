@@ -32,7 +32,7 @@ Aliases: `@shared/*` → `src/shared/*`, `@entities/*` → `src/entities/*`.
 - Entity pure logic that transforms another entity’s data should take that data as arguments (from the page or a thin factory) instead of importing large static catalogs from sibling modules—clearer dependency direction and trivial test doubles.
 - In `entities/`, use `*.service.ts` for a small set of related **stateless** domain helpers in one file: implement as plain functions, then `export const fooService = { ... }` as the public namespace. Not for IO, React, or DI-style classes (naming echoes Angular, meaning here is “domain API surface”, not injectable services).
 - Styles: `vanilla-extract`, `*.css.ts` files next to component.
-- Components: `PascalCase/` folder with `Component.tsx` and `Component.css.ts`.
-- Folder public API via `index.ts` (re-export).
+- Components: `PascalCase/` folder with `Component.tsx` and `Component.css.ts`; importers use the concrete file (e.g. `./Foo/Foo`), not an `index.ts` barrel.
+- Elsewhere (e.g. `entities/`), keep a small public surface via `index.ts` re-exports, like `src/entities/country/index.ts` → `./model` and nested `model/index.ts` for types/data.
 - Prettier: no `;`, single quotes. Run `prettier:fix` and `lint` as needed for TS/style changes.
 - TS strict (`noUnusedLocals`, `noUnusedParameters`, `verbatimModuleSyntax`).

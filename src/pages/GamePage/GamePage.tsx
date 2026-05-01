@@ -11,7 +11,7 @@ import {
 } from '@shared/ui/ButtonQuiz/ButtonQuiz'
 import failSoundUrl from '../../assets/fail.wav?url'
 import successSoundUrl from '../../assets/success.wav?url'
-import { FinishedState } from './FinishedState'
+import { FinishedState } from './FinishedState/FinishedState'
 
 type GameStatus = 'idle' | 'playing' | 'finished'
 
