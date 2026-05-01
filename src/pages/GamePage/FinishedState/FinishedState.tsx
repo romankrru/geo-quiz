@@ -17,7 +17,7 @@ type Props = {
   onPlayAgain: () => void
 }
 
-export function FinishedState(props: Props) {
+export const FinishedState = (props: Props) => {
   return (
     <div className={styles.root}>
       <div className={styles.content}>
