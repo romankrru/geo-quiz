@@ -145,7 +145,7 @@ export function GamePage() {
         <h2 className={styles.title}>
           Which country does this flag belong to?
         </h2>
-        <div style={{ fontSize: '6rem', textAlign: 'center' }}>
+        <div style={{ fontSize: '10rem', textAlign: 'center' }}>
           {question.flagEmoji}
         </div>
         <div className={styles.answerButtons}>
