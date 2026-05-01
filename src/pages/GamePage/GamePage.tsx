@@ -86,6 +86,10 @@ export function GamePage() {
     }
   }
 
+  useKeyPress([' '], handleNext, {
+    enabled: gameStatus === 'playing' && selectedAnswer !== null,
+  })
+
   if (gameStatus === 'idle') {
     return (
       <div>
