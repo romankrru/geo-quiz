@@ -1,1 +1,1 @@
-export { vars } from './vars.css'
+export { vars, themeLiterals } from './vars.css'

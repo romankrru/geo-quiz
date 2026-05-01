@@ -11,7 +11,7 @@ const fontFamilyNames = {
   heading: 'Lexend',
 } as const
 
-export const vars = createGlobalTheme(':root', {
+export const themeLiterals = {
   fontFamily: {
     sans: fontStack(fontFamilyNames.sans),
     heading: fontStack(fontFamilyNames.heading),
@@ -39,4 +39,6 @@ export const vars = createGlobalTheme(':root', {
   shadows: {
     primary: 'rgba(15, 76, 129, 0.08) 0 15px 40px',
   },
-})
+}
+
+export const vars = createGlobalTheme(':root', themeLiterals)
