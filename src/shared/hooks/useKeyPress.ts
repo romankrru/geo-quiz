@@ -16,10 +16,12 @@ export function useKeyPress(
   const preventDefaultOnMatch = options?.preventDefaultOnMatch !== false
 
   const keysRef = useRef(keys)
-  keysRef.current = keys
-
   const callbackRef = useRef(callback)
-  callbackRef.current = callback
+
+  useEffect(() => {
+    keysRef.current = keys
+    callbackRef.current = callback
+  }, [keys, callback])
 
   useEffect(() => {
     if (!enabled) return
