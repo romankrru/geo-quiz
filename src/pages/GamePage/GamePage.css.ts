@@ -34,9 +34,21 @@ export const answerButtons = style({
   gap: 16,
 })
 
+export const nextSection = style({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  marginTop: 12,
+})
+
 export const nextButton = style({
   display: 'block',
+})
+
+export const nextHint = style({
   marginTop: 16,
-  marginLeft: 'auto',
-  marginRight: 'auto',
+  fontSize: 12,
+  fontStyle: 'italic',
+  color: vars.color.text,
+  opacity: 0.65,
 })

@@ -145,11 +145,14 @@ export function GamePage() {
         </div>
       </div>
       {selectedAnswer !== null && (
-        <Button onClick={handleNext} className={styles.nextButton}>
-          {currentQuestionIndex === questions.length - 1
-            ? 'See Results'
-            : 'Next'}
-        </Button>
+        <div className={styles.nextSection}>
+          <Button onClick={handleNext} className={styles.nextButton}>
+            {currentQuestionIndex === questions.length - 1
+              ? 'See Results'
+              : 'Next'}
+          </Button>
+          <span className={styles.nextHint}>or press Space</span>
+        </div>
       )}
     </div>
   )
