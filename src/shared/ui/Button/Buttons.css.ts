@@ -5,6 +5,11 @@ export const buttonBase = style({
   border: 'none',
   cursor: 'pointer',
   fontWeight: 'bold',
+  textDecoration: 'none',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  textAlign: 'center',
   selectors: {
     '&:disabled': {
       cursor: 'not-allowed',
@@ -31,7 +36,7 @@ export const buttonAppearance = styleVariants({
   transparent: {
     backgroundColor: 'transparent',
     color: vars.color.primary,
-    padding: '8px 12px',
+    padding: '12px 16px',
     borderRadius: vars.radii.sm,
     boxShadow: 'none',
     transition: 'background-color 0.12s ease, color 0.12s ease',

@@ -47,3 +47,12 @@ export const Transparent: Story = {
     children: '← Back to Start',
   },
 }
+
+/** Polymorphic `as` — e.g. `as={Link}` from TanStack Router */
+export const AsAnchor: Story = {
+  render: () => (
+    <Button as="a" href="#polymorphic-demo" variant="solid">
+      Open (demo anchor)
+    </Button>
+  ),
+}
