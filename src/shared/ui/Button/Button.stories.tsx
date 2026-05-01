@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { ArrowRight, Play } from 'lucide-react'
 import { fn } from 'storybook/test'
 
 import { Button } from './Button'
@@ -44,7 +45,22 @@ export const Submit: Story = {
 export const Transparent: Story = {
   args: {
     variant: 'transparent',
-    children: '← Back to Start',
+    children: 'Back to Start',
+  },
+}
+
+export const WithIcon: Story = {
+  args: {
+    children: 'Start',
+    icon: <Play size={20} aria-hidden />,
+  },
+}
+
+export const IconAtEnd: Story = {
+  args: {
+    children: 'Next',
+    icon: <ArrowRight size={20} aria-hidden />,
+    iconPosition: 'end',
   },
 }
 

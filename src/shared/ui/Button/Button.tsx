@@ -1,6 +1,7 @@
 import {
   type ComponentPropsWithoutRef,
   type ElementType,
+  type ReactNode,
   createElement,
 } from 'react'
 import { clsx } from 'clsx'
@@ -11,13 +12,38 @@ export type ButtonVariant = keyof typeof style.buttonAppearance
 export type ButtonProps<E extends ElementType = 'button'> = {
   as?: E
   variant?: ButtonVariant
-} & Omit<ComponentPropsWithoutRef<E>, 'as' | 'variant'>
+  icon?: ReactNode
+  iconPosition?: 'start' | 'end'
+} & Omit<ComponentPropsWithoutRef<E>, 'as' | 'variant' | 'icon' | 'iconPosition'>
 
 export function Button<E extends ElementType = 'button'>(
   props: ButtonProps<E>,
 ) {
-  const { as, className, variant = 'solid', ...rest } = props
+  const {
+    as,
+    className,
+    variant = 'solid',
+    icon,
+    iconPosition = 'start',
+    children,
+    ...rest
+  } = props
   const Component = (as ?? 'button') as ElementType
+
+  const content =
+    icon == null ? (
+      children
+    ) : (
+      <>
+        {iconPosition === 'start' && (
+          <span className={style.iconSlot}>{icon}</span>
+        )}
+        {children}
+        {iconPosition === 'end' && (
+          <span className={style.iconSlot}>{icon}</span>
+        )}
+      </>
+    )
 
   return createElement(Component, {
     ...rest,
@@ -26,5 +52,6 @@ export function Button<E extends ElementType = 'button'>(
       style.buttonAppearance[variant],
       className,
     ),
+    children: content,
   })
 }

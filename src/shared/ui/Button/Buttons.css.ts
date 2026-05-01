@@ -9,6 +9,7 @@ export const buttonBase = style({
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
+  gap: '8px',
   textAlign: 'center',
   selectors: {
     '&:disabled': {
@@ -16,6 +17,14 @@ export const buttonBase = style({
       opacity: 0.5,
     },
   },
+})
+
+export const iconSlot = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
+  lineHeight: 0,
 })
 
 export const buttonAppearance = styleVariants({
