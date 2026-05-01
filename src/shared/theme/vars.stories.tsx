@@ -44,10 +44,18 @@ function formatRadiusLiteral(px: string): string {
 }
 
 function ThemeTokensReference() {
-  const colorKeys = Object.keys(themeLiterals.color) as (keyof typeof themeLiterals.color)[]
-  const radiiKeys = Object.keys(themeLiterals.radii) as (keyof typeof themeLiterals.radii)[]
-  const shadowKeys = Object.keys(themeLiterals.shadows) as (keyof typeof themeLiterals.shadows)[]
-  const fontKeys = Object.keys(themeLiterals.fontFamily) as (keyof typeof themeLiterals.fontFamily)[]
+  const colorKeys = Object.keys(
+    themeLiterals.color,
+  ) as (keyof typeof themeLiterals.color)[]
+  const radiiKeys = Object.keys(
+    themeLiterals.radii,
+  ) as (keyof typeof themeLiterals.radii)[]
+  const shadowKeys = Object.keys(
+    themeLiterals.shadows,
+  ) as (keyof typeof themeLiterals.shadows)[]
+  const fontKeys = Object.keys(
+    themeLiterals.fontFamily,
+  ) as (keyof typeof themeLiterals.fontFamily)[]
 
   return (
     <div style={{ color: vars.color.text, fontFamily: vars.fontFamily.sans }}>

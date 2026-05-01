@@ -11,12 +11,13 @@ import {
 } from '@shared/ui/ButtonQuiz/ButtonQuiz'
 import failSoundUrl from '../../assets/fail.wav?url'
 import successSoundUrl from '../../assets/success.wav?url'
+import { FinishedState } from './FinishedState'
 
 type GameStatus = 'idle' | 'playing' | 'finished'
 
 export function GamePage() {
   const [questions, setQuestions] = useState<QuizQuestion[]>(() =>
-    quizService.generateQuizQuestions(COUNTRIES),
+    quizService.generateQuizQuestions(COUNTRIES, 2),
   )
   const [gameStatus, setGameStatus] = useState<GameStatus>('playing')
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -95,14 +96,12 @@ export function GamePage() {
 
   if (gameStatus === 'finished') {
     return (
-      <div>
-        <h2>Game Over!</h2>
-        <p>
-          Score: {score} / {questions.length}
-        </p>
-        <p>Time: {formatElapsed(elapsedMs)}</p>
-        <Button onClick={handleStart}>Play Again</Button>
-      </div>
+      <FinishedState
+        score={score}
+        totalQuestions={questions.length}
+        timeLabel={formatElapsed(elapsedMs)}
+        onPlayAgain={handleStart}
+      />
     )
   }
 

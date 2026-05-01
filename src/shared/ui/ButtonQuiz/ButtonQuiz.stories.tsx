@@ -77,20 +77,10 @@ export const AnswerRow: Story = {
         maxWidth: 360,
       }}
     >
-      <ButtonQuiz
-        count={1}
-        variant="default"
-        disabled={false}
-        onClick={fn()}
-      >
+      <ButtonQuiz count={1} variant="default" disabled={false} onClick={fn()}>
         France
       </ButtonQuiz>
-      <ButtonQuiz
-        count={2}
-        variant="success"
-        disabled
-        onClick={fn()}
-      >
+      <ButtonQuiz count={2} variant="success" disabled onClick={fn()}>
         Germany
       </ButtonQuiz>
       <ButtonQuiz count={3} variant="error" disabled onClick={fn()}>
