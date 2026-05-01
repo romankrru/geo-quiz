@@ -10,29 +10,24 @@ const confettiColors: string[] = [
   cssColorToHex(themeLiterals.color.error),
 ]
 
-export type FinishedStateProps = {
+type Props = {
   score: number
   totalQuestions: number
   timeLabel: string
   onPlayAgain: () => void
 }
 
-export function FinishedState({
-  score,
-  totalQuestions,
-  timeLabel,
-  onPlayAgain,
-}: FinishedStateProps) {
+export function FinishedState(props: Props) {
   return (
     <div className={styles.root}>
       <div className={styles.content}>
         <div className={styles.card}>
           <h2 className={styles.title}>Game Over!</h2>
           <p className={styles.paragraph}>
-            Score: {score} / {totalQuestions}
+            Score: {props.score} / {props.totalQuestions}
           </p>
-          <p className={styles.paragraph}>Time: {timeLabel}</p>
-          <Button onClick={onPlayAgain}>Play Again</Button>
+          <p className={styles.paragraph}>Time: {props.timeLabel}</p>
+          <Button onClick={props.onPlayAgain}>Play Again</Button>
           <div className={styles.confettiLayer} aria-hidden>
             <Confetti
               mode="boom"
