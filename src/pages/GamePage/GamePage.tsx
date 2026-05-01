@@ -17,9 +17,11 @@ import { FinishedState } from './FinishedState/FinishedState'
 
 type GameStatus = 'idle' | 'playing' | 'finished'
 
+const quizCount = 2
+
 export function GamePage() {
   const [questions, setQuestions] = useState<QuizQuestion[]>(() =>
-    quizService.generateQuizQuestions(COUNTRIES, 2),
+    quizService.generateQuizQuestions(COUNTRIES, quizCount),
   )
   const [gameStatus, setGameStatus] = useState<GameStatus>('playing')
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -40,7 +42,7 @@ export function GamePage() {
   }
 
   const handleStart = () => {
-    setQuestions(quizService.generateQuizQuestions(COUNTRIES))
+    setQuestions(quizService.generateQuizQuestions(COUNTRIES, quizCount))
     setCurrentQuestionIndex(0)
     setScore(0)
     setSelectedAnswer(null)
