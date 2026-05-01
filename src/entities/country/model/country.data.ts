@@ -1,4 +1,10 @@
 import type { Country } from './country.types'
-import countriesJson from './country.generated.json' with { type: 'json' }
+import countryGenerated from './country.generated.json' with { type: 'json' }
 
-export const COUNTRIES: Country[] = countriesJson as Country[]
+type CountryGeneratedFile = {
+  _comment: string
+  countries: Country[]
+}
+
+export const COUNTRIES: Country[] = (countryGenerated as CountryGeneratedFile)
+  .countries
