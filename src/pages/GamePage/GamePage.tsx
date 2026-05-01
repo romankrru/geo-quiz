@@ -1,10 +1,12 @@
-import { useCallback, useState } from 'react'
+import { Fragment, useCallback, useState } from 'react'
 import { useKeyPress, useSfx, useStopwatch } from '@shared/hooks'
 import { Button, ProgressBar } from '@shared/ui'
 import { COUNTRIES } from '@entities/country/model/country.data'
 import { quizService, type QuizQuestion } from '@entities/quiz'
 import { Clock } from 'lucide-react'
 import * as styles from './GamePage.css'
+import * as homeCornerStyles from './HomeCorner/HomeCorner.css'
+import { HomeCorner } from './HomeCorner/HomeCorner'
 import {
   ButtonQuiz,
   type ButtonQuizVariant,
@@ -96,12 +98,15 @@ export function GamePage() {
 
   if (gameStatus === 'finished') {
     return (
-      <FinishedState
-        score={score}
-        totalQuestions={questions.length}
-        timeLabel={formatElapsed(elapsedMs)}
-        onPlayAgain={handleStart}
-      />
+      <Fragment>
+        <HomeCorner className={homeCornerStyles.cornerFixed} />
+        <FinishedState
+          score={score}
+          totalQuestions={questions.length}
+          timeLabel={formatElapsed(elapsedMs)}
+          onPlayAgain={handleStart}
+        />
+      </Fragment>
     )
   }
 
@@ -161,6 +166,7 @@ export function GamePage() {
           ))}
         </div>
       </div>
+      <HomeCorner className={homeCornerStyles.afterCard} />
       {selectedAnswer !== null && (
         <div className={styles.nextSection}>
           <Button onClick={handleNext} className={styles.nextButton}>
