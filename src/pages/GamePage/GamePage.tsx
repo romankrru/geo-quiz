@@ -133,7 +133,7 @@ export function GamePage() {
             Progress: {answeredQuestionsCount} / {questions.length}
           </span>
           <span>Score: {score}</span>
-          <span className={styles.timer}>{formatElapsed(elapsedMs)}</span>
+          <div className={styles.timer}>{formatElapsed(elapsedMs)}</div>
         </div>
         <ProgressBar value={answeredQuestionsCount} max={questions.length} />
       </div>

@@ -1,7 +1,21 @@
 import { createGlobalTheme } from '@vanilla-extract/css'
 import { lighten } from 'polished'
 
+const systemSans =
+  "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+
+const fontStack = (name: string) => `'${name}', ${systemSans}`
+
+const fontFamilyNames = {
+  sans: 'Plus Jakarta Sans',
+  heading: 'Lexend',
+} as const
+
 export const vars = createGlobalTheme(':root', {
+  fontFamily: {
+    sans: fontStack(fontFamilyNames.sans),
+    heading: fontStack(fontFamilyNames.heading),
+  },
   color: {
     text: 'rgb(66 71 79)',
     heading: 'rgb(25 28 29)',

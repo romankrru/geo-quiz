@@ -59,4 +59,6 @@ export const nextHint = style({
 
 export const timer = style({
   fontVariantNumeric: 'tabular-nums',
+  fontSize: 24,
+  fontFamily: vars.fontFamily.heading,
 })
