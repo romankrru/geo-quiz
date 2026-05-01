@@ -1,5 +1,5 @@
-Demo: https://geo-quiz-phi.vercel.app/
-Storybook: https://geo-quiz-storybook-nf449ky6o-romankrrus-projects.vercel.app
+- Demo: https://geo-quiz-phi.vercel.app/
+- Storybook: https://geo-quiz-storybook-nf449ky6o-romankrrus-projects.vercel.app
 
 # React + TypeScript + Vite
 
