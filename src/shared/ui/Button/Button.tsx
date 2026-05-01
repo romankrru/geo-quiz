@@ -1,10 +1,11 @@
+import { clsx } from 'clsx'
 import {
   type ComponentPropsWithoutRef,
+  createElement,
   type ElementType,
   type ReactNode,
-  createElement,
 } from 'react'
-import { clsx } from 'clsx'
+
 import * as style from './Buttons.css'
 
 export type ButtonVariant = keyof typeof style.buttonAppearance
@@ -14,7 +15,10 @@ export type ButtonProps<E extends ElementType = 'button'> = {
   variant?: ButtonVariant
   icon?: ReactNode
   iconPosition?: 'start' | 'end'
-} & Omit<ComponentPropsWithoutRef<E>, 'as' | 'variant' | 'icon' | 'iconPosition'>
+} & Omit<
+  ComponentPropsWithoutRef<E>,
+  'as' | 'variant' | 'icon' | 'iconPosition'
+>
 
 export function Button<E extends ElementType = 'button'>(
   props: ButtonProps<E>,

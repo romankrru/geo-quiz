@@ -1,4 +1,5 @@
 import type { Country } from '@entities/country/model/country.types'
+
 import type { QuizQuestion } from './quiz.types'
 
 function generateQuizQuestions(

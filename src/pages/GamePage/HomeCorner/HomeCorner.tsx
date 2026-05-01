@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
-import { Button } from '@shared/ui'
 import { ArrowLeft } from 'lucide-react'
+
+import { Button } from '@shared/ui'
 
 type Props = {
   className: string

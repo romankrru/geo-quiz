@@ -1,19 +1,23 @@
+import { Clock } from 'lucide-react'
 import { Fragment, useCallback, useState } from 'react'
+
+import { COUNTRIES } from '@entities/country/model/country.data'
+import { type QuizQuestion, quizService } from '@entities/quiz'
 import { useKeyPress, useSfx, useStopwatch } from '@shared/hooks'
 import { Button, ProgressBar } from '@shared/ui'
-import { COUNTRIES } from '@entities/country/model/country.data'
-import { quizService, type QuizQuestion } from '@entities/quiz'
-import { Clock } from 'lucide-react'
-import * as styles from './GamePage.css'
-import * as homeCornerStyles from './HomeCorner/HomeCorner.css'
-import { HomeCorner } from './HomeCorner/HomeCorner'
 import {
   ButtonQuiz,
   type ButtonQuizVariant,
 } from '@shared/ui/ButtonQuiz/ButtonQuiz'
+
 import failSoundUrl from '../../assets/fail.wav?url'
 import successSoundUrl from '../../assets/success.wav?url'
+
 import { FinishedState } from './FinishedState/FinishedState'
+import { HomeCorner } from './HomeCorner/HomeCorner'
+
+import * as styles from './GamePage.css'
+import * as homeCornerStyles from './HomeCorner/HomeCorner.css'
 
 type GameStatus = 'idle' | 'playing' | 'finished'
 

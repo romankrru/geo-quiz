@@ -1,7 +1,8 @@
-import type { Country } from '@entities/country/model/country.types'
 import { writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import type { Country } from '@entities/country'
 
 const API_URL =
   'https://restcountries.com/v3.1/independent?status=true&fields=cca2,name,flag'

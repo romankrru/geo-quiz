@@ -1,4 +1,5 @@
 import { style } from '@vanilla-extract/css'
+
 import { vars } from '@shared/theme'
 
 const hoverAccent = 'rgb(15 76 129 / 0.3)'

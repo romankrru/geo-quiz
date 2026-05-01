@@ -1,6 +1,8 @@
 import Confetti from 'react-confetti-boom'
-import { Button } from '@shared/ui'
+
 import { cssColorToHex, themeLiterals } from '@shared/theme'
+import { Button } from '@shared/ui'
+
 import * as styles from './FinishedState.css'
 
 const confettiColors: string[] = [

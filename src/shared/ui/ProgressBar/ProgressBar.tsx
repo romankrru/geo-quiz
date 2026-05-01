@@ -1,5 +1,6 @@
-import { type ComponentProps } from 'react'
 import { clsx } from 'clsx'
+import { type ComponentProps } from 'react'
+
 import * as styles from './ProgressBar.css'
 
 type ProgressBarProps = {

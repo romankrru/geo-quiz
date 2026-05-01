@@ -1,5 +1,7 @@
 import { Link } from '@tanstack/react-router'
+
 import { Button } from '@shared/ui/Button/Button'
+
 import * as styles from './HomePage.css'
 
 export function HomePage() {

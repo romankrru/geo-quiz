@@ -1,4 +1,5 @@
 import { clsx } from 'clsx'
+
 import * as styles from './ButtonQuiz.css'
 
 export type ButtonQuizVariant = 'default' | 'success' | 'error'

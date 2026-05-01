@@ -5,8 +5,9 @@ import {
   Outlet,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { HomePage } from './pages/HomePage/HomePage'
+
 import { GamePage } from './pages/GamePage/GamePage'
+import { HomePage } from './pages/HomePage/HomePage'
 import { StatsPage } from './pages/StatsPage/StatsPage'
 
 const rootRoute = createRootRoute({
