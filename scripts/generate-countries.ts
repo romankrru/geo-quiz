@@ -14,7 +14,7 @@ type ApiCountry = {
 
 const outPath = join(
   dirname(fileURLToPath(import.meta.url)),
-  '../src/entities/country/model/countries.generated.json',
+  '../src/entities/country/model/country.generated.json',
 )
 
 async function main() {
