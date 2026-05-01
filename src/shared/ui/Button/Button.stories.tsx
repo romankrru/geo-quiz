@@ -40,3 +40,10 @@ export const Submit: Story = {
     children: 'Submit answer',
   },
 }
+
+export const Transparent: Story = {
+  args: {
+    variant: 'transparent',
+    children: '← Back to Start',
+  },
+}

@@ -2,8 +2,23 @@ import { type ComponentProps } from 'react'
 import { clsx } from 'clsx'
 import * as style from './Buttons.css'
 
-type ButtonProps = ComponentProps<'button'>
+export type ButtonVariant = keyof typeof style.buttonAppearance
 
-export const Button = ({ className, ...props }: ButtonProps) => {
-  return <button {...props} className={clsx(style.button, className)} />
+type Props = ComponentProps<'button'> & {
+  variant?: ButtonVariant
+}
+
+export const Button = (props: Props) => {
+  const { className, variant = 'solid', ...rest } = props
+
+  return (
+    <button
+      {...rest}
+      className={clsx(
+        style.buttonBase,
+        style.buttonAppearance[variant],
+        className,
+      )}
+    />
+  )
 }
