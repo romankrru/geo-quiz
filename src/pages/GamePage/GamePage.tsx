@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { useKeyPress, useSfx } from '@shared/hooks'
 import { Button, ProgressBar } from '@shared/ui'
 import { COUNTRIES } from '@entities/country/model/country.data'
+import { quizService, type QuizQuestion } from '@entities/quiz'
 import * as styles from './GamePage.css'
 import {
   ButtonQuiz,
@@ -12,39 +13,9 @@ import successSoundUrl from '../../assets/success.wav?url'
 
 type GameStatus = 'idle' | 'playing' | 'finished'
 
-type Question = {
-  id: string
-  flagEmoji: string
-  options: string[]
-  correctAnswer: string
-}
-
-const generateQuestions = (n = 10): Question[] => {
-  const shuffled = [...COUNTRIES].sort(() => Math.random() - 0.5)
-  const selected = shuffled.slice(0, n)
-
-  return selected.map((country) => {
-    const distractors = COUNTRIES.filter((c) => c.id !== country.id)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3)
-      .map((c) => c.name)
-
-    const options = [...distractors, country.name].sort(
-      () => Math.random() - 0.5,
-    )
-
-    return {
-      id: country.id,
-      flagEmoji: country.flagEmoji,
-      options,
-      correctAnswer: country.name,
-    }
-  })
-}
-
 export function GamePage() {
-  const [questions, setQuestions] = useState<Question[]>(() =>
-    generateQuestions(),
+  const [questions, setQuestions] = useState<QuizQuestion[]>(() =>
+    quizService.generateQuizQuestions(COUNTRIES),
   )
   const [gameStatus, setGameStatus] = useState<GameStatus>('playing')
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -55,7 +26,7 @@ export function GamePage() {
   const playFail = useSfx(failSoundUrl)
 
   const handleStart = () => {
-    setQuestions(generateQuestions())
+    setQuestions(quizService.generateQuizQuestions(COUNTRIES))
     setCurrentQuestionIndex(0)
     setScore(0)
     setSelectedAnswer(null)
@@ -65,7 +36,10 @@ export function GamePage() {
   const handleSelectAnswer = useCallback(
     (answer: string) => {
       setSelectedAnswer(answer)
-      const correct = answer === questions[currentQuestionIndex].correctAnswer
+      const correct = quizService.isCorrectAnswer(
+        questions[currentQuestionIndex],
+        answer,
+      )
       if (correct) {
         setScore((s) => s + 1)
         playSuccess()
@@ -129,7 +103,7 @@ export function GamePage() {
       return 'default'
     }
 
-    if (option === question.correctAnswer) {
+    if (quizService.isCorrectAnswer(question, option)) {
       return 'success'
     }
 
