@@ -126,7 +126,9 @@ export function GamePage() {
       </div>
       <div className={styles.questionCard}>
         <h2>Which country does this flag belong to?</h2>
-        <div style={{ fontSize: '6rem' }}>{question.flagEmoji}</div>
+        <div style={{ fontSize: '6rem', textAlign: 'center' }}>
+          {question.flagEmoji}
+        </div>
         <div className={styles.answerButtons}>
           {question.options.map((option, index) => (
             <ButtonQuiz
