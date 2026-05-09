@@ -37,3 +37,17 @@ Aliases: `@shared/*` → `src/shared/*`, `@entities/*` → `src/entities/*`.
 - Elsewhere (e.g. `entities/`), keep a small public surface via `index.ts` re-exports, like `src/entities/country/index.ts` → `./model` and nested `model/index.ts` for types/data.
 - Prettier: no `;`, single quotes. Run `prettier:fix` and `lint` as needed for TS/style changes.
 - TS strict (`noUnusedLocals`, `noUnusedParameters`, `verbatimModuleSyntax`).
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues for `romankrru/geo-quiz`, accessed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary — `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix` (all created on the GitHub repo). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
