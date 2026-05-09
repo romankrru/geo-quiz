@@ -5,32 +5,28 @@ import {
 } from './statistics.constants'
 import type { PersistedPayload, QuizSessionRecord } from './statistics.types'
 
-const readSessions = (): QuizSessionRecord[] => {
-  const raw = localStorage.getItem(STATISTICS_STORAGE_KEY)
-  if (raw === null) {
-    return []
-  }
-  try {
-    const data = JSON.parse(raw) as PersistedPayload
-    if (
-      data.schemaVersion !== STATISTICS_STORE_SCHEMA_VERSION ||
-      !Array.isArray(data.sessions)
-    ) {
-      return []
-    }
-    return data.sessions
-  } catch {
-    return []
-  }
-}
-
 export const statisticsService = {
   read(): QuizSessionRecord[] {
-    return readSessions()
+    const raw = localStorage.getItem(STATISTICS_STORAGE_KEY)
+    if (raw === null) {
+      return []
+    }
+    try {
+      const data = JSON.parse(raw) as PersistedPayload
+      if (
+        data.schemaVersion !== STATISTICS_STORE_SCHEMA_VERSION ||
+        !Array.isArray(data.sessions)
+      ) {
+        return []
+      }
+      return data.sessions
+    } catch {
+      return []
+    }
   },
 
   appendSession(record: QuizSessionRecord): void {
-    const sessions = [...readSessions(), record]
+    const sessions = [...this.read(), record]
     localStorage.setItem(
       STATISTICS_STORAGE_KEY,
       JSON.stringify({
