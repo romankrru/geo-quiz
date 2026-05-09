@@ -38,7 +38,9 @@ describe('StatsPage', () => {
   it('shows statistics empty state when there are no sessions', () => {
     renderStatsPage()
 
-    expect(screen.getByText(/nothing recorded yet/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/nothing recorded yet/i),
+    ).toBeInTheDocument()
   })
 
   it('shows average score and overall accuracy from quiz session records', () => {

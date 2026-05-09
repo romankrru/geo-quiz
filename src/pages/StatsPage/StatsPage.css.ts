@@ -30,13 +30,11 @@ export const pageTitle = style({
 })
 
 export const emptyState = style({
-  margin: 0,
-  maxWidth: '36ch',
   fontFamily: vars.fontFamily.sans,
-  fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
-  fontWeight: 500,
-  color: vars.color.text,
-  lineHeight: 1.5,
+  lineHeight: 1.6,
+  color: '#4a5568',
+  margin: 0,
+  maxWidth: '32rem',
   textAlign: 'center',
 })
 
