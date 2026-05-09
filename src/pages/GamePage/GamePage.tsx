@@ -3,6 +3,7 @@ import { Fragment, useCallback, useState } from 'react'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
 import { type QuizQuestion, quizService } from '@entities/quiz'
+import { statisticsService } from '@entities/statistics'
 import { useKeyPress, useSfx, useStopwatch } from '@shared/hooks'
 import { Button, ProgressBar } from '@shared/ui'
 import {
@@ -82,6 +83,12 @@ export function GamePage() {
 
   const handleNext = () => {
     if (currentQuestionIndex === questions.length - 1) {
+      statisticsService.appendSession({
+        completedAt: new Date().toISOString(),
+        score,
+        questionCount: questions.length,
+        roundDurationMs: Math.round(elapsedMs),
+      })
       setGameStatus('finished')
     } else {
       setCurrentQuestionIndex((i) => i + 1)
