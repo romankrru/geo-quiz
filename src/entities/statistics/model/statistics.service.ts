@@ -1,9 +1,9 @@
+import {
+  STATISTICS_STORAGE_KEY,
+  STATISTICS_STORE_CHANGED_EVENT,
+  STATISTICS_STORE_SCHEMA_VERSION,
+} from './statistics.constants'
 import type { QuizSessionRecord } from './types'
-
-export const STATISTICS_STORE_CHANGED_EVENT = 'geo-quiz-stats-changed'
-
-const STORAGE_KEY = 'geo-quiz.statistics.v1'
-const SCHEMA_VERSION = 1
 
 type PersistedPayload = {
   schemaVersion: number
@@ -17,7 +17,7 @@ const parseStored = (raw: string | null): QuizSessionRecord[] => {
   try {
     const data = JSON.parse(raw) as PersistedPayload
     if (
-      data.schemaVersion !== SCHEMA_VERSION ||
+      data.schemaVersion !== STATISTICS_STORE_SCHEMA_VERSION ||
       !Array.isArray(data.sessions)
     ) {
       return []
@@ -29,7 +29,7 @@ const parseStored = (raw: string | null): QuizSessionRecord[] => {
 }
 
 const readSessions = (): QuizSessionRecord[] => {
-  return parseStored(localStorage.getItem(STORAGE_KEY))
+  return parseStored(localStorage.getItem(STATISTICS_STORAGE_KEY))
 }
 
 export const statisticsService = {
@@ -40,9 +40,9 @@ export const statisticsService = {
   appendSession(record: QuizSessionRecord): void {
     const sessions = [...readSessions(), record]
     localStorage.setItem(
-      STORAGE_KEY,
+      STATISTICS_STORAGE_KEY,
       JSON.stringify({
-        schemaVersion: SCHEMA_VERSION,
+        schemaVersion: STATISTICS_STORE_SCHEMA_VERSION,
         sessions,
       } satisfies PersistedPayload),
     )
