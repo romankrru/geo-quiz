@@ -1,27 +1,111 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
+import {
+  type QuizSessionRecord,
+  STATISTICS_STORE_CHANGED_EVENT,
+  statisticsService,
+  statisticsStore,
+} from '@entities/statistics'
 import { Button } from '@shared/ui'
 
 import * as styles from './StatsPage.css'
 
-const statItems = [
-  { value: '1', label: 'Games Played' },
-  { value: '0%', label: 'Average Score' },
-  { value: '0 / 10', label: 'Best Score' },
-  { value: '0m', label: 'Total Time Played' },
-  { value: '0%', label: 'Overall Accuracy' },
-  { value: '0', label: 'Best Streak' },
-] as const
-
 export const StatsPage = () => {
+  const [sessions, setSessions] = useState<QuizSessionRecord[]>(() =>
+    statisticsStore.read(),
+  )
+
+  useEffect(() => {
+    const sync = () => {
+      setSessions(statisticsStore.read())
+    }
+    sync()
+    window.addEventListener(STATISTICS_STORE_CHANGED_EVENT, sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener(STATISTICS_STORE_CHANGED_EVENT, sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [])
+
+  if (sessions.length === 0) {
+    return (
+      <div className={styles.root}>
+        <main className={styles.main}>
+          <h1 className={styles.pageTitle}>Statistics</h1>
+          <p className={styles.emptyState}>
+            Nothing recorded yet. Finish a quiz to see your statistics.
+          </p>
+          <Button
+            as={Link}
+            to="/"
+            variant="transparent"
+            icon={<ArrowLeft size={18} strokeWidth={2} aria-hidden />}
+          >
+            Back to Start
+          </Button>
+        </main>
+      </div>
+    )
+  }
+
+  const averageScore = statisticsService.computeAverageScoreStatistics(sessions)
+  const overallAccuracy =
+    statisticsService.computeOverallAccuracyStatistics(sessions)
+
+  const totalRoundMs = sessions.reduce(
+    (acc, session) => acc + session.roundDurationMs,
+    0,
+  )
+  const totalMinutes = Math.floor(totalRoundMs / 60_000)
+
+  const statItems = [
+    {
+      value: String(sessions.length),
+      label: 'Games Played',
+    },
+    {
+      value:
+        averageScore !== null
+          ? statisticsService.formatStatisticsPercentage(averageScore)
+          : '—',
+      label: 'Average Score',
+    },
+    {
+      value: '—',
+      label: 'Best Score',
+    },
+    {
+      value: `${totalMinutes}m`,
+      label: 'Total Time Played',
+    },
+    {
+      value:
+        overallAccuracy !== null
+          ? statisticsService.formatStatisticsPercentage(overallAccuracy)
+          : '—',
+      label: 'Overall Accuracy',
+    },
+    {
+      value: '—',
+      label: 'Best Streak',
+    },
+  ] as const
+
   return (
     <div className={styles.root}>
       <main className={styles.main}>
         <h1 className={styles.pageTitle}>Statistics</h1>
         <div className={styles.grid}>
           {statItems.map((item) => (
-            <div key={item.label} className={styles.card}>
+            <div
+              key={item.label}
+              className={styles.card}
+              role="group"
+              aria-label={item.label}
+            >
               <span className={styles.cardValue}>{item.value}</span>
               <span className={styles.cardLabel}>{item.label}</span>
             </div>
