@@ -1,4 +1,4 @@
-import type { QuizSessionRecord } from './model/types'
+import type { QuizSessionRecord } from './types'
 
 export const STATISTICS_STORE_CHANGED_EVENT = 'geo-quiz-stats-changed'
 
