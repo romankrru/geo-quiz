@@ -3,12 +3,10 @@ import {
   STATISTICS_STORE_CHANGED_EVENT,
   STATISTICS_STORE_SCHEMA_VERSION,
 } from './statistics.constants'
-import type { QuizSessionRecord } from './types'
-
-type PersistedPayload = {
-  schemaVersion: number
-  sessions: QuizSessionRecord[]
-}
+import type {
+  PersistedPayload,
+  QuizSessionRecord,
+} from './statistics.types'
 
 const parseStored = (raw: string | null): QuizSessionRecord[] => {
   if (raw === null) {

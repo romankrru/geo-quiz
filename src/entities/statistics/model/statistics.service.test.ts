@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { statisticsService } from './statistics.service'
-import type { QuizSessionRecord } from './types'
+import type { QuizSessionRecord } from './statistics.types'
 
 describe('persisted statistics', () => {
   afterEach(() => {

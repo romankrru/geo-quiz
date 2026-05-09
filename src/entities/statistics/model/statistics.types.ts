@@ -4,3 +4,8 @@ export type QuizSessionRecord = {
   questionCount: number
   roundDurationMs: number
 }
+
+export type PersistedPayload = {
+  schemaVersion: number
+  sessions: QuizSessionRecord[]
+}

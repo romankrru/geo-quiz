@@ -4,4 +4,4 @@ export {
   STATISTICS_STORE_SCHEMA_VERSION,
 } from './statistics.constants'
 export { statisticsService } from './statistics.service'
-export type { QuizSessionRecord } from './types'
+export type { QuizSessionRecord } from './statistics.types'
