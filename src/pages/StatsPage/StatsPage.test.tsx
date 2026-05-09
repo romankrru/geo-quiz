@@ -27,7 +27,7 @@ describe('StatsPage', () => {
 
   beforeEach(() => {
     localStorage.clear()
-    readSpy = vi.spyOn(statistics.statisticsStore, 'read').mockReturnValue([])
+    readSpy = vi.spyOn(statistics.statisticsService, 'read').mockReturnValue([])
   })
 
   afterEach(() => {
@@ -46,7 +46,7 @@ describe('StatsPage', () => {
   it('shows average score and overall accuracy from quiz session records', () => {
     readSpy.mockReturnValue([
       {
-        completedAtIso: '2026-05-09T12:00:00.000Z',
+        completedAt: '2026-05-09T12:00:00.000Z',
         score: 7,
         questionCount: 10,
         roundDurationMs: 120_000,
@@ -65,13 +65,13 @@ describe('StatsPage', () => {
   it('separates average score and overall accuracy when sessions have different lengths', () => {
     readSpy.mockReturnValue([
       {
-        completedAtIso: '2026-05-09T12:00:00.000Z',
+        completedAt: '2026-05-09T12:00:00.000Z',
         score: 1,
         questionCount: 1,
         roundDurationMs: 1_000,
       },
       {
-        completedAtIso: '2026-05-09T12:01:00.000Z',
+        completedAt: '2026-05-09T12:01:00.000Z',
         score: 0,
         questionCount: 10,
         roundDurationMs: 5_000,

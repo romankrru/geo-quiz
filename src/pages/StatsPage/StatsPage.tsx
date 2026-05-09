@@ -6,7 +6,6 @@ import {
   type QuizSessionRecord,
   STATISTICS_STORE_CHANGED_EVENT,
   statisticsService,
-  statisticsStore,
 } from '@entities/statistics'
 import { Button } from '@shared/ui'
 
@@ -14,12 +13,12 @@ import * as styles from './StatsPage.css'
 
 export const StatsPage = () => {
   const [sessions, setSessions] = useState<QuizSessionRecord[]>(() =>
-    statisticsStore.read(),
+    statisticsService.read(),
   )
 
   useEffect(() => {
     const sync = () => {
-      setSessions(statisticsStore.read())
+      setSessions(statisticsService.read())
     }
     sync()
     window.addEventListener(STATISTICS_STORE_CHANGED_EVENT, sync)

@@ -1,9 +1,37 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 import type { QuizSessionRecord } from './model/types'
 import { statisticsService } from './statistics.service'
 
-describe('statisticsService', () => {
+describe('persisted statistics', () => {
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  it('reads an empty list when nothing is stored', () => {
+    expect(statisticsService.read()).toEqual([])
+  })
+
+  it('appends a session and reads it back', () => {
+    statisticsService.appendSession({
+      completedAt: '2026-05-09T12:00:00.000Z',
+      score: 4,
+      questionCount: 10,
+      roundDurationMs: 42_000,
+    })
+
+    expect(statisticsService.read()).toEqual([
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 4,
+        questionCount: 10,
+        roundDurationMs: 42_000,
+      },
+    ])
+  })
+})
+
+describe('statistics metrics', () => {
   it('returns null for average score and overall accuracy when there are no sessions', () => {
     const sessions: QuizSessionRecord[] = []
 
