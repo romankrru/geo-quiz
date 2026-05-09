@@ -18,6 +18,8 @@ export const StatsPage = () => {
     statisticsService.read(),
   )
 
+  // Keep sessions in sync with localStorage: custom event fires in this tab after writes
+  // (the native `storage` event does not); `storage` catches updates from other tabs.
   useEffect(() => {
     const sync = () => {
       setSessions(statisticsService.read())
