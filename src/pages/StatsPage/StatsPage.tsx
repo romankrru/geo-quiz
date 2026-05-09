@@ -9,6 +9,8 @@ import {
 } from '@entities/statistics'
 import { Button } from '@shared/ui'
 
+import { EmptyMessage } from './EmptyMessage/EmptyMessage'
+
 import * as styles from './StatsPage.css'
 
 export const StatsPage = () => {
@@ -30,24 +32,7 @@ export const StatsPage = () => {
   }, [])
 
   if (sessions.length === 0) {
-    return (
-      <div className={styles.root}>
-        <main className={styles.main}>
-          <h1 className={styles.pageTitle}>Statistics</h1>
-          <p className={styles.emptyState}>
-            Nothing recorded yet. Finish a quiz to see your statistics.
-          </p>
-          <Button
-            as={Link}
-            to="/"
-            variant="transparent"
-            icon={<ArrowLeft size={18} strokeWidth={2} aria-hidden />}
-          >
-            Back to Start
-          </Button>
-        </main>
-      </div>
-    )
+    return <EmptyMessage />
   }
 
   const averageScore = statisticsService.computeAverageScoreStatistics(sessions)

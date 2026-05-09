@@ -29,15 +29,6 @@ export const pageTitle = style({
   textAlign: 'center',
 })
 
-export const emptyState = style({
-  fontFamily: vars.fontFamily.sans,
-  lineHeight: 1.6,
-  color: '#4a5568',
-  margin: 0,
-  maxWidth: '32rem',
-  textAlign: 'center',
-})
-
 export const grid = style({
   width: '100%',
   display: 'grid',
