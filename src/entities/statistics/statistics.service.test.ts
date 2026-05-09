@@ -16,7 +16,7 @@ describe('statisticsService', () => {
   it('matches a single session’s accuracy for both metrics', () => {
     const sessions: QuizSessionRecord[] = [
       {
-        completedAtIso: '2026-05-09T12:00:00.000Z',
+        completedAt: '2026-05-09T12:00:00.000Z',
         score: 7,
         questionCount: 10,
         roundDurationMs: 60_000,
@@ -32,13 +32,13 @@ describe('statisticsService', () => {
   it('splits average score and overall accuracy when round lengths differ', () => {
     const sessions: QuizSessionRecord[] = [
       {
-        completedAtIso: '2026-05-09T12:00:00.000Z',
+        completedAt: '2026-05-09T12:00:00.000Z',
         score: 1,
         questionCount: 1,
         roundDurationMs: 1_000,
       },
       {
-        completedAtIso: '2026-05-09T12:01:00.000Z',
+        completedAt: '2026-05-09T12:01:00.000Z',
         score: 0,
         questionCount: 10,
         roundDurationMs: 5_000,

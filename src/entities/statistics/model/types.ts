@@ -1,5 +1,5 @@
 export type QuizSessionRecord = {
-  completedAtIso: string
+  completedAt: string
   score: number
   questionCount: number
   roundDurationMs: number

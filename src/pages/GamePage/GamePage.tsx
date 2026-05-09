@@ -84,7 +84,7 @@ export function GamePage() {
   const handleNext = () => {
     if (currentQuestionIndex === questions.length - 1) {
       statisticsStore.appendSession({
-        completedAtIso: new Date().toISOString(),
+        completedAt: new Date().toISOString(),
         score,
         questionCount: questions.length,
         roundDurationMs: Math.round(elapsedMs),

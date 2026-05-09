@@ -13,7 +13,7 @@ describe('statisticsStore', () => {
 
   it('appends a session and reads it back', () => {
     statisticsStore.appendSession({
-      completedAtIso: '2026-05-09T12:00:00.000Z',
+      completedAt: '2026-05-09T12:00:00.000Z',
       score: 4,
       questionCount: 10,
       roundDurationMs: 42_000,
