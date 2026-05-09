@@ -3,12 +3,10 @@ import {
   STATISTICS_STORE_CHANGED_EVENT,
   STATISTICS_STORE_SCHEMA_VERSION,
 } from './statistics.constants'
-import type {
-  PersistedPayload,
-  QuizSessionRecord,
-} from './statistics.types'
+import type { PersistedPayload, QuizSessionRecord } from './statistics.types'
 
-const parseStored = (raw: string | null): QuizSessionRecord[] => {
+const readSessions = (): QuizSessionRecord[] => {
+  const raw = localStorage.getItem(STATISTICS_STORAGE_KEY)
   if (raw === null) {
     return []
   }
@@ -26,10 +24,6 @@ const parseStored = (raw: string | null): QuizSessionRecord[] => {
   }
 }
 
-const readSessions = (): QuizSessionRecord[] => {
-  return parseStored(localStorage.getItem(STATISTICS_STORAGE_KEY))
-}
-
 export const statisticsService = {
   read(): QuizSessionRecord[] {
     return readSessions()
@@ -44,14 +38,10 @@ export const statisticsService = {
         sessions,
       } satisfies PersistedPayload),
     )
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new Event(STATISTICS_STORE_CHANGED_EVENT))
-    }
+    window.dispatchEvent(new Event(STATISTICS_STORE_CHANGED_EVENT))
   },
 
-  computeAverageScoreStatistics(
-    sessions: QuizSessionRecord[],
-  ): number | null {
+  computeAverageScoreStatistics(sessions: QuizSessionRecord[]): number | null {
     if (sessions.length === 0) {
       return null
     }
