@@ -5,6 +5,10 @@ import {
 } from './statistics.constants'
 import type { PersistedPayload, QuizSessionRecord } from './statistics.types'
 
+/**
+ * Whether `candidate` beats `incumbent` for best-score selection: higher
+ * score/questionCount ratio (via cross-multiplication), then larger questionCount on a tie.
+ */
 function bestScoreCandidateWins(
   candidate: QuizSessionRecord,
   incumbent: QuizSessionRecord,
@@ -17,6 +21,7 @@ function bestScoreCandidateWins(
   return candidate.questionCount > incumbent.questionCount
 }
 
+/** Session with at least one question and every answer correct. */
 function isPerfectSession(session: QuizSessionRecord): boolean {
   return session.questionCount > 0 && session.score === session.questionCount
 }
@@ -89,6 +94,7 @@ export const statisticsService = {
     return `${percent.toFixed(2)}%`
   },
 
+  /** Best single-session accuracy; `null` if there is no usable session (e.g. all zero questions). */
   computeBestScoreStatistics(
     sessions: QuizSessionRecord[],
   ): { score: number; questionCount: number } | null {
@@ -102,6 +108,7 @@ export const statisticsService = {
     return { score: best.score, questionCount: best.questionCount }
   },
 
+  /** UI string for best score: `score / questionCount`. */
   formatBestScoreStatistics(session: {
     score: number
     questionCount: number
@@ -109,6 +116,10 @@ export const statisticsService = {
     return `${session.score} / ${session.questionCount}`
   },
 
+  /**
+   * Longest run of perfect sessions in completion-time order (stable index when timestamps tie).
+   * Imperfect sessions reset the run; empty input yields `0`.
+   */
   computeBestStreakStatistics(sessions: QuizSessionRecord[]): number {
     if (sessions.length === 0) {
       return 0
