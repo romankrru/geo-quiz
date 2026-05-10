@@ -33,7 +33,9 @@ describe('StatsPage', () => {
 
   beforeEach(() => {
     localStorage.clear()
-    readSpy = vi.spyOn(statistics.statisticsService, 'read').mockReturnValue([])
+    readSpy = vi
+      .spyOn(statistics.statisticsService, 'read')
+      .mockReturnValue({ status: 'ok', sessions: [] })
   })
 
   afterEach(() => {
@@ -55,15 +57,50 @@ describe('StatsPage', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('shows reload guidance when the statistics store is from a newer app version', () => {
+    readSpy.mockReturnValue({
+      status: 'outdated-client',
+      persistedSchemaVersion: 99,
+    })
+
+    renderStatsPage()
+
+    expect(screen.getByText(/newer format/i)).toBeInTheDocument()
+    expect(screen.getByText(/version\s+99/i)).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /reload page/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('group', { name: 'Games Played' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows recovery guidance when persisted statistics cannot be parsed', () => {
+    readSpy.mockReturnValue({ status: 'corrupted' })
+
+    renderStatsPage()
+
+    expect(screen.getByText(/could not be read/i)).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /clear broken data/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('group', { name: 'Games Played' }),
+    ).not.toBeInTheDocument()
+  })
+
   it('shows average score and overall accuracy from quiz session records', () => {
-    readSpy.mockReturnValue([
-      {
-        completedAt: '2026-05-09T12:00:00.000Z',
-        score: 7,
-        questionCount: 10,
-        roundDurationMs: 120_000,
-      },
-    ])
+    readSpy.mockReturnValue({
+      status: 'ok',
+      sessions: [
+        {
+          completedAt: '2026-05-09T12:00:00.000Z',
+          score: 7,
+          questionCount: 10,
+          roundDurationMs: 120_000,
+        },
+      ],
+    })
 
     renderStatsPage()
 
@@ -75,20 +112,23 @@ describe('StatsPage', () => {
   })
 
   it('separates average score and overall accuracy when sessions have different lengths', () => {
-    readSpy.mockReturnValue([
-      {
-        completedAt: '2026-05-09T12:00:00.000Z',
-        score: 1,
-        questionCount: 1,
-        roundDurationMs: 1_000,
-      },
-      {
-        completedAt: '2026-05-09T12:01:00.000Z',
-        score: 0,
-        questionCount: 10,
-        roundDurationMs: 5_000,
-      },
-    ])
+    readSpy.mockReturnValue({
+      status: 'ok',
+      sessions: [
+        {
+          completedAt: '2026-05-09T12:00:00.000Z',
+          score: 1,
+          questionCount: 1,
+          roundDurationMs: 1_000,
+        },
+        {
+          completedAt: '2026-05-09T12:01:00.000Z',
+          score: 0,
+          questionCount: 10,
+          roundDurationMs: 5_000,
+        },
+      ],
+    })
 
     renderStatsPage()
 
@@ -100,20 +140,23 @@ describe('StatsPage', () => {
   })
 
   it('shows best score and best streak from quiz session records', () => {
-    readSpy.mockReturnValue([
-      {
-        completedAt: '2026-05-09T12:00:00.000Z',
-        score: 7,
-        questionCount: 10,
-        roundDurationMs: 120_000,
-      },
-      {
-        completedAt: '2026-05-09T12:30:00.000Z',
-        score: 10,
-        questionCount: 10,
-        roundDurationMs: 90_000,
-      },
-    ])
+    readSpy.mockReturnValue({
+      status: 'ok',
+      sessions: [
+        {
+          completedAt: '2026-05-09T12:00:00.000Z',
+          score: 7,
+          questionCount: 10,
+          roundDurationMs: 120_000,
+        },
+        {
+          completedAt: '2026-05-09T12:30:00.000Z',
+          score: 10,
+          questionCount: 10,
+          roundDurationMs: 90_000,
+        },
+      ],
+    })
 
     renderStatsPage()
 
@@ -131,20 +174,23 @@ describe('StatsPage', () => {
   })
 
   it('shows a best streak greater than one when perfect sessions are consecutive', () => {
-    readSpy.mockReturnValue([
-      {
-        completedAt: '2026-05-09T12:00:00.000Z',
-        score: 10,
-        questionCount: 10,
-        roundDurationMs: 60_000,
-      },
-      {
-        completedAt: '2026-05-09T12:30:00.000Z',
-        score: 5,
-        questionCount: 5,
-        roundDurationMs: 30_000,
-      },
-    ])
+    readSpy.mockReturnValue({
+      status: 'ok',
+      sessions: [
+        {
+          completedAt: '2026-05-09T12:00:00.000Z',
+          score: 10,
+          questionCount: 10,
+          roundDurationMs: 60_000,
+        },
+        {
+          completedAt: '2026-05-09T12:30:00.000Z',
+          score: 5,
+          questionCount: 5,
+          roundDurationMs: 30_000,
+        },
+      ],
+    })
 
     renderStatsPage()
 
@@ -153,14 +199,17 @@ describe('StatsPage', () => {
   })
 
   it('exposes a reset statistics control on the populated stats screen', () => {
-    readSpy.mockReturnValue([
-      {
-        completedAt: '2026-05-09T12:00:00.000Z',
-        score: 7,
-        questionCount: 10,
-        roundDurationMs: 60_000,
-      },
-    ])
+    readSpy.mockReturnValue({
+      status: 'ok',
+      sessions: [
+        {
+          completedAt: '2026-05-09T12:00:00.000Z',
+          score: 7,
+          questionCount: 10,
+          roundDurationMs: 60_000,
+        },
+      ],
+    })
 
     renderStatsPage()
 
@@ -170,18 +219,21 @@ describe('StatsPage', () => {
   })
 
   it('returns to the statistics empty state after the reset is confirmed', () => {
-    readSpy.mockReturnValue([
-      {
-        completedAt: '2026-05-09T12:00:00.000Z',
-        score: 7,
-        questionCount: 10,
-        roundDurationMs: 60_000,
-      },
-    ])
+    readSpy.mockReturnValue({
+      status: 'ok',
+      sessions: [
+        {
+          completedAt: '2026-05-09T12:00:00.000Z',
+          score: 7,
+          questionCount: 10,
+          roundDurationMs: 60_000,
+        },
+      ],
+    })
     const clearSpy = vi
       .spyOn(statistics.statisticsService, 'clear')
       .mockImplementation(() => {
-        readSpy.mockReturnValue([])
+        readSpy.mockReturnValue({ status: 'ok', sessions: [] })
         window.dispatchEvent(
           new Event(statistics.STATISTICS_STORE_CHANGED_EVENT),
         )
@@ -201,14 +253,17 @@ describe('StatsPage', () => {
   })
 
   it('keeps the statistics intact when the reset dialog is cancelled', () => {
-    readSpy.mockReturnValue([
-      {
-        completedAt: '2026-05-09T12:00:00.000Z',
-        score: 7,
-        questionCount: 10,
-        roundDurationMs: 60_000,
-      },
-    ])
+    readSpy.mockReturnValue({
+      status: 'ok',
+      sessions: [
+        {
+          completedAt: '2026-05-09T12:00:00.000Z',
+          score: 7,
+          questionCount: 10,
+          roundDurationMs: 60_000,
+        },
+      ],
+    })
     const clearSpy = vi.spyOn(statistics.statisticsService, 'clear')
 
     renderStatsPage()
@@ -227,14 +282,17 @@ describe('StatsPage', () => {
   })
 
   it('opens a confirmation dialog explaining the reset is irreversible on this device', () => {
-    readSpy.mockReturnValue([
-      {
-        completedAt: '2026-05-09T12:00:00.000Z',
-        score: 7,
-        questionCount: 10,
-        roundDurationMs: 60_000,
-      },
-    ])
+    readSpy.mockReturnValue({
+      status: 'ok',
+      sessions: [
+        {
+          completedAt: '2026-05-09T12:00:00.000Z',
+          score: 7,
+          questionCount: 10,
+          roundDurationMs: 60_000,
+        },
+      ],
+    })
 
     renderStatsPage()
     fireEvent.click(screen.getByRole('button', { name: /reset statistics/i }))
@@ -251,20 +309,23 @@ describe('StatsPage', () => {
   })
 
   it('shows total time played from summed round durations in a readable form', () => {
-    readSpy.mockReturnValue([
-      {
-        completedAt: '2026-05-09T12:00:00.000Z',
-        score: 10,
-        questionCount: 10,
-        roundDurationMs: 60_000,
-      },
-      {
-        completedAt: '2026-05-09T12:30:00.000Z',
-        score: 10,
-        questionCount: 10,
-        roundDurationMs: 30_000,
-      },
-    ])
+    readSpy.mockReturnValue({
+      status: 'ok',
+      sessions: [
+        {
+          completedAt: '2026-05-09T12:00:00.000Z',
+          score: 10,
+          questionCount: 10,
+          roundDurationMs: 60_000,
+        },
+        {
+          completedAt: '2026-05-09T12:30:00.000Z',
+          score: 10,
+          questionCount: 10,
+          roundDurationMs: 30_000,
+        },
+      ],
+    })
 
     renderStatsPage()
 

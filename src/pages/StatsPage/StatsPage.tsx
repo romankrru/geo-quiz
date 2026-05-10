@@ -9,7 +9,9 @@ import {
 } from '@entities/statistics'
 import { Button, ConfirmDialog } from '@shared/ui'
 
+import { CorruptedStatisticsMessage } from './CorruptedStatisticsMessage/CorruptedStatisticsMessage'
 import { EmptyMessage } from './EmptyMessage/EmptyMessage'
+import { OutdatedStatisticsMessage } from './OutdatedStatisticsMessage/OutdatedStatisticsMessage'
 
 import * as styles from './StatsPage.css'
 
@@ -23,16 +25,14 @@ const getStatHintId = (label: string) =>
   `stats-card-hint-${label.replaceAll(/\s+/g, '-').toLowerCase()}`
 
 export const StatsPage = () => {
-  const [sessions, setSessions] = useState<QuizSessionRecord[]>(() =>
-    statisticsService.read(),
-  )
+  const [storeRead, setStoreRead] = useState(() => statisticsService.read())
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
 
-  // Keep sessions in sync with localStorage: custom event fires in this tab after writes
+  // Keep store state in sync with localStorage: custom event fires in this tab after writes
   // (the native `storage` event does not); `storage` catches updates from other tabs.
   useEffect(() => {
     const sync = () => {
-      setSessions(statisticsService.read())
+      setStoreRead(statisticsService.read())
     }
     sync()
     window.addEventListener(STATISTICS_STORE_CHANGED_EVENT, sync)
@@ -42,6 +42,20 @@ export const StatsPage = () => {
       window.removeEventListener('storage', sync)
     }
   }, [])
+
+  if (storeRead.status === 'outdated-client') {
+    return (
+      <OutdatedStatisticsMessage
+        persistedSchemaVersion={storeRead.persistedSchemaVersion}
+      />
+    )
+  }
+
+  if (storeRead.status === 'corrupted') {
+    return <CorruptedStatisticsMessage />
+  }
+
+  const sessions: QuizSessionRecord[] = storeRead.sessions
 
   if (sessions.length === 0) {
     return <EmptyMessage />
