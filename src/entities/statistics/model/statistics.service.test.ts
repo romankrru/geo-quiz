@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { STATISTICS_STORE_CHANGED_EVENT } from './statistics.constants'
+import {
+  STATISTICS_STORAGE_KEY,
+  STATISTICS_STORE_CHANGED_EVENT,
+  STATISTICS_STORE_SCHEMA_VERSION,
+} from './statistics.constants'
 import { statisticsService } from './statistics.service'
 import type { QuizSessionRecord } from './statistics.types'
 
@@ -9,8 +13,8 @@ describe('persisted statistics', () => {
     localStorage.clear()
   })
 
-  it('reads an empty list when nothing is stored', () => {
-    expect(statisticsService.read()).toEqual([])
+  it('reads ok with an empty list when nothing is stored', () => {
+    expect(statisticsService.read()).toEqual({ status: 'ok', sessions: [] })
   })
 
   it('appends a session and reads it back', () => {
@@ -21,14 +25,178 @@ describe('persisted statistics', () => {
       roundDurationMs: 42_000,
     })
 
-    expect(statisticsService.read()).toEqual([
+    expect(statisticsService.read()).toEqual({
+      status: 'ok',
+      sessions: [
+        {
+          completedAt: '2026-05-09T12:00:00.000Z',
+          score: 4,
+          questionCount: 10,
+          roundDurationMs: 42_000,
+        },
+      ],
+    })
+    const raw = localStorage.getItem(STATISTICS_STORAGE_KEY)
+    expect(raw).not.toBeNull()
+    expect(JSON.parse(raw!)).toMatchObject({
+      schemaVersion: STATISTICS_STORE_SCHEMA_VERSION,
+    })
+  })
+
+  it('migrates schema v1 payloads on read and upgrades storage on append', () => {
+    const v1Sessions = [
       {
         completedAt: '2026-05-09T12:00:00.000Z',
-        score: 4,
-        questionCount: 10,
-        roundDurationMs: 42_000,
+        score: 2,
+        questionCount: 5,
+        roundDurationMs: 10_000,
       },
-    ])
+    ]
+    localStorage.setItem(
+      STATISTICS_STORAGE_KEY,
+      JSON.stringify({ schemaVersion: 1, sessions: v1Sessions }),
+    )
+
+    expect(statisticsService.read()).toEqual({
+      status: 'ok',
+      sessions: v1Sessions,
+    })
+
+    statisticsService.appendSession({
+      completedAt: '2026-05-09T13:00:00.000Z',
+      score: 1,
+      questionCount: 1,
+      roundDurationMs: 5_000,
+    })
+
+    const stored = JSON.parse(
+      localStorage.getItem(STATISTICS_STORAGE_KEY) ?? 'null',
+    )
+    expect(stored.schemaVersion).toBe(STATISTICS_STORE_SCHEMA_VERSION)
+    expect(stored.sessions).toHaveLength(2)
+  })
+
+  it('treats unparsable localStorage as corrupted', () => {
+    localStorage.setItem(STATISTICS_STORAGE_KEY, '{not json')
+
+    expect(statisticsService.read()).toEqual({ status: 'corrupted' })
+  })
+
+  it('treats a newer schema version as outdated-client and blocks appends', () => {
+    const futureVersion = STATISTICS_STORE_SCHEMA_VERSION + 1
+    localStorage.setItem(
+      STATISTICS_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: futureVersion,
+        sessions: [
+          {
+            completedAt: '2026-05-09T12:00:00.000Z',
+            score: 1,
+            questionCount: 1,
+            roundDurationMs: 1,
+          },
+        ],
+      }),
+    )
+
+    expect(statisticsService.read()).toEqual({
+      status: 'outdated-client',
+      persistedSchemaVersion: futureVersion,
+    })
+
+    const setSpy = vi.spyOn(Storage.prototype, 'setItem')
+    statisticsService.appendSession({
+      completedAt: '2026-05-09T14:00:00.000Z',
+      score: 9,
+      questionCount: 10,
+      roundDurationMs: 20_000,
+    })
+
+    expect(setSpy).not.toHaveBeenCalled()
+    setSpy.mockRestore()
+
+    expect(statisticsService.read()).toEqual({
+      status: 'outdated-client',
+      persistedSchemaVersion: futureVersion,
+    })
+  })
+
+  it('does not clear localStorage when the store is from a newer client', () => {
+    const futureVersion = STATISTICS_STORE_SCHEMA_VERSION + 5
+    const payload = JSON.stringify({
+      schemaVersion: futureVersion,
+      sessions: [],
+    })
+    localStorage.setItem(STATISTICS_STORAGE_KEY, payload)
+
+    statisticsService.clear()
+
+    expect(localStorage.getItem(STATISTICS_STORAGE_KEY)).toBe(payload)
+  })
+
+  it('treats unsupported low schema versions as corrupted', () => {
+    localStorage.setItem(
+      STATISTICS_STORAGE_KEY,
+      JSON.stringify({ schemaVersion: 0, sessions: [] }),
+    )
+
+    expect(statisticsService.read()).toEqual({ status: 'corrupted' })
+  })
+
+  it('treats malformed session rows as corrupted', () => {
+    localStorage.setItem(
+      STATISTICS_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: STATISTICS_STORE_SCHEMA_VERSION,
+        sessions: [
+          {
+            completedAt: 'x',
+            score: 'nope',
+            questionCount: 1,
+            roundDurationMs: 1,
+          },
+        ],
+      }),
+    )
+
+    expect(statisticsService.read()).toEqual({ status: 'corrupted' })
+  })
+
+  it('does not append invalid session records', () => {
+    const setSpy = vi.spyOn(Storage.prototype, 'setItem')
+    statisticsService.appendSession({
+      completedAt: '',
+      score: 1,
+      questionCount: 1,
+      roundDurationMs: 1,
+    })
+
+    expect(setSpy).not.toHaveBeenCalled()
+    setSpy.mockRestore()
+  })
+
+  it('does not dispatch when persist fails', () => {
+    const listener = vi.fn()
+    window.addEventListener(STATISTICS_STORE_CHANGED_EVENT, listener)
+    const setSpy = vi
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(() => {
+        throw new Error('quota')
+      })
+
+    try {
+      statisticsService.appendSession({
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 1,
+        questionCount: 1,
+        roundDurationMs: 1,
+      })
+    } finally {
+      setSpy.mockRestore()
+      window.removeEventListener(STATISTICS_STORE_CHANGED_EVENT, listener)
+    }
+
+    expect(listener).not.toHaveBeenCalled()
   })
 
   it('clears every recorded quiz session record', () => {
@@ -47,7 +215,7 @@ describe('persisted statistics', () => {
 
     statisticsService.clear()
 
-    expect(statisticsService.read()).toEqual([])
+    expect(statisticsService.read()).toEqual({ status: 'ok', sessions: [] })
   })
 
   it('notifies listeners when the statistics store is cleared', () => {
@@ -61,6 +229,28 @@ describe('persisted statistics', () => {
     }
 
     expect(listener).toHaveBeenCalledTimes(1)
+  })
+
+  it('replaces corrupted storage with a valid payload after append', () => {
+    localStorage.setItem(STATISTICS_STORAGE_KEY, 'not-json')
+    statisticsService.appendSession({
+      completedAt: '2026-05-09T12:00:00.000Z',
+      score: 1,
+      questionCount: 1,
+      roundDurationMs: 1,
+    })
+
+    expect(statisticsService.read()).toEqual({
+      status: 'ok',
+      sessions: [
+        {
+          completedAt: '2026-05-09T12:00:00.000Z',
+          score: 1,
+          questionCount: 1,
+          roundDurationMs: 1,
+        },
+      ],
+    })
   })
 })
 

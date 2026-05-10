@@ -1,9 +1,14 @@
 import {
+  MIN_SUPPORTED_STATISTICS_SCHEMA_VERSION,
   STATISTICS_STORAGE_KEY,
   STATISTICS_STORE_CHANGED_EVENT,
   STATISTICS_STORE_SCHEMA_VERSION,
 } from './statistics.constants'
-import type { PersistedPayload, QuizSessionRecord } from './statistics.types'
+import type {
+  PersistedPayload,
+  QuizSessionRecord,
+  StatisticsStoreReadResult,
+} from './statistics.types'
 
 /**
  * Whether `candidate` beats `incumbent` for best-score selection: higher
@@ -26,39 +31,128 @@ function isPerfectSession(session: QuizSessionRecord): boolean {
   return session.questionCount > 0 && session.score === session.questionCount
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
+function isQuizSessionRecord(value: unknown): value is QuizSessionRecord {
+  if (!isPlainObject(value)) {
+    return false
+  }
+  if (typeof value.completedAt !== 'string' || value.completedAt.length === 0) {
+    return false
+  }
+  if (
+    !isFiniteNumber(value.score) ||
+    !isFiniteNumber(value.questionCount) ||
+    !isFiniteNumber(value.roundDurationMs)
+  ) {
+    return false
+  }
+  if (value.score < 0 || value.questionCount < 0 || value.roundDurationMs < 0) {
+    return false
+  }
+  return true
+}
+
+function parseSessionsPayload(
+  sessionsUnknown: unknown,
+): QuizSessionRecord[] | null {
+  if (!Array.isArray(sessionsUnknown)) {
+    return null
+  }
+  const sessions: QuizSessionRecord[] = []
+  for (const row of sessionsUnknown) {
+    if (!isQuizSessionRecord(row)) {
+      return null
+    }
+    sessions.push(row)
+  }
+  return sessions
+}
+
+function readPersistedStatistics(
+  raw: string | null,
+): StatisticsStoreReadResult {
+  if (raw === null) {
+    return { status: 'ok', sessions: [] }
+  }
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(raw) as unknown
+  } catch {
+    return { status: 'corrupted' }
+  }
+  if (!isPlainObject(parsed)) {
+    return { status: 'corrupted' }
+  }
+  const schemaVersionRaw = parsed.schemaVersion
+  if (
+    !isFiniteNumber(schemaVersionRaw) ||
+    !Number.isInteger(schemaVersionRaw)
+  ) {
+    return { status: 'corrupted' }
+  }
+  if (schemaVersionRaw > STATISTICS_STORE_SCHEMA_VERSION) {
+    return {
+      status: 'outdated-client',
+      persistedSchemaVersion: schemaVersionRaw,
+    }
+  }
+  if (schemaVersionRaw < MIN_SUPPORTED_STATISTICS_SCHEMA_VERSION) {
+    return { status: 'corrupted' }
+  }
+  const sessions = parseSessionsPayload(parsed.sessions)
+  if (sessions === null) {
+    return { status: 'corrupted' }
+  }
+  return { status: 'ok', sessions }
+}
+
+function persistStatistics(sessions: QuizSessionRecord[]): boolean {
+  const payload: PersistedPayload = {
+    schemaVersion: STATISTICS_STORE_SCHEMA_VERSION,
+    sessions,
+  }
+  try {
+    localStorage.setItem(STATISTICS_STORAGE_KEY, JSON.stringify(payload))
+    return true
+  } catch {
+    return false
+  }
+}
+
 export const statisticsService = {
-  read(): QuizSessionRecord[] {
-    const raw = localStorage.getItem(STATISTICS_STORAGE_KEY)
-    if (raw === null) {
-      return []
-    }
-    try {
-      const data = JSON.parse(raw) as PersistedPayload
-      if (
-        data.schemaVersion !== STATISTICS_STORE_SCHEMA_VERSION ||
-        !Array.isArray(data.sessions)
-      ) {
-        return []
-      }
-      return data.sessions
-    } catch {
-      return []
-    }
+  read(): StatisticsStoreReadResult {
+    return readPersistedStatistics(localStorage.getItem(STATISTICS_STORAGE_KEY))
   },
 
   appendSession(record: QuizSessionRecord): void {
-    const sessions = [...this.read(), record]
-    localStorage.setItem(
-      STATISTICS_STORAGE_KEY,
-      JSON.stringify({
-        schemaVersion: STATISTICS_STORE_SCHEMA_VERSION,
-        sessions,
-      } satisfies PersistedPayload),
-    )
-    window.dispatchEvent(new Event(STATISTICS_STORE_CHANGED_EVENT))
+    if (!isQuizSessionRecord(record)) {
+      return
+    }
+    const raw = localStorage.getItem(STATISTICS_STORAGE_KEY)
+    const state = readPersistedStatistics(raw)
+    if (state.status === 'outdated-client') {
+      return
+    }
+    const sessions =
+      state.status === 'ok' ? [...state.sessions, record] : [record]
+    if (persistStatistics(sessions)) {
+      window.dispatchEvent(new Event(STATISTICS_STORE_CHANGED_EVENT))
+    }
   },
 
   clear(): void {
+    const raw = localStorage.getItem(STATISTICS_STORAGE_KEY)
+    const state = readPersistedStatistics(raw)
+    if (state.status === 'outdated-client') {
+      return
+    }
     localStorage.removeItem(STATISTICS_STORAGE_KEY)
     window.dispatchEvent(new Event(STATISTICS_STORE_CHANGED_EVENT))
   },
