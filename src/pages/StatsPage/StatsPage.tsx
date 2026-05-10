@@ -52,11 +52,8 @@ export const StatsPage = () => {
   const bestScore = statisticsService.computeBestScoreStatistics(sessions)
   const bestStreak = statisticsService.computeBestStreakStatistics(sessions)
 
-  const totalRoundMs = sessions.reduce(
-    (acc, session) => acc + session.roundDurationMs,
-    0,
-  )
-  const totalMinutes = Math.floor(totalRoundMs / 60_000)
+  const totalRoundMs = statisticsService.computeTotalRoundDurationMs(sessions)
+  const totalTimePlayed = statisticsService.formatTotalTimePlayed(totalRoundMs)
 
   const statItems: StatCardItem[] = [
     {
@@ -79,8 +76,9 @@ export const StatsPage = () => {
       hint: 'Best single-game accuracy (score ÷ questions); ties favor longer games.',
     },
     {
-      value: `${totalMinutes}m`,
+      value: totalTimePlayed,
       label: 'Total Time Played',
+      hint: 'Idle on results not counted.',
     },
     {
       value:

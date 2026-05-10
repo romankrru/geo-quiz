@@ -150,4 +150,29 @@ export const statisticsService = {
     }
     return maxStreak
   },
+
+  /** Sum of each session’s round duration (quiz start through arrival at results). */
+  computeTotalRoundDurationMs(sessions: QuizSessionRecord[]): number {
+    return sessions.reduce((acc, s) => acc + s.roundDurationMs, 0)
+  },
+
+  /** Human-readable total play time from summed round durations (not raw ms). */
+  formatTotalTimePlayed(totalMs: number): string {
+    if (totalMs <= 0) {
+      return '0s'
+    }
+    const totalSecWhole = Math.floor(totalMs / 1000)
+    const totalSec = totalSecWhole === 0 ? 1 : totalSecWhole
+    if (totalSec < 60) {
+      return `${totalSec}s`
+    }
+    const totalMin = Math.floor(totalSec / 60)
+    if (totalMin < 60) {
+      const sec = totalSec % 60
+      return sec === 0 ? `${totalMin}m` : `${totalMin}m ${sec}s`
+    }
+    const hours = Math.floor(totalMin / 60)
+    const min = totalMin % 60
+    return min === 0 ? `${hours}h` : `${hours}h ${min}m`
+  },
 }

@@ -272,3 +272,40 @@ describe('best streak statistics', () => {
     expect(statisticsService.computeBestStreakStatistics(sessions)).toBe(2)
   })
 })
+
+describe('total time played', () => {
+  it('sums round durations across quiz session records', () => {
+    expect(statisticsService.computeTotalRoundDurationMs([])).toBe(0)
+
+    expect(
+      statisticsService.computeTotalRoundDurationMs([
+        {
+          completedAt: '2026-05-09T12:00:00.000Z',
+          score: 1,
+          questionCount: 1,
+          roundDurationMs: 45_000,
+        },
+        {
+          completedAt: '2026-05-09T12:05:00.000Z',
+          score: 1,
+          questionCount: 1,
+          roundDurationMs: 30_000,
+        },
+      ]),
+    ).toBe(75_000)
+  })
+
+  it('formats zero total ms without exposing raw milliseconds', () => {
+    expect(statisticsService.formatTotalTimePlayed(0)).toBe('0s')
+  })
+
+  it('formats minute-scale totals readably', () => {
+    expect(statisticsService.formatTotalTimePlayed(90_000)).toBe('1m 30s')
+    expect(statisticsService.formatTotalTimePlayed(120_000)).toBe('2m')
+  })
+
+  it('formats hour-scale totals readably', () => {
+    expect(statisticsService.formatTotalTimePlayed(3_600_000)).toBe('1h')
+    expect(statisticsService.formatTotalTimePlayed(5_400_000)).toBe('1h 30m')
+  })
+})
