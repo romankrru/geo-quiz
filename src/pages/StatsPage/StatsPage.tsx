@@ -13,6 +13,15 @@ import { EmptyMessage } from './EmptyMessage/EmptyMessage'
 
 import * as styles from './StatsPage.css'
 
+type StatCardItem = {
+  value: string
+  label: string
+  hint?: string
+}
+
+const statHintId = (label: string) =>
+  `stats-card-hint-${label.replaceAll(/\s+/g, '-').toLowerCase()}`
+
 export const StatsPage = () => {
   const [sessions, setSessions] = useState<QuizSessionRecord[]>(() =>
     statisticsService.read(),
@@ -49,7 +58,7 @@ export const StatsPage = () => {
   )
   const totalMinutes = Math.floor(totalRoundMs / 60_000)
 
-  const statItems = [
+  const statItems: StatCardItem[] = [
     {
       value: String(sessions.length),
       label: 'Games Played',
@@ -67,6 +76,7 @@ export const StatsPage = () => {
           ? statisticsService.formatBestScoreStatistics(bestScore)
           : '—',
       label: 'Best Score',
+      hint: 'Your most accurate finished game: score divided by questions. If two games tie, the longer game wins.',
     },
     {
       value: `${totalMinutes}m`,
@@ -82,25 +92,35 @@ export const StatsPage = () => {
     {
       value: String(bestStreak),
       label: 'Best Streak',
+      hint: 'Longest run of perfect games in a row (every answer correct), in order of completion time. Any imperfect game resets the count.',
     },
-  ] as const
+  ]
 
   return (
     <div className={styles.root}>
       <main className={styles.main}>
         <h1 className={styles.pageTitle}>Statistics</h1>
         <div className={styles.grid}>
-          {statItems.map((item) => (
-            <div
-              key={item.label}
-              className={styles.card}
-              role="group"
-              aria-label={item.label}
-            >
-              <span className={styles.cardValue}>{item.value}</span>
-              <span className={styles.cardLabel}>{item.label}</span>
-            </div>
-          ))}
+          {statItems.map((item) => {
+            const hintDomId = item.hint ? statHintId(item.label) : undefined
+            return (
+              <div
+                key={item.label}
+                className={styles.card}
+                role="group"
+                aria-label={item.label}
+                aria-describedby={hintDomId}
+              >
+                <span className={styles.cardValue}>{item.value}</span>
+                <span className={styles.cardLabel}>{item.label}</span>
+                {item.hint ? (
+                  <p className={styles.cardHint} id={hintDomId}>
+                    {item.hint}
+                  </p>
+                ) : null}
+              </div>
+            )
+          })}
         </div>
         <Button
           as={Link}

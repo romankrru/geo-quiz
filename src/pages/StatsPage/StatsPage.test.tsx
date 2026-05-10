@@ -108,6 +108,12 @@ describe('StatsPage', () => {
 
     expect(within(bestScoreCard).getByText('10 / 10')).toBeInTheDocument()
     expect(within(bestStreakCard).getByText('1')).toBeInTheDocument()
+    expect(
+      within(bestScoreCard).getByText(/score divided by questions/i),
+    ).toBeInTheDocument()
+    expect(
+      within(bestStreakCard).getByText(/perfect games in a row/i),
+    ).toBeInTheDocument()
   })
 
   it('shows a best streak greater than one when perfect sessions are consecutive', () => {

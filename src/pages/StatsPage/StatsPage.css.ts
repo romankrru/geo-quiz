@@ -73,3 +73,14 @@ export const cardLabel = style({
   color: vars.color.text,
   lineHeight: 1.4,
 })
+
+export const cardHint = style({
+  fontFamily: vars.fontFamily.sans,
+  fontSize: '0.75rem',
+  fontWeight: 400,
+  color: vars.color.text,
+  lineHeight: 1.35,
+  margin: 0,
+  maxWidth: '22rem',
+  opacity: 0.88,
+})
