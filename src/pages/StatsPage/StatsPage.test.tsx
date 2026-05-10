@@ -137,4 +137,31 @@ describe('StatsPage', () => {
     const bestStreakCard = screen.getByRole('group', { name: 'Best Streak' })
     expect(within(bestStreakCard).getByText('2')).toBeInTheDocument()
   })
+
+  it('shows total time played from summed round durations in a readable form', () => {
+    readSpy.mockReturnValue([
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 10,
+        questionCount: 10,
+        roundDurationMs: 60_000,
+      },
+      {
+        completedAt: '2026-05-09T12:30:00.000Z',
+        score: 10,
+        questionCount: 10,
+        roundDurationMs: 30_000,
+      },
+    ])
+
+    renderStatsPage()
+
+    const totalTimeCard = screen.getByRole('group', {
+      name: 'Total Time Played',
+    })
+    expect(within(totalTimeCard).getByText('1m 30s')).toBeInTheDocument()
+    expect(
+      within(totalTimeCard).getByText(/results screen is not included/i),
+    ).toBeInTheDocument()
+  })
 })
