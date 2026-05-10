@@ -11,7 +11,6 @@ import { Button } from '@shared/ui'
 
 import { EmptyMessage } from './EmptyMessage/EmptyMessage'
 import { ResetConfirmDialog } from './ResetConfirmDialog/ResetConfirmDialog'
-import { statsPageStrings } from './StatsPage.strings'
 
 import * as styles from './StatsPage.css'
 
@@ -100,7 +99,7 @@ export const StatsPage = () => {
   return (
     <div className={styles.root}>
       <main className={styles.main}>
-        <h1 className={styles.pageTitle}>{statsPageStrings.pageTitle}</h1>
+        <h1 className={styles.pageTitle}>Statistics</h1>
         <div className={styles.grid}>
           {statItems.map((item) => {
             const hintDomId = item.hint ? getStatHintId(item.label) : undefined
@@ -129,14 +128,14 @@ export const StatsPage = () => {
           variant="transparent"
           icon={<ArrowLeft size={18} strokeWidth={2} aria-hidden />}
         >
-          {statsPageStrings.backToStart}
+          Back to Start
         </Button>
         <button
           type="button"
           className={styles.resetButton}
           onClick={() => setIsResetDialogOpen(true)}
         >
-          {statsPageStrings.resetButton}
+          Reset Statistics
         </button>
       </main>
       {isResetDialogOpen ? (

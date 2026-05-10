@@ -1,7 +1,5 @@
 import { useId } from 'react'
 
-import { statsPageStrings } from '../StatsPage.strings'
-
 import * as styles from './ResetConfirmDialog.css'
 
 type Props = {
@@ -23,10 +21,11 @@ export const ResetConfirmDialog = (props: Props) => {
     >
       <div className={styles.dialog}>
         <h2 id={titleId} className={styles.title}>
-          {statsPageStrings.resetDialog.title}
+          Reset Statistics
         </h2>
         <p id={bodyId} className={styles.body}>
-          {statsPageStrings.resetDialog.body}
+          This permanently clears your statistics on this device and can't be
+          undone. It only affects this device.
         </p>
         <div className={styles.actions}>
           <button
@@ -34,14 +33,14 @@ export const ResetConfirmDialog = (props: Props) => {
             className={styles.cancelButton}
             onClick={props.onCancel}
           >
-            {statsPageStrings.resetDialog.cancel}
+            Cancel
           </button>
           <button
             type="button"
             className={styles.confirmButton}
             onClick={props.onConfirm}
           >
-            {statsPageStrings.resetDialog.confirm}
+            Reset
           </button>
         </div>
       </div>
