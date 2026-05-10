@@ -109,10 +109,10 @@ describe('StatsPage', () => {
     expect(within(bestScoreCard).getByText('10 / 10')).toBeInTheDocument()
     expect(within(bestStreakCard).getByText('1')).toBeInTheDocument()
     expect(
-      within(bestScoreCard).getByText(/score divided by questions/i),
+      within(bestScoreCard).getByText(/score ÷ questions/i),
     ).toBeInTheDocument()
     expect(
-      within(bestStreakCard).getByText(/perfect games in a row/i),
+      within(bestStreakCard).getByText(/one miss resets/i),
     ).toBeInTheDocument()
   })
 

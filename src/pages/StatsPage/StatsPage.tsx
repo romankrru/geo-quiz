@@ -76,7 +76,7 @@ export const StatsPage = () => {
           ? statisticsService.formatBestScoreStatistics(bestScore)
           : '—',
       label: 'Best Score',
-      hint: 'Your most accurate finished game: score divided by questions. If two games tie, the longer game wins.',
+      hint: 'Best single-game accuracy (score ÷ questions); ties favor longer games.',
     },
     {
       value: `${totalMinutes}m`,
@@ -92,7 +92,7 @@ export const StatsPage = () => {
     {
       value: String(bestStreak),
       label: 'Best Streak',
-      hint: 'Longest run of perfect games in a row (every answer correct), in order of completion time. Any imperfect game resets the count.',
+      hint: 'Perfect games in a row, by finish time; one miss resets the count.',
     },
   ]
 
