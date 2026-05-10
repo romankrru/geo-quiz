@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import {
@@ -131,7 +131,8 @@ export const StatsPage = () => {
         </Button>
         <Button
           type="button"
-          variant="danger"
+          variant="transparent"
+          icon={<Trash2 size={18} strokeWidth={2} aria-hidden />}
           onClick={() => setIsResetDialogOpen(true)}
         >
           Reset Statistics
