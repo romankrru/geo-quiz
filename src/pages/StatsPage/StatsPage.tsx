@@ -10,6 +10,8 @@ import {
 import { Button } from '@shared/ui'
 
 import { EmptyMessage } from './EmptyMessage/EmptyMessage'
+import { ResetConfirmDialog } from './ResetConfirmDialog/ResetConfirmDialog'
+import { statsPageStrings } from './StatsPage.strings'
 
 import * as styles from './StatsPage.css'
 
@@ -26,6 +28,7 @@ export const StatsPage = () => {
   const [sessions, setSessions] = useState<QuizSessionRecord[]>(() =>
     statisticsService.read(),
   )
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
 
   // Keep sessions in sync with localStorage: custom event fires in this tab after writes
   // (the native `storage` event does not); `storage` catches updates from other tabs.
@@ -97,7 +100,7 @@ export const StatsPage = () => {
   return (
     <div className={styles.root}>
       <main className={styles.main}>
-        <h1 className={styles.pageTitle}>Statistics</h1>
+        <h1 className={styles.pageTitle}>{statsPageStrings.pageTitle}</h1>
         <div className={styles.grid}>
           {statItems.map((item) => {
             const hintDomId = item.hint ? getStatHintId(item.label) : undefined
@@ -126,9 +129,25 @@ export const StatsPage = () => {
           variant="transparent"
           icon={<ArrowLeft size={18} strokeWidth={2} aria-hidden />}
         >
-          Back to Start
+          {statsPageStrings.backToStart}
         </Button>
+        <button
+          type="button"
+          className={styles.resetButton}
+          onClick={() => setIsResetDialogOpen(true)}
+        >
+          {statsPageStrings.resetButton}
+        </button>
       </main>
+      {isResetDialogOpen ? (
+        <ResetConfirmDialog
+          onCancel={() => setIsResetDialogOpen(false)}
+          onConfirm={() => {
+            statisticsService.clear()
+            setIsResetDialogOpen(false)
+          }}
+        />
+      ) : null}
     </div>
   )
 }

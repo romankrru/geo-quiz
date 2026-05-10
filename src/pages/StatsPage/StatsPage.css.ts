@@ -84,3 +84,25 @@ export const cardHint = style({
   maxWidth: '22rem',
   opacity: 0.88,
 })
+
+export const resetButton = style({
+  background: 'transparent',
+  border: 'none',
+  cursor: 'pointer',
+  fontFamily: vars.fontFamily.sans,
+  fontSize: '0.875rem',
+  fontWeight: 600,
+  color: '#b42318',
+  padding: '8px 12px',
+  borderRadius: vars.radii.sm,
+  transition: 'background-color 0.12s ease',
+  selectors: {
+    '&:hover': {
+      backgroundColor: 'rgba(180, 35, 24, 0.08)',
+    },
+    '&:focus-visible': {
+      outline: '2px solid #b42318',
+      outlineOffset: '2px',
+    },
+  },
+})

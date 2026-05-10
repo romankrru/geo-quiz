@@ -58,6 +58,11 @@ export const statisticsService = {
     window.dispatchEvent(new Event(STATISTICS_STORE_CHANGED_EVENT))
   },
 
+  clear(): void {
+    localStorage.removeItem(STATISTICS_STORAGE_KEY)
+    window.dispatchEvent(new Event(STATISTICS_STORE_CHANGED_EVENT))
+  },
+
   computeAverageScoreStatistics(sessions: QuizSessionRecord[]): number | null {
     if (sessions.length === 0) {
       return null

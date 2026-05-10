@@ -1,4 +1,10 @@
-import { cleanup, render, screen, within } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -39,6 +45,14 @@ describe('StatsPage', () => {
     renderStatsPage()
 
     expect(screen.getByText(/nothing recorded yet/i)).toBeInTheDocument()
+  })
+
+  it('hides the reset control while in the statistics empty state', () => {
+    renderStatsPage()
+
+    expect(
+      screen.queryByRole('button', { name: /reset statistics/i }),
+    ).not.toBeInTheDocument()
   })
 
   it('shows average score and overall accuracy from quiz session records', () => {
@@ -136,6 +150,104 @@ describe('StatsPage', () => {
 
     const bestStreakCard = screen.getByRole('group', { name: 'Best Streak' })
     expect(within(bestStreakCard).getByText('2')).toBeInTheDocument()
+  })
+
+  it('exposes a reset statistics control on the populated stats screen', () => {
+    readSpy.mockReturnValue([
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 7,
+        questionCount: 10,
+        roundDurationMs: 60_000,
+      },
+    ])
+
+    renderStatsPage()
+
+    expect(
+      screen.getByRole('button', { name: /reset statistics/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('returns to the statistics empty state after the reset is confirmed', () => {
+    readSpy.mockReturnValue([
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 7,
+        questionCount: 10,
+        roundDurationMs: 60_000,
+      },
+    ])
+    const clearSpy = vi
+      .spyOn(statistics.statisticsService, 'clear')
+      .mockImplementation(() => {
+        readSpy.mockReturnValue([])
+        window.dispatchEvent(
+          new Event(statistics.STATISTICS_STORE_CHANGED_EVENT),
+        )
+      })
+
+    renderStatsPage()
+    fireEvent.click(screen.getByRole('button', { name: /reset statistics/i }))
+
+    const dialog = screen.getByRole('dialog', { name: /reset statistics/i })
+    fireEvent.click(within(dialog).getByRole('button', { name: /^reset$/i }))
+
+    expect(clearSpy).toHaveBeenCalledTimes(1)
+    expect(screen.getByText(/nothing recorded yet/i)).toBeInTheDocument()
+    expect(
+      screen.queryByRole('dialog', { name: /reset statistics/i }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('keeps the statistics intact when the reset dialog is cancelled', () => {
+    readSpy.mockReturnValue([
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 7,
+        questionCount: 10,
+        roundDurationMs: 60_000,
+      },
+    ])
+    const clearSpy = vi.spyOn(statistics.statisticsService, 'clear')
+
+    renderStatsPage()
+    fireEvent.click(screen.getByRole('button', { name: /reset statistics/i }))
+
+    const dialog = screen.getByRole('dialog', { name: /reset statistics/i })
+    fireEvent.click(within(dialog).getByRole('button', { name: /cancel/i }))
+
+    expect(clearSpy).not.toHaveBeenCalled()
+    expect(
+      screen.queryByRole('dialog', { name: /reset statistics/i }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('group', { name: 'Average Score' }),
+    ).toBeInTheDocument()
+  })
+
+  it('opens a confirmation dialog explaining the reset is irreversible on this device', () => {
+    readSpy.mockReturnValue([
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 7,
+        questionCount: 10,
+        roundDurationMs: 60_000,
+      },
+    ])
+
+    renderStatsPage()
+    fireEvent.click(screen.getByRole('button', { name: /reset statistics/i }))
+
+    const dialog = screen.getByRole('dialog', { name: /reset statistics/i })
+    expect(within(dialog).getByText(/can't be undone/i)).toBeInTheDocument()
+    expect(within(dialog).getByText(/this device/i)).toBeInTheDocument()
+    expect(
+      within(dialog).getByRole('button', { name: /^reset$/i }),
+    ).toBeInTheDocument()
+    expect(
+      within(dialog).getByRole('button', { name: /cancel/i }),
+    ).toBeInTheDocument()
   })
 
   it('shows total time played from summed round durations in a readable form', () => {

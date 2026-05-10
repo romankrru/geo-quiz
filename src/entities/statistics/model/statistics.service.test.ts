@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { STATISTICS_STORE_CHANGED_EVENT } from './statistics.constants'
 import { statisticsService } from './statistics.service'
 import type { QuizSessionRecord } from './statistics.types'
 
@@ -28,6 +29,38 @@ describe('persisted statistics', () => {
         roundDurationMs: 42_000,
       },
     ])
+  })
+
+  it('clears every recorded quiz session record', () => {
+    statisticsService.appendSession({
+      completedAt: '2026-05-09T12:00:00.000Z',
+      score: 4,
+      questionCount: 10,
+      roundDurationMs: 42_000,
+    })
+    statisticsService.appendSession({
+      completedAt: '2026-05-09T12:30:00.000Z',
+      score: 7,
+      questionCount: 10,
+      roundDurationMs: 60_000,
+    })
+
+    statisticsService.clear()
+
+    expect(statisticsService.read()).toEqual([])
+  })
+
+  it('notifies listeners when the statistics store is cleared', () => {
+    const listener = vi.fn()
+    window.addEventListener(STATISTICS_STORE_CHANGED_EVENT, listener)
+
+    try {
+      statisticsService.clear()
+    } finally {
+      window.removeEventListener(STATISTICS_STORE_CHANGED_EVENT, listener)
+    }
+
+    expect(listener).toHaveBeenCalledTimes(1)
   })
 })
 
