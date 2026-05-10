@@ -121,22 +121,24 @@ export const StatsPage = () => {
             )
           })}
         </div>
-        <Button
-          as={Link}
-          to="/"
-          variant="transparent"
-          icon={<ArrowLeft size={18} strokeWidth={2} aria-hidden />}
-        >
-          Back to Start
-        </Button>
-        <Button
-          type="button"
-          variant="transparent"
-          icon={<Trash2 size={18} strokeWidth={2} aria-hidden />}
-          onClick={() => setIsResetDialogOpen(true)}
-        >
-          Reset Statistics
-        </Button>
+        <div className={styles.mainActions}>
+          <Button
+            as={Link}
+            to="/"
+            variant="transparent"
+            icon={<ArrowLeft size={18} strokeWidth={2} aria-hidden />}
+          >
+            Back to Start
+          </Button>
+          <Button
+            type="button"
+            variant="transparent"
+            icon={<Trash2 size={18} strokeWidth={2} aria-hidden />}
+            onClick={() => setIsResetDialogOpen(true)}
+          >
+            Reset Statistics
+          </Button>
+        </div>
       </main>
       {isResetDialogOpen ? (
         <ConfirmDialog
