@@ -49,6 +49,13 @@ export const Transparent: Story = {
   },
 }
 
+export const Danger: Story = {
+  args: {
+    variant: 'danger',
+    children: 'Delete',
+  },
+}
+
 export const WithIcon: Story = {
   args: {
     children: 'Start',

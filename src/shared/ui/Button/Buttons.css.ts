@@ -1,6 +1,7 @@
 import { style, styleVariants } from '@vanilla-extract/css'
+import { darken } from 'polished'
 
-import { vars } from '@shared/theme'
+import { themeLiterals, vars } from '@shared/theme'
 
 export const buttonBase = style({
   border: 'none',
@@ -40,6 +41,22 @@ export const buttonAppearance = styleVariants({
       '&:not(:disabled):active': {
         transform: 'translateY(4px)',
         boxShadow: '0 5px 0 rgb(0, 28, 55) ',
+      },
+    },
+  },
+  danger: {
+    backgroundColor: vars.color.error,
+    color: vars.color.background,
+    padding: '16px 32px',
+    borderRadius: vars.radii.md,
+    boxShadow: 'none',
+    transition: 'background-color 0.12s ease, color 0.12s ease',
+    selectors: {
+      '&:not(:disabled):hover': {
+        backgroundColor: darken(0.05, themeLiterals.color.error),
+      },
+      '&:not(:disabled):active': {
+        backgroundColor: darken(0.1, themeLiterals.color.error),
       },
     },
   },

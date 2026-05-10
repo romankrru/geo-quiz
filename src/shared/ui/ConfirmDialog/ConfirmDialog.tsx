@@ -1,8 +1,10 @@
 import { type ReactNode, useId } from 'react'
 
+import { Button } from '../Button/Button'
+
 import * as styles from './ConfirmDialog.css'
 
-export type ConfirmDialogVariant = keyof typeof styles.confirmButtonAppearance
+export type ConfirmDialogVariant = 'primary' | 'destructive'
 
 type Props = {
   title: string
@@ -18,6 +20,8 @@ export const ConfirmDialog = (props: Props) => {
   const titleId = useId()
   const bodyId = useId()
   const confirmVariant = props.confirmVariant ?? 'primary'
+  const confirmButtonVariant =
+    confirmVariant === 'destructive' ? 'danger' : 'solid'
 
   return (
     <div
@@ -35,20 +39,16 @@ export const ConfirmDialog = (props: Props) => {
           {props.body}
         </p>
         <div className={styles.actions}>
-          <button
-            type="button"
-            className={styles.cancelButton}
-            onClick={props.onCancel}
-          >
+          <Button type="button" variant="transparent" onClick={props.onCancel}>
             {props.cancelLabel}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className={styles.confirmButtonAppearance[confirmVariant]}
+            variant={confirmButtonVariant}
             onClick={props.onConfirm}
           >
             {props.confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

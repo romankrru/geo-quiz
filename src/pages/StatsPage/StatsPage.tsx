@@ -129,13 +129,13 @@ export const StatsPage = () => {
         >
           Back to Start
         </Button>
-        <button
+        <Button
           type="button"
-          className={styles.resetButton}
+          variant="danger"
           onClick={() => setIsResetDialogOpen(true)}
         >
           Reset Statistics
-        </button>
+        </Button>
       </main>
       {isResetDialogOpen ? (
         <ConfirmDialog

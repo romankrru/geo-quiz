@@ -1,7 +1,6 @@
-import { style, styleVariants } from '@vanilla-extract/css'
-import { darken } from 'polished'
+import { style } from '@vanilla-extract/css'
 
-import { themeLiterals, vars } from '@shared/theme'
+import { vars } from '@shared/theme'
 
 export const backdrop = style({
   position: 'fixed',
@@ -47,57 +46,4 @@ export const actions = style({
   justifyContent: 'flex-end',
   gap: '0.75rem',
   marginTop: '0.5rem',
-})
-
-export const cancelButton = style({
-  background: 'transparent',
-  border: 'none',
-  cursor: 'pointer',
-  fontFamily: vars.fontFamily.sans,
-  fontWeight: 600,
-  color: vars.color.primary,
-  padding: '10px 16px',
-  borderRadius: vars.radii.sm,
-  transition: 'background-color 0.12s ease',
-  selectors: {
-    '&:hover': {
-      backgroundColor: vars.color.secondaryHover,
-    },
-  },
-})
-
-const confirmButtonBase = style({
-  border: 'none',
-  cursor: 'pointer',
-  fontFamily: vars.fontFamily.sans,
-  fontWeight: 700,
-  color: vars.color.background,
-  padding: '10px 20px',
-  borderRadius: vars.radii.sm,
-  transition: 'background-color 0.12s ease',
-})
-
-export const confirmButtonAppearance = styleVariants({
-  primary: [
-    confirmButtonBase,
-    {
-      backgroundColor: vars.color.primary,
-      selectors: {
-        '&:hover': {
-          backgroundColor: darken(0.05, themeLiterals.color.primary),
-        },
-      },
-    },
-  ],
-  destructive: [
-    confirmButtonBase,
-    {
-      backgroundColor: vars.color.error,
-      selectors: {
-        '&:hover': {
-          backgroundColor: darken(0.05, themeLiterals.color.error),
-        },
-      },
-    },
-  ],
 })
