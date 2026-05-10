@@ -40,6 +40,8 @@ export const StatsPage = () => {
   const averageScore = statisticsService.computeAverageScoreStatistics(sessions)
   const overallAccuracy =
     statisticsService.computeOverallAccuracyStatistics(sessions)
+  const bestScore = statisticsService.computeBestScoreStatistics(sessions)
+  const bestStreak = statisticsService.computeBestStreakStatistics(sessions)
 
   const totalRoundMs = sessions.reduce(
     (acc, session) => acc + session.roundDurationMs,
@@ -60,7 +62,10 @@ export const StatsPage = () => {
       label: 'Average Score',
     },
     {
-      value: '—',
+      value:
+        bestScore !== null
+          ? statisticsService.formatBestScoreStatistics(bestScore)
+          : '—',
       label: 'Best Score',
     },
     {
@@ -75,7 +80,7 @@ export const StatsPage = () => {
       label: 'Overall Accuracy',
     },
     {
-      value: '—',
+      value: String(bestStreak),
       label: 'Best Streak',
     },
   ] as const
