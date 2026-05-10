@@ -1,15 +1,23 @@
-import { useId } from 'react'
+import { type ReactNode, useId } from 'react'
 
-import * as styles from './ResetConfirmDialog.css'
+import * as styles from './ConfirmDialog.css'
+
+export type ConfirmDialogVariant = keyof typeof styles.confirmButtonAppearance
 
 type Props = {
+  title: string
+  body: ReactNode
+  confirmLabel: string
+  cancelLabel: string
   onConfirm: () => void
   onCancel: () => void
+  confirmVariant?: ConfirmDialogVariant
 }
 
-export const ResetConfirmDialog = (props: Props) => {
+export const ConfirmDialog = (props: Props) => {
   const titleId = useId()
   const bodyId = useId()
+  const confirmVariant = props.confirmVariant ?? 'primary'
 
   return (
     <div
@@ -21,11 +29,10 @@ export const ResetConfirmDialog = (props: Props) => {
     >
       <div className={styles.dialog}>
         <h2 id={titleId} className={styles.title}>
-          Reset Statistics
+          {props.title}
         </h2>
         <p id={bodyId} className={styles.body}>
-          This permanently clears your statistics on this device and can't be
-          undone. It only affects this device.
+          {props.body}
         </p>
         <div className={styles.actions}>
           <button
@@ -33,14 +40,14 @@ export const ResetConfirmDialog = (props: Props) => {
             className={styles.cancelButton}
             onClick={props.onCancel}
           >
-            Cancel
+            {props.cancelLabel}
           </button>
           <button
             type="button"
-            className={styles.confirmButton}
+            className={styles.confirmButtonAppearance[confirmVariant]}
             onClick={props.onConfirm}
           >
-            Reset
+            {props.confirmLabel}
           </button>
         </div>
       </div>

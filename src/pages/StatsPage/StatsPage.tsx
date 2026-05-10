@@ -7,10 +7,9 @@ import {
   STATISTICS_STORE_CHANGED_EVENT,
   statisticsService,
 } from '@entities/statistics'
-import { Button } from '@shared/ui'
+import { Button, ConfirmDialog } from '@shared/ui'
 
 import { EmptyMessage } from './EmptyMessage/EmptyMessage'
-import { ResetConfirmDialog } from './ResetConfirmDialog/ResetConfirmDialog'
 
 import * as styles from './StatsPage.css'
 
@@ -139,7 +138,12 @@ export const StatsPage = () => {
         </button>
       </main>
       {isResetDialogOpen ? (
-        <ResetConfirmDialog
+        <ConfirmDialog
+          title="Reset Statistics"
+          body="This permanently clears your statistics on this device and can't be undone. It only affects this device."
+          confirmLabel="Reset"
+          cancelLabel="Cancel"
+          confirmVariant="destructive"
           onCancel={() => setIsResetDialogOpen(false)}
           onConfirm={() => {
             statisticsService.clear()

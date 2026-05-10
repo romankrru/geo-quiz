@@ -1,6 +1,7 @@
-import { style } from '@vanilla-extract/css'
+import { style, styleVariants } from '@vanilla-extract/css'
+import { darken } from 'polished'
 
-import { vars } from '@shared/theme'
+import { themeLiterals, vars } from '@shared/theme'
 
 export const backdrop = style({
   position: 'fixed',
@@ -65,19 +66,38 @@ export const cancelButton = style({
   },
 })
 
-export const confirmButton = style({
-  background: '#b42318',
+const confirmButtonBase = style({
   border: 'none',
   cursor: 'pointer',
   fontFamily: vars.fontFamily.sans,
   fontWeight: 700,
-  color: '#fff',
+  color: vars.color.background,
   padding: '10px 20px',
   borderRadius: vars.radii.sm,
   transition: 'background-color 0.12s ease',
-  selectors: {
-    '&:hover': {
-      backgroundColor: '#9c1d14',
+})
+
+export const confirmButtonAppearance = styleVariants({
+  primary: [
+    confirmButtonBase,
+    {
+      backgroundColor: vars.color.primary,
+      selectors: {
+        '&:hover': {
+          backgroundColor: darken(0.05, themeLiterals.color.primary),
+        },
+      },
     },
-  },
+  ],
+  destructive: [
+    confirmButtonBase,
+    {
+      backgroundColor: vars.color.error,
+      selectors: {
+        '&:hover': {
+          backgroundColor: darken(0.05, themeLiterals.color.error),
+        },
+      },
+    },
+  ],
 })
