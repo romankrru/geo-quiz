@@ -19,7 +19,7 @@ type StatCardItem = {
   hint?: string
 }
 
-const statHintId = (label: string) =>
+const getStatHintId = (label: string) =>
   `stats-card-hint-${label.replaceAll(/\s+/g, '-').toLowerCase()}`
 
 export const StatsPage = () => {
@@ -102,7 +102,7 @@ export const StatsPage = () => {
         <h1 className={styles.pageTitle}>Statistics</h1>
         <div className={styles.grid}>
           {statItems.map((item) => {
-            const hintDomId = item.hint ? statHintId(item.label) : undefined
+            const hintDomId = item.hint ? getStatHintId(item.label) : undefined
             return (
               <div
                 key={item.label}
