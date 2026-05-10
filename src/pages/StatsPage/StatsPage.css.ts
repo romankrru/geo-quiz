@@ -84,3 +84,12 @@ export const cardHint = style({
   maxWidth: '22rem',
   opacity: 0.88,
 })
+
+export const mainActions = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+  alignItems: 'center',
+  columnGap: '0.5rem',
+  rowGap: '0.35rem',
+})

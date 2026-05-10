@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import {
@@ -7,7 +7,7 @@ import {
   STATISTICS_STORE_CHANGED_EVENT,
   statisticsService,
 } from '@entities/statistics'
-import { Button } from '@shared/ui'
+import { Button, ConfirmDialog } from '@shared/ui'
 
 import { EmptyMessage } from './EmptyMessage/EmptyMessage'
 
@@ -26,6 +26,7 @@ export const StatsPage = () => {
   const [sessions, setSessions] = useState<QuizSessionRecord[]>(() =>
     statisticsService.read(),
   )
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
 
   // Keep sessions in sync with localStorage: custom event fires in this tab after writes
   // (the native `storage` event does not); `storage` catches updates from other tabs.
@@ -120,15 +121,39 @@ export const StatsPage = () => {
             )
           })}
         </div>
-        <Button
-          as={Link}
-          to="/"
-          variant="transparent"
-          icon={<ArrowLeft size={18} strokeWidth={2} aria-hidden />}
-        >
-          Back to Start
-        </Button>
+        <div className={styles.mainActions}>
+          <Button
+            as={Link}
+            to="/"
+            variant="transparent"
+            icon={<ArrowLeft size={18} strokeWidth={2} aria-hidden />}
+          >
+            Back to Start
+          </Button>
+          <Button
+            type="button"
+            variant="transparent"
+            icon={<Trash2 size={18} strokeWidth={2} aria-hidden />}
+            onClick={() => setIsResetDialogOpen(true)}
+          >
+            Reset Statistics
+          </Button>
+        </div>
       </main>
+      {isResetDialogOpen ? (
+        <ConfirmDialog
+          title="Reset Statistics"
+          body="This permanently clears your statistics on this device and can't be undone. It only affects this device."
+          confirmLabel="Reset"
+          cancelLabel="Cancel"
+          confirmVariant="destructive"
+          onCancel={() => setIsResetDialogOpen(false)}
+          onConfirm={() => {
+            statisticsService.clear()
+            setIsResetDialogOpen(false)
+          }}
+        />
+      ) : null}
     </div>
   )
 }
