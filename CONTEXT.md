@@ -69,6 +69,18 @@ Situation where persisted **Statistics store schema version** is **higher** than
 
 _Avoid_: silently wiping or downgrading on-disk statistics written by a newer version.
 
+**Configured round size**:
+The player’s persisted preference, on this device, for how many questions the **next** **Completed quiz (recorded)** should contain. A setting about future rounds — distinct from a record’s historical **question count per round**. It may be either a **fixed** positive integer (within the catalog size) or the intent **All countries in catalog** — meaning “use everyone currently in the deck”, which tracks the catalog if country rows are added or removed later. Once a round has begun (questions generated), changing this preference does not alter that in-flight round — only the **next** round reads the saved value again.
+
+_Avoid_: calling this “session settings” or reusing **question count per round** for it — that term is reserved for the count stored on a finished record.
+
+**Quiz preferences store**:
+Device-local persisted quiz UI preferences (including **Configured round size**) in `localStorage`, separate from the **Statistics store**. There is no schema-version envelope for this blob in current scope — unreadable or corrupt preference JSON falls back to the **Configured round size** default (fixed **10**).
+
+_Avoid_: lumping preference persistence into the **Statistics store** envelope — preferences evolve independently from **Quiz session records**.
+
+_Avoid_: expecting **Outdated client (statistics)**-style behaviour for the **Quiz preferences store** — preference blobs use parse-and-default without a separate schema-version handshake.
+
 ## Relationships
 
 - One **Completed quiz (recorded)** appends one **Quiz session record** to the **Statistics store** when the player finishes the final question and sees results.
@@ -79,6 +91,10 @@ _Avoid_: silently wiping or downgrading on-disk statistics written by a newer ve
 - A **Statistics reset** empties the **Statistics store**, after which the UI returns to the **Statistics empty state** until new **Completed quiz (recorded)** rows exist.
 - The persisted **Statistics store** carries a **Statistics store schema version** together with its **Quiz session records**.
 - An **Outdated client (statistics)** treats the **Statistics store** as read-only from that bundle’s perspective until the user loads a build that understands the on-disk **Statistics store schema version**.
+- The **Configured round size** is read at the start of a new round to decide how many questions to generate; it does not retroactively change any existing **Quiz session record**, whose **question count per round** stays as recorded.
+- Changing **Configured round size** while a round is in progress does not resize or regenerate that round’s question list; only the **next** round uses the newly saved preference.
+- When **Configured round size** is **All countries in catalog**, the implemented question count for that round is the current catalog length at **start of round** time; **Quiz session records** still store that concrete **question count per round** for history.
+- **Quiz preferences store** is independent of **Statistics store**; resetting statistics does not reset **Configured round size**. Corrupt or unreadable preference JSON yields the **Configured round size** default until valid preferences are saved again.
 
 ## Example dialogue
 
@@ -114,6 +130,18 @@ _Avoid_: silently wiping or downgrading on-disk statistics written by a newer ve
 
 > **Dev:** "How many decimals on the percentage tiles?"
 > **Domain expert:** "**Statistics percentage display** — **two** digits after the point."
+
+> **Dev:** "If the player changes how many questions a round has, do old recorded games update?"
+> **Domain expert:** "No — **Configured round size** only affects the **next** round. The historical **question count per round** on each **Quiz session record** is frozen."
+
+> **Dev:** "Does wiping statistics reset round length?"
+> **Domain expert:** "No — **Statistics reset** clears **Quiz session records** only. **Configured round size** lives in the **Quiz preferences store**."
+
+> **Dev:** "Player changes round length mid-quiz — does the current round jump?"
+> **Domain expert:** "No — **Configured round size** applies when the **next** round starts. The round already underway keeps its generated question list."
+
+> **Dev:** "If `localStorage` for preferences is garbage, do we still play?"
+> **Domain expert:** "We fall back to the default **Configured round size** (10) and keep going — we don’t version the **Quiz preferences store** like the **Statistics store**."
 
 ## Flagged ambiguities
 
