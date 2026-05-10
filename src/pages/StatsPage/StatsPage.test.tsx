@@ -161,7 +161,7 @@ describe('StatsPage', () => {
     })
     expect(within(totalTimeCard).getByText('1m 30s')).toBeInTheDocument()
     expect(
-      within(totalTimeCard).getByText(/results screen is not included/i),
+      within(totalTimeCard).getByText(/idle on results not counted/i),
     ).toBeInTheDocument()
   })
 })

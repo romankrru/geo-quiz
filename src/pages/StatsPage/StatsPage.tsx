@@ -78,7 +78,7 @@ export const StatsPage = () => {
     {
       value: totalTimePlayed,
       label: 'Total Time Played',
-      hint: 'Sums round duration per game (start through results); time on the results screen is not included.',
+      hint: 'Idle on results not counted.',
     },
     {
       value:
