@@ -1,9 +1,6 @@
-export type QuizSessionRecord = {
-  completedAt: string
-  score: number
-  questionCount: number
-  roundDurationMs: number
-}
+import type { QuizSessionRecord } from './statistics.schema'
+
+export type { QuizSessionRecord }
 
 export type PersistedPayload = {
   schemaVersion: number

@@ -4,6 +4,11 @@ import {
   STATISTICS_STORE_CHANGED_EVENT,
   STATISTICS_STORE_SCHEMA_VERSION,
 } from './statistics.constants'
+import {
+  persistedStatisticsFromStorageStringSchema,
+  quizSessionRecordArraySchema,
+  quizSessionRecordSchema,
+} from './statistics.schema'
 import type {
   PersistedPayload,
   QuizSessionRecord,
@@ -31,86 +36,35 @@ function isPerfectSession(session: QuizSessionRecord): boolean {
   return session.questionCount > 0 && session.score === session.questionCount
 }
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-function isFiniteNumber(value: unknown): value is number {
-  return typeof value === 'number' && Number.isFinite(value)
-}
-
-function isQuizSessionRecord(value: unknown): value is QuizSessionRecord {
-  if (!isPlainObject(value)) {
-    return false
-  }
-  if (typeof value.completedAt !== 'string' || value.completedAt.length === 0) {
-    return false
-  }
-  if (
-    !isFiniteNumber(value.score) ||
-    !isFiniteNumber(value.questionCount) ||
-    !isFiniteNumber(value.roundDurationMs)
-  ) {
-    return false
-  }
-  if (value.score < 0 || value.questionCount < 0 || value.roundDurationMs < 0) {
-    return false
-  }
-  return true
-}
-
-function parseSessionsPayload(
-  sessionsUnknown: unknown,
-): QuizSessionRecord[] | null {
-  if (!Array.isArray(sessionsUnknown)) {
-    return null
-  }
-  const sessions: QuizSessionRecord[] = []
-  for (const row of sessionsUnknown) {
-    if (!isQuizSessionRecord(row)) {
-      return null
-    }
-    sessions.push(row)
-  }
-  return sessions
-}
-
 function readPersistedStatistics(
   raw: string | null,
 ): StatisticsStoreReadResult {
   if (raw === null) {
     return { status: 'ok', sessions: [] }
   }
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(raw) as unknown
-  } catch {
+
+  const envelope = persistedStatisticsFromStorageStringSchema.safeParse(raw)
+  if (!envelope.success) {
     return { status: 'corrupted' }
   }
-  if (!isPlainObject(parsed)) {
-    return { status: 'corrupted' }
-  }
-  const schemaVersionRaw = parsed.schemaVersion
-  if (
-    !isFiniteNumber(schemaVersionRaw) ||
-    !Number.isInteger(schemaVersionRaw)
-  ) {
-    return { status: 'corrupted' }
-  }
-  if (schemaVersionRaw > STATISTICS_STORE_SCHEMA_VERSION) {
+
+  const { schemaVersion, sessions: sessionsRaw } = envelope.data
+  if (schemaVersion > STATISTICS_STORE_SCHEMA_VERSION) {
     return {
       status: 'outdated-client',
-      persistedSchemaVersion: schemaVersionRaw,
+      persistedSchemaVersion: schemaVersion,
     }
   }
-  if (schemaVersionRaw < MIN_SUPPORTED_STATISTICS_SCHEMA_VERSION) {
+  if (schemaVersion < MIN_SUPPORTED_STATISTICS_SCHEMA_VERSION) {
     return { status: 'corrupted' }
   }
-  const sessions = parseSessionsPayload(parsed.sessions)
-  if (sessions === null) {
+
+  const sessions = quizSessionRecordArraySchema.safeParse(sessionsRaw)
+  if (!sessions.success) {
     return { status: 'corrupted' }
   }
-  return { status: 'ok', sessions }
+
+  return { status: 'ok', sessions: sessions.data }
 }
 
 function persistStatistics(sessions: QuizSessionRecord[]): boolean {
@@ -132,7 +86,7 @@ export const statisticsService = {
   },
 
   appendSession(record: QuizSessionRecord): void {
-    if (!isQuizSessionRecord(record)) {
+    if (!quizSessionRecordSchema.safeParse(record).success) {
       return
     }
     const raw = localStorage.getItem(STATISTICS_STORAGE_KEY)
