@@ -84,3 +84,191 @@ describe('statistics metrics', () => {
     expect(statisticsService.formatStatisticsPercentage(7)).toBe('7.00%')
   })
 })
+
+describe('best score statistics', () => {
+  it('returns null when there are no sessions', () => {
+    expect(statisticsService.computeBestScoreStatistics([])).toBeNull()
+  })
+
+  it('returns null when every session has zero questions', () => {
+    const sessions: QuizSessionRecord[] = [
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 0,
+        questionCount: 0,
+        roundDurationMs: 1_000,
+      },
+    ]
+    expect(statisticsService.computeBestScoreStatistics(sessions)).toBeNull()
+  })
+
+  it('selects the only session as best score', () => {
+    const sessions: QuizSessionRecord[] = [
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 7,
+        questionCount: 10,
+        roundDurationMs: 60_000,
+      },
+    ]
+    expect(statisticsService.computeBestScoreStatistics(sessions)).toEqual({
+      score: 7,
+      questionCount: 10,
+    })
+  })
+
+  it('tie-breaks equal accuracy with the larger question count', () => {
+    const sessions: QuizSessionRecord[] = [
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 3,
+        questionCount: 5,
+        roundDurationMs: 1_000,
+      },
+      {
+        completedAt: '2026-05-09T12:01:00.000Z',
+        score: 6,
+        questionCount: 10,
+        roundDurationMs: 2_000,
+      },
+    ]
+    expect(statisticsService.computeBestScoreStatistics(sessions)).toEqual({
+      score: 6,
+      questionCount: 10,
+    })
+  })
+
+  it('prefers higher accuracy when ratios differ', () => {
+    const sessions: QuizSessionRecord[] = [
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 8,
+        questionCount: 10,
+        roundDurationMs: 1_000,
+      },
+      {
+        completedAt: '2026-05-09T12:01:00.000Z',
+        score: 7,
+        questionCount: 10,
+        roundDurationMs: 2_000,
+      },
+    ]
+    expect(statisticsService.computeBestScoreStatistics(sessions)).toEqual({
+      score: 8,
+      questionCount: 10,
+    })
+  })
+
+  it('formats best score as score divided by question count', () => {
+    expect(
+      statisticsService.formatBestScoreStatistics({
+        score: 9,
+        questionCount: 10,
+      }),
+    ).toBe('9 / 10')
+  })
+})
+
+describe('best streak statistics', () => {
+  it('returns zero when there are no sessions', () => {
+    expect(statisticsService.computeBestStreakStatistics([])).toBe(0)
+  })
+
+  it('returns zero when no session is perfect', () => {
+    const sessions: QuizSessionRecord[] = [
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 9,
+        questionCount: 10,
+        roundDurationMs: 1_000,
+      },
+    ]
+    expect(statisticsService.computeBestStreakStatistics(sessions)).toBe(0)
+  })
+
+  it('counts consecutive perfect sessions in completion order', () => {
+    const sessions: QuizSessionRecord[] = [
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 10,
+        questionCount: 10,
+        roundDurationMs: 1_000,
+      },
+      {
+        completedAt: '2026-05-09T12:30:00.000Z',
+        score: 5,
+        questionCount: 5,
+        roundDurationMs: 2_000,
+      },
+    ]
+    expect(statisticsService.computeBestStreakStatistics(sessions)).toBe(2)
+  })
+
+  it('resets the streak after an imperfect session', () => {
+    const sessions: QuizSessionRecord[] = [
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 10,
+        questionCount: 10,
+        roundDurationMs: 1_000,
+      },
+      {
+        completedAt: '2026-05-09T12:10:00.000Z',
+        score: 8,
+        questionCount: 10,
+        roundDurationMs: 2_000,
+      },
+      {
+        completedAt: '2026-05-09T12:20:00.000Z',
+        score: 10,
+        questionCount: 10,
+        roundDurationMs: 3_000,
+      },
+    ]
+    expect(statisticsService.computeBestStreakStatistics(sessions)).toBe(1)
+  })
+
+  it('orders identical timestamps by session list index for a reproducible streak', () => {
+    const sameTime = '2026-05-09T12:00:00.000Z'
+    const sessions: QuizSessionRecord[] = [
+      {
+        completedAt: sameTime,
+        score: 10,
+        questionCount: 10,
+        roundDurationMs: 1_000,
+      },
+      {
+        completedAt: sameTime,
+        score: 8,
+        questionCount: 10,
+        roundDurationMs: 2_000,
+      },
+      {
+        completedAt: sameTime,
+        score: 10,
+        questionCount: 10,
+        roundDurationMs: 3_000,
+      },
+    ]
+    expect(statisticsService.computeBestStreakStatistics(sessions)).toBe(1)
+  })
+
+  it('chains perfect runs that share the same completion timestamp using list order', () => {
+    const sameTime = '2026-05-09T12:00:00.000Z'
+    const sessions: QuizSessionRecord[] = [
+      {
+        completedAt: sameTime,
+        score: 3,
+        questionCount: 3,
+        roundDurationMs: 1_000,
+      },
+      {
+        completedAt: sameTime,
+        score: 2,
+        questionCount: 2,
+        roundDurationMs: 2_000,
+      },
+    ]
+    expect(statisticsService.computeBestStreakStatistics(sessions)).toBe(2)
+  })
+})

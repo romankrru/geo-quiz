@@ -38,9 +38,7 @@ describe('StatsPage', () => {
   it('shows statistics empty state when there are no sessions', () => {
     renderStatsPage()
 
-    expect(
-      screen.getByText(/nothing recorded yet/i),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/nothing recorded yet/i)).toBeInTheDocument()
   })
 
   it('shows average score and overall accuracy from quiz session records', () => {
@@ -85,5 +83,58 @@ describe('StatsPage', () => {
 
     expect(within(averageCard).getByText('50.00%')).toBeInTheDocument()
     expect(within(overallCard).getByText('9.09%')).toBeInTheDocument()
+  })
+
+  it('shows best score and best streak from quiz session records', () => {
+    readSpy.mockReturnValue([
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 7,
+        questionCount: 10,
+        roundDurationMs: 120_000,
+      },
+      {
+        completedAt: '2026-05-09T12:30:00.000Z',
+        score: 10,
+        questionCount: 10,
+        roundDurationMs: 90_000,
+      },
+    ])
+
+    renderStatsPage()
+
+    const bestScoreCard = screen.getByRole('group', { name: 'Best Score' })
+    const bestStreakCard = screen.getByRole('group', { name: 'Best Streak' })
+
+    expect(within(bestScoreCard).getByText('10 / 10')).toBeInTheDocument()
+    expect(within(bestStreakCard).getByText('1')).toBeInTheDocument()
+    expect(
+      within(bestScoreCard).getByText(/score ÷ questions/i),
+    ).toBeInTheDocument()
+    expect(
+      within(bestStreakCard).getByText(/one miss resets/i),
+    ).toBeInTheDocument()
+  })
+
+  it('shows a best streak greater than one when perfect sessions are consecutive', () => {
+    readSpy.mockReturnValue([
+      {
+        completedAt: '2026-05-09T12:00:00.000Z',
+        score: 10,
+        questionCount: 10,
+        roundDurationMs: 60_000,
+      },
+      {
+        completedAt: '2026-05-09T12:30:00.000Z',
+        score: 5,
+        questionCount: 5,
+        roundDurationMs: 30_000,
+      },
+    ])
+
+    renderStatsPage()
+
+    const bestStreakCard = screen.getByRole('group', { name: 'Best Streak' })
+    expect(within(bestStreakCard).getByText('2')).toBeInTheDocument()
   })
 })
