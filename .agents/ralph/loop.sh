@@ -43,7 +43,7 @@ for i in $(seq 1 "$MAX_ITERS"); do
   echo "── ralph iter $i / $MAX_ITERS — PRD #$PRD ──"
   log="$LOG_DIR/iter-$(printf '%02d' "$i").log"
 
-  if ! claude --permission-mode acceptEdits -p "$PROMPT_BODY" 2>&1 | tee "$log"; then
+  if ! claude --dangerously-skip-permissions -p "$PROMPT_BODY" 2>&1 | tee "$log"; then
     echo "claude failed on iter $i; see $log" >&2
     exit 3
   fi
