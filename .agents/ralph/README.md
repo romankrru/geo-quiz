@@ -25,7 +25,7 @@ bash .agents/ralph/loop.sh https://github.com/romankrru/geo-quiz/issues/13
 
 Each iteration is logged to `.agents/ralph/logs/<timestamp>-prd-<n>/iter-NN.log`. The folder is gitignored.
 
-The loop invokes `claude --dangerously-skip-permissions -p …` so GitHub CLI and other tools are not stuck behind permission prompts every step. Only run Ralph on repos you trust.
+The loop invokes `claude --allowed-tools=Bash,Read,Edit,Write,MultiEdit,Grep,Glob -p …` so GitHub CLI and other tools are not stuck behind permission prompts every step. Only run Ralph on repos you trust.
 
 ### Knobs
 

@@ -2,7 +2,7 @@
 # Ralph: each iteration runs `claude` (see PROMPT.md) for the PRD until STATUS=done|blocked or MAX_ITERS.
 # Usage: bash .agents/ralph/loop.sh <issue# or GitHub issue URL>
 # Optional: MAX_ITERS (default 20). Logs under .agents/ralph/logs/.
-# Uses --dangerously-skip-permissions so `gh` and other Bash tools are not blocked on every prompt (required for this loop).
+# Uses --allowed-tools to explicitly allow Bash + file/search tools so `gh` and other commands are not blocked on every prompt (required for this loop).
 
 set -euo pipefail
 
@@ -43,7 +43,7 @@ for i in $(seq 1 "$MAX_ITERS"); do
   echo "── ralph iter $i / $MAX_ITERS — PRD #$PRD ──"
   log="$LOG_DIR/iter-$(printf '%02d' "$i").log"
 
-  if ! claude --dangerously-skip-permissions -p "$PROMPT_BODY" 2>&1 | tee "$log"; then
+  if ! claude --allowed-tools=Bash,Read,Edit,Write,MultiEdit,Grep,Glob -p "$PROMPT_BODY" 2>&1 | tee "$log"; then
     echo "claude failed on iter $i; see $log" >&2
     exit 3
   fi
