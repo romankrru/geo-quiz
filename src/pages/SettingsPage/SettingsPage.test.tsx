@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import type { ReactNode } from 'react'
+import toast from 'react-hot-toast'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
@@ -9,6 +10,15 @@ import {
 } from '@entities/preferences'
 
 import { SettingsPage } from './SettingsPage'
+
+vi.mock('react-hot-toast', () => {
+  const success = vi.fn()
+  const toastFn = vi.fn()
+  return {
+    __esModule: true,
+    default: Object.assign(toastFn, { success, error: vi.fn() }),
+  }
+})
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@tanstack/react-router')>()
@@ -53,6 +63,8 @@ describe('SettingsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(writeSpy).not.toHaveBeenCalled()
+    expect(toast).toHaveBeenCalledWith('Already up to date')
+    expect(toast.success).not.toHaveBeenCalled()
   })
 
   it('persists 25 when that preset is saved', () => {
@@ -64,6 +76,7 @@ describe('SettingsPage', () => {
     expect(writeSpy).toHaveBeenCalledTimes(1)
     expect(writeSpy).toHaveBeenCalledWith({ kind: 'fixed', value: 25 })
     expect(preferencesService.read()).toEqual({ kind: 'fixed', value: 25 })
+    expect(toast.success).toHaveBeenCalledWith('Settings saved')
   })
 
   it('persists all-countries when the All preset is saved', () => {
@@ -79,6 +92,7 @@ describe('SettingsPage', () => {
     expect(writeSpy).toHaveBeenCalledTimes(1)
     expect(writeSpy).toHaveBeenCalledWith({ kind: 'all-countries' })
     expect(preferencesService.read()).toEqual({ kind: 'all-countries' })
+    expect(toast.success).toHaveBeenCalledWith('Settings saved')
   })
 
   it('persists a custom fixed value when Custom is valid and Save is pressed', () => {
@@ -94,6 +108,7 @@ describe('SettingsPage', () => {
     expect(writeSpy).toHaveBeenCalledTimes(1)
     expect(writeSpy).toHaveBeenCalledWith({ kind: 'fixed', value: 17 })
     expect(preferencesService.read()).toEqual({ kind: 'fixed', value: 17 })
+    expect(toast.success).toHaveBeenCalledWith('Settings saved')
   })
 
   it('disables Save and marks the custom input invalid when Custom is active but the value is empty', () => {

@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
 import {
@@ -99,7 +100,10 @@ export const SettingsPage = () => {
     const persisted = preferencesService.read()
     if (!configuredRoundSizesEqual(intent, persisted)) {
       preferencesService.write(intent)
+      toast.success('Settings saved')
+      return
     }
+    toast('Already up to date')
   }
 
   const handleCustomBlur = () => {

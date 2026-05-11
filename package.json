@@ -27,6 +27,7 @@
     "react": "^19.2.5",
     "react-confetti-boom": "^2.0.1",
     "react-dom": "^19.2.5",
+    "react-hot-toast": "^2.6.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
