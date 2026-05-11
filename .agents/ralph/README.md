@@ -11,7 +11,7 @@ This works because the inner skills (`implement-issue`, `babysit`) are already i
 ## Prerequisites
 
 - `gh` CLI authenticated (`gh auth status` is green).
-- The agent CLI on `PATH`. Default: `cursor-agent`. Override via `AGENT_CMD`.
+- Claude Code CLI `claude` on `PATH`.
 - The PRD lives in this repo and uses one of the supported child-discovery formats (see below).
 - All children you want ralph to work on carry the `ready-for-agent` label. Anything HITL stays unlabeled or carries `ready-for-human` and ralph leaves it alone.
 
@@ -25,11 +25,11 @@ bash .agents/ralph/loop.sh https://github.com/romankrru/geo-quiz/issues/13
 
 Each iteration is logged to `.agents/ralph/logs/<timestamp>-prd-<n>/iter-NN.log`. The folder is gitignored.
 
+The loop invokes `claude --dangerously-skip-permissions -p …` so GitHub CLI and other tools are not stuck behind permission prompts every step. Only run Ralph on repos you trust.
+
 ### Knobs
 
 - `MAX_ITERS=N` — hard cap on iterations. Default 20.
-- `AGENT_CMD=...` — alternative agent command (must accept `-p <prompt>`).
-- `DRY_RUN=1` — print what would happen, exit before calling the agent.
 
 ### Exit codes
 
