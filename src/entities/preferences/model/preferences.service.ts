@@ -20,7 +20,11 @@ export const preferencesService = {
         return { kind: 'fixed', value: DEFAULT_ROUND_SIZE }
       }
       return parsed.data
-    } catch {
+    } catch (error) {
+      console.error(
+        '[preferencesService.read] localStorage read failed; using defaults',
+        error,
+      )
       return { kind: 'fixed', value: DEFAULT_ROUND_SIZE }
     }
   },
@@ -31,8 +35,11 @@ export const preferencesService = {
     }
     try {
       localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(value))
-    } catch {
-      // Swallow storage errors (quota, private mode, …) — consistent with statisticsService.
+    } catch (error) {
+      console.error(
+        '[preferencesService.write] localStorage.setItem failed',
+        error,
+      )
     }
   },
 

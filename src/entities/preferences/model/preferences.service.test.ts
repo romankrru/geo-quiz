@@ -44,7 +44,8 @@ describe('Quiz preferences store: read and write', () => {
     expect(preferencesService.read()).toEqual({ kind: 'all-countries' })
   })
 
-  it('swallows storage errors on write without surfacing them', () => {
+  it('logs storage errors on write without throwing', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const setSpy = vi
       .spyOn(Storage.prototype, 'setItem')
       .mockImplementation(() => {
@@ -55,8 +56,10 @@ describe('Quiz preferences store: read and write', () => {
       expect(() =>
         preferencesService.write({ kind: 'fixed', value: 25 }),
       ).not.toThrow()
+      expect(consoleSpy).toHaveBeenCalled()
     } finally {
       setSpy.mockRestore()
+      consoleSpy.mockRestore()
     }
   })
 })
