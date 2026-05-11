@@ -17,6 +17,9 @@ export function HomePage() {
           <Button as={Link} to="/game">
             Start Game
           </Button>
+          <Button as={Link} to="/settings" variant="transparent">
+            Settings
+          </Button>
           <Button as={Link} to="/stats" variant="transparent">
             View Statistics
           </Button>
