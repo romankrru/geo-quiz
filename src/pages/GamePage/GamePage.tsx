@@ -2,6 +2,7 @@ import { Clock } from 'lucide-react'
 import { Fragment, useCallback, useState } from 'react'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
+import { preferencesService } from '@entities/preferences'
 import { type QuizQuestion, quizService } from '@entities/quiz'
 import { statisticsService } from '@entities/statistics'
 import { useKeyPress, useSfx, useStopwatch } from '@shared/hooks'
@@ -22,11 +23,16 @@ import * as homeCornerStyles from './HomeCorner/HomeCorner.css'
 
 type GameStatus = 'idle' | 'playing' | 'finished'
 
-const quizCount = 10
+function resolveRoundQuestionCount(): number {
+  return preferencesService.resolveQuestionCount(
+    preferencesService.read(),
+    COUNTRIES.length,
+  )
+}
 
 export function GamePage() {
   const [questions, setQuestions] = useState<QuizQuestion[]>(() =>
-    quizService.generateQuizQuestions(COUNTRIES, quizCount),
+    quizService.generateQuizQuestions(COUNTRIES, resolveRoundQuestionCount()),
   )
   const [gameStatus, setGameStatus] = useState<GameStatus>('playing')
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -47,7 +53,9 @@ export function GamePage() {
   }
 
   const handleStart = () => {
-    setQuestions(quizService.generateQuizQuestions(COUNTRIES, quizCount))
+    setQuestions(
+      quizService.generateQuizQuestions(COUNTRIES, resolveRoundQuestionCount()),
+    )
     setCurrentQuestionIndex(0)
     setScore(0)
     setSelectedAnswer(null)

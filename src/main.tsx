@@ -1,6 +1,7 @@
 import { RouterProvider } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { Toaster } from 'react-hot-toast'
 
 import { router } from './router'
 
@@ -10,6 +11,9 @@ import './index.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <>
+      <RouterProvider router={router} />
+      <Toaster position="top-center" />
+    </>
   </StrictMode>,
 )
