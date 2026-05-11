@@ -12,7 +12,7 @@ import { Button } from '@shared/ui/Button/Button'
 
 import * as styles from './SettingsPage.css'
 
-type RoundSelection = 'ten' | 'twentyfive' | 'all' | 'custom'
+type RoundSelection = 'ten' | 'twenty_five' | 'all' | 'custom'
 
 const catalogSize = COUNTRIES.length
 
@@ -40,7 +40,7 @@ function persistedToSelection(persisted: ConfiguredRoundSize): {
     return { selection: 'ten', customDigits: '' }
   }
   if (persisted.value === 25) {
-    return { selection: 'twentyfive', customDigits: '' }
+    return { selection: 'twenty_five', customDigits: '' }
   }
   return { selection: 'custom', customDigits: String(persisted.value) }
 }
@@ -63,7 +63,7 @@ function intentFromSelection(
   if (selection === 'ten') {
     return { kind: 'fixed', value: 10 }
   }
-  if (selection === 'twentyfive') {
+  if (selection === 'twenty_five') {
     return { kind: 'fixed', value: 25 }
   }
   if (selection === 'all') {
@@ -153,9 +153,9 @@ export const SettingsPage = () => {
                 <input
                   type="radio"
                   name="configured-round-size"
-                  checked={selection === 'twentyfive'}
+                  checked={selection === 'twenty_five'}
                   onChange={() => {
-                    setSelection('twentyfive')
+                    setSelection('twenty_five')
                   }}
                 />
                 25
