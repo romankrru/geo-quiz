@@ -51,20 +51,32 @@ describe('SettingsPage', () => {
     vi.restoreAllMocks()
   })
 
-  it('shows 10 preset with disabled custom input on first load and does not write on Save without edits', () => {
+  it('shows 10 preset on first load and does not write on Save without edits', () => {
     renderSettingsPage()
 
     const ten = screen.getByRole('radio', { name: '10' })
     expect(ten).toBeChecked()
-    expect(
-      screen.getByRole('spinbutton', { name: 'Custom round size' }),
-    ).toBeDisabled()
+    const customInput = screen.getByRole('spinbutton', {
+      name: 'Custom round size',
+    })
+    expect(customInput).not.toBeDisabled()
+    expect(customInput).toHaveValue(5)
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(writeSpy).not.toHaveBeenCalled()
     expect(toast).toHaveBeenCalledWith('Already up to date')
     expect(toast.success).not.toHaveBeenCalled()
+  })
+
+  it('selects Custom when the custom round size input is focused', () => {
+    renderSettingsPage()
+
+    expect(screen.getByRole('radio', { name: '10' })).toBeChecked()
+    fireEvent.focus(
+      screen.getByRole('spinbutton', { name: 'Custom round size' }),
+    )
+    expect(screen.getByRole('radio', { name: 'Custom' })).toBeChecked()
   })
 
   it('persists 25 when that preset is saved', () => {

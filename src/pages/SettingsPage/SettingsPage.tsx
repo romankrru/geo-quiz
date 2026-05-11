@@ -16,6 +16,8 @@ type RoundSelection = 'ten' | 'twentyfive' | 'all' | 'custom'
 
 const catalogSize = COUNTRIES.length
 
+const defaultCustomRoundDigits = '5'
+
 function configuredRoundSizesEqual(
   a: ConfiguredRoundSize,
   b: ConfiguredRoundSize,
@@ -34,13 +36,13 @@ function persistedToSelection(persisted: ConfiguredRoundSize): {
   customDigits: string
 } {
   if (persisted.kind === 'all-countries') {
-    return { selection: 'all', customDigits: '' }
+    return { selection: 'all', customDigits: defaultCustomRoundDigits }
   }
   if (persisted.value === 10) {
-    return { selection: 'ten', customDigits: '' }
+    return { selection: 'ten', customDigits: defaultCustomRoundDigits }
   }
   if (persisted.value === 25) {
-    return { selection: 'twentyfive', customDigits: '' }
+    return { selection: 'twentyfive', customDigits: defaultCustomRoundDigits }
   }
   return { selection: 'custom', customDigits: String(persisted.value) }
 }
@@ -204,10 +206,12 @@ export const SettingsPage = () => {
                   inputMode="numeric"
                   min={1}
                   max={catalogSize}
-                  disabled={selection !== 'custom'}
                   aria-invalid={customInvalid && selection === 'custom'}
                   aria-label="Custom round size"
                   value={customDigits}
+                  onFocus={() => {
+                    setSelection('custom')
+                  }}
                   onChange={(event) => {
                     setCustomDigits(event.target.value)
                   }}
