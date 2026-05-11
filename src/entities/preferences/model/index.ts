@@ -3,4 +3,4 @@ export {
   PREFERENCES_STORAGE_KEY,
 } from './preferences.constants'
 export { preferencesService } from './preferences.service'
-export type { ConfiguredRoundSize } from './preferences.types'
+export type { ConfiguredRoundSize, RoundSelection } from './preferences.types'

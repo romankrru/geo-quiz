@@ -161,3 +161,104 @@ describe('clampCustomRoundSize', () => {
     )
   })
 })
+
+describe('configuredRoundSizesEqual', () => {
+  it('returns true for identical fixed values', () => {
+    expect(
+      preferencesService.configuredRoundSizesEqual(
+        { kind: 'fixed', value: 10 },
+        { kind: 'fixed', value: 10 },
+      ),
+    ).toBe(true)
+  })
+
+  it('returns false when fixed values differ', () => {
+    expect(
+      preferencesService.configuredRoundSizesEqual(
+        { kind: 'fixed', value: 10 },
+        { kind: 'fixed', value: 25 },
+      ),
+    ).toBe(false)
+  })
+
+  it('returns true for two all-countries intents', () => {
+    expect(
+      preferencesService.configuredRoundSizesEqual(
+        { kind: 'all-countries' },
+        { kind: 'all-countries' },
+      ),
+    ).toBe(true)
+  })
+
+  it('returns false when kinds differ', () => {
+    expect(
+      preferencesService.configuredRoundSizesEqual(
+        { kind: 'fixed', value: 10 },
+        { kind: 'all-countries' },
+      ),
+    ).toBe(false)
+  })
+})
+
+describe('parsePositiveIntegerDigits', () => {
+  it('parses a non-empty digit string', () => {
+    expect(preferencesService.parsePositiveIntegerDigits(' 17 ')).toBe(17)
+  })
+
+  it('returns null for empty or non-digit strings', () => {
+    expect(preferencesService.parsePositiveIntegerDigits('')).toBe(null)
+    expect(preferencesService.parsePositiveIntegerDigits('12a')).toBe(null)
+  })
+})
+
+describe('persistedToSelection', () => {
+  it('maps all-countries, 10, 25, and other fixed values', () => {
+    expect(
+      preferencesService.persistedToSelection({ kind: 'all-countries' }),
+    ).toEqual({ selection: 'all', customDigits: '' })
+    expect(
+      preferencesService.persistedToSelection({ kind: 'fixed', value: 10 }),
+    ).toEqual({ selection: 'ten', customDigits: '' })
+    expect(
+      preferencesService.persistedToSelection({ kind: 'fixed', value: 25 }),
+    ).toEqual({ selection: 'twenty_five', customDigits: '' })
+    expect(
+      preferencesService.persistedToSelection({ kind: 'fixed', value: 17 }),
+    ).toEqual({ selection: 'custom', customDigits: '17' })
+  })
+})
+
+describe('intentFromSelection', () => {
+  const catalogSize = 197
+
+  it('maps presets and all-countries', () => {
+    expect(
+      preferencesService.intentFromSelection('ten', '', catalogSize),
+    ).toEqual({ kind: 'fixed', value: 10 })
+    expect(
+      preferencesService.intentFromSelection('twenty_five', '', catalogSize),
+    ).toEqual({ kind: 'fixed', value: 25 })
+    expect(
+      preferencesService.intentFromSelection('all', '', catalogSize),
+    ).toEqual({ kind: 'all-countries' })
+  })
+
+  it('maps a valid custom digit string to fixed', () => {
+    expect(
+      preferencesService.intentFromSelection('custom', '42', catalogSize),
+    ).toEqual({ kind: 'fixed', value: 42 })
+  })
+
+  it('falls back to 10 when custom is invalid for the catalog', () => {
+    expect(
+      preferencesService.intentFromSelection(
+        'custom',
+        String(catalogSize + 1),
+        catalogSize,
+      ),
+    ).toEqual({ kind: 'fixed', value: 10 })
+    expect(
+      preferencesService.intentFromSelection('custom', '', catalogSize),
+    ).toEqual({ kind: 'fixed', value: 10 })
+  })
+})

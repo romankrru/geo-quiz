@@ -63,9 +63,7 @@ describe('SettingsPage', () => {
     })
     expect(customInput).not.toBeDisabled()
     expect(customInput).toHaveValue(null)
-    expect(customInput.className).toContain(
-      settingsStyles.numberInputInactive,
-    )
+    expect(customInput.className).toContain(settingsStyles.numberInputInactive)
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 

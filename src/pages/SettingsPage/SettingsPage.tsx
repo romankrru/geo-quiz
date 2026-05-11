@@ -4,90 +4,23 @@ import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
-import {
-  type ConfiguredRoundSize,
-  preferencesService,
-} from '@entities/preferences'
+import { preferencesService, type RoundSelection } from '@entities/preferences'
 import { Button } from '@shared/ui/Button/Button'
 
 import * as styles from './SettingsPage.css'
 
-type RoundSelection = 'ten' | 'twenty_five' | 'all' | 'custom'
-
 const catalogSize = COUNTRIES.length
-
-function configuredRoundSizesEqual(
-  a: ConfiguredRoundSize,
-  b: ConfiguredRoundSize,
-): boolean {
-  if (a.kind !== b.kind) {
-    return false
-  }
-  if (a.kind === 'fixed' && b.kind === 'fixed') {
-    return a.value === b.value
-  }
-  return true
-}
-
-function persistedToSelection(persisted: ConfiguredRoundSize): {
-  selection: RoundSelection
-  customDigits: string
-} {
-  if (persisted.kind === 'all-countries') {
-    return { selection: 'all', customDigits: '' }
-  }
-  if (persisted.value === 10) {
-    return { selection: 'ten', customDigits: '' }
-  }
-  if (persisted.value === 25) {
-    return { selection: 'twenty_five', customDigits: '' }
-  }
-  return { selection: 'custom', customDigits: String(persisted.value) }
-}
-
-function parsePositiveIntegerDigits(raw: string): number | null {
-  const trimmed = raw.trim()
-  if (trimmed === '') {
-    return null
-  }
-  if (!/^\d+$/.test(trimmed)) {
-    return null
-  }
-  return Number.parseInt(trimmed, 10)
-}
-
-function intentFromSelection(
-  selection: RoundSelection,
-  customDigits: string,
-): ConfiguredRoundSize {
-  if (selection === 'ten') {
-    return { kind: 'fixed', value: 10 }
-  }
-  if (selection === 'twenty_five') {
-    return { kind: 'fixed', value: 25 }
-  }
-  if (selection === 'all') {
-    return { kind: 'all-countries' }
-  }
-  const parsed = parsePositiveIntegerDigits(customDigits)
-  if (
-    parsed === null ||
-    !preferencesService.isValidCustomRoundSize(parsed, catalogSize)
-  ) {
-    return { kind: 'fixed', value: 10 }
-  }
-  return { kind: 'fixed', value: parsed }
-}
 
 export const SettingsPage = () => {
   const initial = useMemo(
-    () => persistedToSelection(preferencesService.read()),
+    () => preferencesService.persistedToSelection(preferencesService.read()),
     [],
   )
   const [selection, setSelection] = useState<RoundSelection>(initial.selection)
   const [customDigits, setCustomDigits] = useState(initial.customDigits)
 
-  const customParsed = parsePositiveIntegerDigits(customDigits)
+  const customParsed =
+    preferencesService.parsePositiveIntegerDigits(customDigits)
   const customInvalid =
     selection === 'custom' &&
     (customParsed === null ||
@@ -96,9 +29,13 @@ export const SettingsPage = () => {
   const saveDisabled = selection === 'custom' ? customInvalid : false
 
   const handleSave = () => {
-    const intent = intentFromSelection(selection, customDigits)
+    const intent = preferencesService.intentFromSelection(
+      selection,
+      customDigits,
+      catalogSize,
+    )
     const persisted = preferencesService.read()
-    if (!configuredRoundSizesEqual(intent, persisted)) {
+    if (!preferencesService.configuredRoundSizesEqual(intent, persisted)) {
       preferencesService.write(intent)
       toast.success('Settings saved')
       return
@@ -110,7 +47,7 @@ export const SettingsPage = () => {
     if (selection !== 'custom') {
       return
     }
-    const parsed = parsePositiveIntegerDigits(customDigits)
+    const parsed = preferencesService.parsePositiveIntegerDigits(customDigits)
     if (parsed === null) {
       return
     }
@@ -185,17 +122,15 @@ export const SettingsPage = () => {
                 </label>
                 <input
                   id="settings-custom-round-size"
-                  className={
-                    `${styles.numberInput}${
-                      selection !== 'custom'
-                        ? ` ${styles.numberInputInactive}`
-                        : ''
-                    }${
-                      customInvalid && selection === 'custom'
-                        ? ` ${styles.numberInputInvalid}`
-                        : ''
-                    }`
-                  }
+                  className={`${styles.numberInput}${
+                    selection !== 'custom'
+                      ? ` ${styles.numberInputInactive}`
+                      : ''
+                  }${
+                    customInvalid && selection === 'custom'
+                      ? ` ${styles.numberInputInvalid}`
+                      : ''
+                  }`}
                   type="number"
                   inputMode="numeric"
                   min={1}

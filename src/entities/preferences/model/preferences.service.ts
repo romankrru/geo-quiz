@@ -6,32 +6,22 @@ import {
   configuredRoundSizeSchema,
   persistedPreferencesFromStorageStringSchema,
 } from './preferences.schema'
-import type { ConfiguredRoundSize } from './preferences.types'
-
-const defaultRoundSize = (): ConfiguredRoundSize => ({
-  kind: 'fixed',
-  value: DEFAULT_ROUND_SIZE,
-})
-
-function readPersistedPreferences(raw: string | null): ConfiguredRoundSize {
-  if (raw === null) {
-    return defaultRoundSize()
-  }
-  const parsed = persistedPreferencesFromStorageStringSchema.safeParse(raw)
-  if (!parsed.success) {
-    return defaultRoundSize()
-  }
-  return parsed.data
-}
+import type { ConfiguredRoundSize, RoundSelection } from './preferences.types'
 
 export const preferencesService = {
   read(): ConfiguredRoundSize {
     try {
-      return readPersistedPreferences(
-        localStorage.getItem(PREFERENCES_STORAGE_KEY),
-      )
+      const raw = localStorage.getItem(PREFERENCES_STORAGE_KEY)
+      if (raw === null) {
+        return { kind: 'fixed', value: DEFAULT_ROUND_SIZE }
+      }
+      const parsed = persistedPreferencesFromStorageStringSchema.safeParse(raw)
+      if (!parsed.success) {
+        return { kind: 'fixed', value: DEFAULT_ROUND_SIZE }
+      }
+      return parsed.data
     } catch {
-      return defaultRoundSize()
+      return { kind: 'fixed', value: DEFAULT_ROUND_SIZE }
     }
   },
 
@@ -66,6 +56,76 @@ export const preferencesService = {
       return false
     }
     return value >= 1 && value <= catalogSize
+  },
+
+  configuredRoundSizesEqual(
+    a: ConfiguredRoundSize,
+    b: ConfiguredRoundSize,
+  ): boolean {
+    if (a.kind !== b.kind) {
+      return false
+    }
+    if (a.kind === 'fixed' && b.kind === 'fixed') {
+      return a.value === b.value
+    }
+    return true
+  },
+
+  parsePositiveIntegerDigits(raw: string): number | null {
+    const trimmed = raw.trim()
+    if (trimmed === '') {
+      return null
+    }
+    if (!/^\d+$/.test(trimmed)) {
+      return null
+    }
+    return Number.parseInt(trimmed, 10)
+  },
+
+  persistedToSelection(persisted: ConfiguredRoundSize): {
+    selection: RoundSelection
+    customDigits: string
+  } {
+    if (persisted.kind === 'all-countries') {
+      return { selection: 'all', customDigits: '' }
+    }
+    if (persisted.value === 10) {
+      return { selection: 'ten', customDigits: '' }
+    }
+    if (persisted.value === 25) {
+      return { selection: 'twenty_five', customDigits: '' }
+    }
+    return { selection: 'custom', customDigits: String(persisted.value) }
+  },
+
+  intentFromSelection(
+    selection: RoundSelection,
+    customDigits: string,
+    catalogSize: number,
+  ): ConfiguredRoundSize {
+    if (selection === 'ten') {
+      return { kind: 'fixed', value: 10 }
+    }
+    if (selection === 'twenty_five') {
+      return { kind: 'fixed', value: 25 }
+    }
+    if (selection === 'all') {
+      return { kind: 'all-countries' }
+    }
+    const trimmed = customDigits.trim()
+    const parsed =
+      trimmed === '' || !/^\d+$/.test(trimmed)
+        ? null
+        : Number.parseInt(trimmed, 10)
+    if (
+      parsed === null ||
+      !Number.isInteger(parsed) ||
+      parsed < 1 ||
+      parsed > catalogSize
+    ) {
+      return { kind: 'fixed', value: 10 }
+    }
+    return { kind: 'fixed', value: parsed }
   },
 
   /**
