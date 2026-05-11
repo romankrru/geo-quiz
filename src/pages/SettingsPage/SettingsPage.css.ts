@@ -55,7 +55,6 @@ export const legend = style({
   fontSize: '1rem',
   fontWeight: 600,
   color: vars.color.heading,
-  padding: '0 0.35rem',
 })
 
 export const radioStack = style({

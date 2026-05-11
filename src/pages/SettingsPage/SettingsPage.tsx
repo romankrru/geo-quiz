@@ -144,7 +144,9 @@ export const SettingsPage = () => {
           }}
         >
           <fieldset className={styles.fieldset}>
-            <legend className={styles.legend}>Configured round size</legend>
+            <span>
+              <legend className={styles.legend}>Round size</legend>
+            </span>
             <div className={styles.radioStack}>
               <label className={styles.radioLabel}>
                 <input
