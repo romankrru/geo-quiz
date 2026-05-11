@@ -8,6 +8,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import { GamePage } from './pages/GamePage/GamePage'
 import { HomePage } from './pages/HomePage/HomePage'
+import { SettingsPage } from './pages/SettingsPage/SettingsPage'
 import { StatsPage } from './pages/StatsPage/StatsPage'
 
 const rootRoute = createRootRoute({
@@ -37,7 +38,18 @@ const statsRoute = createRoute({
   component: StatsPage,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, gameRoute, statsRoute])
+const settingsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/settings',
+  component: SettingsPage,
+})
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  gameRoute,
+  statsRoute,
+  settingsRoute,
+])
 
 export const router = createRouter({ routeTree })
 
