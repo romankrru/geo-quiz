@@ -49,9 +49,27 @@ Ask the user:
 
 Iterate until the user approves the breakdown.
 
-### 5. Publish the issues to the issue tracker
+### 5. Ensure PRD routing labels exist
 
-For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the correct triage label unless instructed otherwise.
+A downstream automation (the ralph loop, see `.agents/ralph/`) finds the children of a PRD by label. Before publishing, make sure the labels exist on the issue tracker:
+
+- `prd` — meta-label, applied **only** to the parent PRD issue. Create with a description like `"Parent PRD issue"`.
+- `prd-<N>` where `<N>` is the parent PRD's issue number — applied to **both** the parent PRD and every child slice. Create with a description like `"Belongs to PRD #<N>"`.
+
+Idempotent creation:
+
+```
+gh label list --search "prd-<N>" --json name --jq '.[].name' | grep -qx "prd-<N>" \
+  || gh label create "prd-<N>" --description "Belongs to PRD #<N>" --color 5319e7
+```
+
+Same pattern for `prd`. If there is no parent PRD (the source wasn't an existing issue), skip both labels for this run.
+
+If the parent PRD lacks `prd` and `prd-<N>`, add them now (`gh issue edit <N> --add-label prd --add-label prd-<N>`). This is the **only** mutation allowed on the parent issue.
+
+### 6. Publish the issues to the issue tracker
+
+For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the `ready-for-agent` triage label and the `prd-<N>` routing label (if a parent exists) unless instructed otherwise.
 
 Publish issues in dependency order (blockers first) so you can reference real issue identifiers in the "Blocked by" field.
 
@@ -80,4 +98,4 @@ Or "None - can start immediately" if no blockers.
 
 </issue-template>
 
-Do NOT close or modify any parent issue.
+Do NOT close or modify any parent issue. The only allowed mutation is adding the `prd` and `prd-<N>` labels in step 5.
