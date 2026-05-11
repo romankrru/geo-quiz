@@ -11,6 +11,8 @@ import {
 
 import { SettingsPage } from './SettingsPage'
 
+import * as settingsStyles from './SettingsPage.css'
+
 vi.mock('react-hot-toast', () => {
   const success = vi.fn()
   const toastFn = vi.fn()
@@ -60,7 +62,10 @@ describe('SettingsPage', () => {
       name: 'Custom round size',
     })
     expect(customInput).not.toBeDisabled()
-    expect(customInput).toHaveValue(5)
+    expect(customInput).toHaveValue(null)
+    expect(customInput.className).toContain(
+      settingsStyles.numberInputInactive,
+    )
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -73,10 +78,14 @@ describe('SettingsPage', () => {
     renderSettingsPage()
 
     expect(screen.getByRole('radio', { name: '10' })).toBeChecked()
-    fireEvent.focus(
-      screen.getByRole('spinbutton', { name: 'Custom round size' }),
-    )
+    const customInput = screen.getByRole('spinbutton', {
+      name: 'Custom round size',
+    })
+    fireEvent.focus(customInput)
     expect(screen.getByRole('radio', { name: 'Custom' })).toBeChecked()
+    expect(customInput.className).not.toContain(
+      settingsStyles.numberInputInactive,
+    )
   })
 
   it('persists 25 when that preset is saved', () => {

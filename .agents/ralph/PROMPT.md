@@ -117,7 +117,7 @@ The driver greps the log for this sentinel. Anything else aborts the loop.
 
 - **Do one thing per iteration.** Do not chain "implement #14, then #15" in a single call. The driver re-runs you for the next child.
 - **Never edit the PRD body.** Only post comments. The PRD body is owned by humans / `to-issues`. Closing the PRD is the maintainer's call after merging the epic into `main`.
-- **Never apply or remove triage labels** (`needs-info`, `ready-for-agent`, …) on the PRD itself. You may apply `needs-info` to a *child* if `implement-issue` reports a blocker — that's allowed.
+- **Never apply or remove triage labels** (`needs-info`, `ready-for-agent`, …) on the PRD itself. You may apply `needs-info` to a _child_ if `implement-issue` reports a blocker — that's allowed.
 - **Branch child work off the epic branch `prd/$PRD-<slug>`**, never off `main` directly. The epic branch is the only ralph-owned branch that targets `main`. If you see stale `ralph/<n>-*` branches with no open PR, ignore them and let the maintainer clean up.
 - **Never merge anything into `main`.** Only the maintainer merges the epic PR after QA.
 - **Disagree and stop, never disagree and ship.** If a brief contradicts an ADR or `CONTEXT.md`, mark the child `needs-info` and exit `STATUS=blocked`.

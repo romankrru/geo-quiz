@@ -16,8 +16,6 @@ type RoundSelection = 'ten' | 'twentyfive' | 'all' | 'custom'
 
 const catalogSize = COUNTRIES.length
 
-const defaultCustomRoundDigits = '5'
-
 function configuredRoundSizesEqual(
   a: ConfiguredRoundSize,
   b: ConfiguredRoundSize,
@@ -36,13 +34,13 @@ function persistedToSelection(persisted: ConfiguredRoundSize): {
   customDigits: string
 } {
   if (persisted.kind === 'all-countries') {
-    return { selection: 'all', customDigits: defaultCustomRoundDigits }
+    return { selection: 'all', customDigits: '' }
   }
   if (persisted.value === 10) {
-    return { selection: 'ten', customDigits: defaultCustomRoundDigits }
+    return { selection: 'ten', customDigits: '' }
   }
   if (persisted.value === 25) {
-    return { selection: 'twentyfive', customDigits: defaultCustomRoundDigits }
+    return { selection: 'twentyfive', customDigits: '' }
   }
   return { selection: 'custom', customDigits: String(persisted.value) }
 }
@@ -127,16 +125,6 @@ export const SettingsPage = () => {
   return (
     <div className={styles.root}>
       <main className={styles.main}>
-        <div className={styles.topActions}>
-          <Button
-            as={Link}
-            to="/"
-            variant="transparent"
-            icon={<ArrowLeft size={18} strokeWidth={2} aria-hidden />}
-          >
-            Back to Start
-          </Button>
-        </div>
         <h1 className={styles.pageTitle}>Settings</h1>
         <form
           className={styles.form}
@@ -198,9 +186,15 @@ export const SettingsPage = () => {
                 <input
                   id="settings-custom-round-size"
                   className={
-                    customInvalid && selection === 'custom'
-                      ? `${styles.numberInput} ${styles.numberInputInvalid}`
-                      : styles.numberInput
+                    `${styles.numberInput}${
+                      selection !== 'custom'
+                        ? ` ${styles.numberInputInactive}`
+                        : ''
+                    }${
+                      customInvalid && selection === 'custom'
+                        ? ` ${styles.numberInputInvalid}`
+                        : ''
+                    }`
                   }
                   type="number"
                   inputMode="numeric"
@@ -208,7 +202,7 @@ export const SettingsPage = () => {
                   max={catalogSize}
                   aria-invalid={customInvalid && selection === 'custom'}
                   aria-label="Custom round size"
-                  value={customDigits}
+                  value={selection === 'custom' ? customDigits : ''}
                   onFocus={() => {
                     setSelection('custom')
                   }}
@@ -220,7 +214,15 @@ export const SettingsPage = () => {
               </div>
             </div>
           </fieldset>
-          <div className={styles.saveRow}>
+          <div className={styles.formActions}>
+            <Button
+              as={Link}
+              to="/"
+              variant="transparent"
+              icon={<ArrowLeft size={18} strokeWidth={2} aria-hidden />}
+            >
+              Back to Start
+            </Button>
             <Button type="submit" disabled={saveDisabled}>
               Save
             </Button>

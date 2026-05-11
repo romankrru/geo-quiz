@@ -29,11 +29,6 @@ export const pageTitle = style({
   textAlign: 'center',
 })
 
-export const topActions = style({
-  display: 'flex',
-  justifyContent: 'center',
-})
-
 export const form = style({
   display: 'flex',
   flexDirection: 'column',
@@ -91,12 +86,19 @@ export const numberInput = style({
   maxWidth: '8rem',
 })
 
+export const numberInputInactive = style({
+  opacity: 0.45,
+})
+
 export const numberInputInvalid = style({
   borderColor: vars.color.error,
   outlineColor: vars.color.error,
 })
 
-export const saveRow = style({
+export const formActions = style({
   display: 'flex',
-  justifyContent: 'center',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  gap: '1rem',
+  flexWrap: 'wrap',
 })

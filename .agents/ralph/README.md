@@ -33,13 +33,13 @@ Each iteration is logged to `.agents/ralph/logs/<timestamp>-prd-<n>/iter-NN.log`
 
 ### Exit codes
 
-| Code | Meaning |
-| ---- | ------- |
-| 0    | PRD finished — all children merged, PRD closed. |
+| Code | Meaning                                                                                         |
+| ---- | ----------------------------------------------------------------------------------------------- |
+| 0    | PRD finished — all children merged, PRD closed.                                                 |
 | 2    | Blocked. A child needs human attention; see the last log and the comment ralph left on the PRD. |
-| 3    | Agent returned without a `STATUS=...` line. Bug in the prompt or agent crash. |
-| 4    | Hit `MAX_ITERS`. Either raise the cap or investigate why progress is slow. |
-| 5    | Bad usage / preconditions failed (no `gh`, no auth, can't parse issue number, …). |
+| 3    | Agent returned without a `STATUS=...` line. Bug in the prompt or agent crash.                   |
+| 4    | Hit `MAX_ITERS`. Either raise the cap or investigate why progress is slow.                      |
+| 5    | Bad usage / preconditions failed (no `gh`, no auth, can't parse issue number, …).               |
 
 ## How children are discovered
 
@@ -56,7 +56,7 @@ If the PRD or its children are missing these labels, ralph leaves a comment aski
 
 - Implement HITL slices. Anything without `ready-for-agent` is left for a human.
 - Edit the PRD body. The `## Tasks` checklist is owned by `to-issues` and humans. GitHub itself ticks the boxes when child issues close.
-- Resolve merge conflicts of substance. `babysit` resolves trivial conflicts; anything with conflicting *intent* gets `STATUS=blocked`.
+- Resolve merge conflicts of substance. `babysit` resolves trivial conflicts; anything with conflicting _intent_ gets `STATUS=blocked`.
 - Run in parallel. Sequential is intentional — concurrent ralph runs on the same PRD will fight over branches and CI.
 - Persist state between iterations. If a run dies mid-way, just start it again.
 
