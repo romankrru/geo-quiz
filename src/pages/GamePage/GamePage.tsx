@@ -192,9 +192,7 @@ export function GamePage() {
                 )
               }
               onClick={handleToggleSfx}
-            >
-              {sfxEnabled ? 'Sound on' : 'Sound off'}
-            </Button>
+            />
             <div className={styles.timer}>
               <Clock className={styles.timerIcon} strokeWidth={3} size={20} />
               {formatElapsed(elapsedMs)}
