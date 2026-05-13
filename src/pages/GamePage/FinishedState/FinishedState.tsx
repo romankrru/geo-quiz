@@ -1,7 +1,10 @@
+import { Link } from '@tanstack/react-router'
 import Confetti from 'react-confetti-boom'
 
 import { cssColorToHex, themeLiterals } from '@shared/theme'
 import { Button } from '@shared/ui'
+
+import { HomeCorner } from '../HomeCorner/HomeCorner'
 
 import * as styles from './FinishedState.css'
 
@@ -29,7 +32,12 @@ export const FinishedState = (props: Props) => {
             Score: {props.score} / {props.totalQuestions}
           </p>
           <p className={styles.paragraph}>Time: {props.timeLabel}</p>
-          <Button onClick={props.onPlayAgain}>Play Again</Button>
+          <div className={styles.actions}>
+            <Button onClick={props.onPlayAgain}>Play Again</Button>
+            <Button as={Link} to="/stats" variant="transparent">
+              View Statistics
+            </Button>
+          </div>
           <div className={styles.confettiLayer} aria-hidden>
             <Confetti
               mode="boom"
@@ -44,6 +52,7 @@ export const FinishedState = (props: Props) => {
             />
           </div>
         </div>
+        <HomeCorner className={styles.homeCornerBelowCard} />
       </div>
     </div>
   )

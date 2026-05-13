@@ -1,5 +1,5 @@
 import { Clock } from 'lucide-react'
-import { Fragment, useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
 import { preferencesService, SfxToggleButton } from '@entities/preferences'
@@ -125,15 +125,12 @@ export function GamePage() {
 
   if (gameStatus === 'finished') {
     return (
-      <Fragment>
-        <HomeCorner className={homeCornerStyles.cornerFixed} />
-        <FinishedState
-          score={score}
-          totalQuestions={questions.length}
-          timeLabel={formatElapsed(elapsedMs)}
-          onPlayAgain={handleStart}
-        />
-      </Fragment>
+      <FinishedState
+        score={score}
+        totalQuestions={questions.length}
+        timeLabel={formatElapsed(elapsedMs)}
+        onPlayAgain={handleStart}
+      />
     )
   }
 

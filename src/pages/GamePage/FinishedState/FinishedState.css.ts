@@ -3,7 +3,6 @@ import { style } from '@vanilla-extract/css'
 import { vars } from '@shared/theme'
 
 export const root = style({
-  // position: 'relative',
   minHeight: '100vh',
   width: '100%',
 })
@@ -35,4 +34,22 @@ export const title = style({
 
 export const paragraph = style({
   color: vars.color.text,
+})
+
+export const actions = style({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
+  gap: 16,
+  marginTop: 8,
+})
+
+/** Wrapper for `HomeCorner` under the finished-game card (flow, not fixed). */
+export const homeCornerBelowCard = style({
+  maxWidth: 720,
+  margin: '0 auto',
+  padding: '0 20px',
+  marginTop: 20,
+  display: 'flex',
+  justifyContent: 'center',
 })
