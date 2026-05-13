@@ -1,15 +1,26 @@
 import { Link } from '@tanstack/react-router'
+import { clsx } from 'clsx'
 import { ArrowLeft } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { type ChangeEvent, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
 import { preferencesService, type RoundSelection } from '@entities/preferences'
 import { Button } from '@shared/ui/Button/Button'
+import { RadioCard, RadioCardFooterDots } from '@shared/ui/RadioCard/RadioCard'
 
 import * as styles from './SettingsPage.css'
 
 const catalogSize = COUNTRIES.length
+
+const ROUND_GROUP = 'configured-round-size'
+const DOT_SEGMENTS = 10
+
+const filledDotsForCount = (count: number) =>
+  Math.min(
+    DOT_SEGMENTS,
+    Math.max(1, Math.round((count / catalogSize) * DOT_SEGMENTS)),
+  )
 
 export const SettingsPage = () => {
   const initial = useMemo(
@@ -28,6 +39,18 @@ export const SettingsPage = () => {
       !preferencesService.isValidCustomRoundSize(customParsed, catalogSize))
 
   const saveDisabled = selection === 'custom' ? customInvalid : false
+
+  const handleRoundChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const next = event.target.value
+    if (
+      next === 'ten' ||
+      next === 'twenty_five' ||
+      next === 'all' ||
+      next === 'custom'
+    ) {
+      setSelection(next)
+    }
+  }
 
   const handleSave = () => {
     const intent = preferencesService.intentFromSelection(
@@ -62,6 +85,8 @@ export const SettingsPage = () => {
     )
   }
 
+  const customHeadline = customDigits.length > 0 ? customDigits : '\u2014'
+
   return (
     <div className={styles.root}>
       <main className={styles.main}>
@@ -81,79 +106,94 @@ export const SettingsPage = () => {
                 friendlier for warm-ups; bigger ones are a real test of memory.
               </p>
             </span>
-            <div className={styles.radioStack}>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="configured-round-size"
-                  checked={selection === 'ten'}
-                  onChange={() => {
-                    setSelection('ten')
-                  }}
-                />
-                10
-              </label>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="configured-round-size"
-                  checked={selection === 'twenty_five'}
-                  onChange={() => {
-                    setSelection('twenty_five')
-                  }}
-                />
-                25
-              </label>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="configured-round-size"
-                  checked={selection === 'all'}
-                  onChange={() => {
-                    setSelection('all')
-                  }}
-                />
-                {`All (${catalogSize})`}
-              </label>
-              <div className={styles.customRow}>
-                <label className={styles.radioLabel}>
+            <div className={styles.cardGrid}>
+              <RadioCard
+                className={styles.radioCard}
+                name={ROUND_GROUP}
+                value="ten"
+                checked={selection === 'ten'}
+                onChange={handleRoundChange}
+                headline="10"
+                title="Quick play"
+                subtitle="≈ 3 min"
+                footer={
+                  <RadioCardFooterDots
+                    totalDots={DOT_SEGMENTS}
+                    filledDots={filledDotsForCount(10)}
+                    caption={`10/${catalogSize}`}
+                  />
+                }
+              />
+              <RadioCard
+                className={styles.radioCard}
+                name={ROUND_GROUP}
+                value="twenty_five"
+                checked={selection === 'twenty_five'}
+                onChange={handleRoundChange}
+                headline="25"
+                title="Classic"
+                subtitle="≈ 8 min"
+                footer={
+                  <RadioCardFooterDots
+                    totalDots={DOT_SEGMENTS}
+                    filledDots={filledDotsForCount(25)}
+                    caption={`25/${catalogSize}`}
+                  />
+                }
+              />
+              <RadioCard
+                className={styles.radioCard}
+                name={ROUND_GROUP}
+                value="all"
+                checked={selection === 'all'}
+                onChange={handleRoundChange}
+                headline={String(catalogSize)}
+                title="Every country"
+                subtitle="≈ 45 min"
+                footer={
+                  <RadioCardFooterDots
+                    totalDots={DOT_SEGMENTS}
+                    filledDots={DOT_SEGMENTS}
+                    caption="full"
+                  />
+                }
+              />
+              <RadioCard
+                className={styles.radioCard}
+                name={ROUND_GROUP}
+                value="custom"
+                checked={selection === 'custom'}
+                onChange={handleRoundChange}
+                headline={customHeadline}
+                title="Custom"
+                subtitle="your call"
+                footer={
                   <input
-                    type="radio"
-                    name="configured-round-size"
-                    checked={selection === 'custom'}
-                    onChange={() => {
+                    id="settings-custom-round-size"
+                    className={clsx(
+                      styles.numberInput,
+                      selection !== 'custom' && styles.numberInputInactive,
+                      customInvalid &&
+                        selection === 'custom' &&
+                        styles.numberInputInvalid,
+                    )}
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={catalogSize}
+                    aria-invalid={customInvalid && selection === 'custom'}
+                    aria-label="Custom round size"
+                    value={selection === 'custom' ? customDigits : ''}
+                    onFocus={() => {
                       setSelection('custom')
                     }}
+                    onChange={(event) => {
+                      setCustomDigits(event.target.value)
+                    }}
+                    onBlur={handleCustomBlur}
                   />
-                  Custom
-                </label>
-                <input
-                  id="settings-custom-round-size"
-                  className={`${styles.numberInput}${
-                    selection !== 'custom'
-                      ? ` ${styles.numberInputInactive}`
-                      : ''
-                  }${
-                    customInvalid && selection === 'custom'
-                      ? ` ${styles.numberInputInvalid}`
-                      : ''
-                  }`}
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={catalogSize}
-                  aria-invalid={customInvalid && selection === 'custom'}
-                  aria-label="Custom round size"
-                  value={selection === 'custom' ? customDigits : ''}
-                  onFocus={() => {
-                    setSelection('custom')
-                  }}
-                  onChange={(event) => {
-                    setCustomDigits(event.target.value)
-                  }}
-                  onBlur={handleCustomBlur}
-                />
-              </div>
+                }
+              />
             </div>
           </fieldset>
           <div className={styles.formActions}>

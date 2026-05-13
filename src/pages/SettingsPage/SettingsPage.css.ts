@@ -13,7 +13,7 @@ export const root = style({
 
 export const main = style({
   width: '100%',
-  maxWidth: '32rem',
+  maxWidth: 'min(100%, 48rem)',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'stretch',
@@ -52,38 +52,28 @@ export const legend = style({
   color: vars.color.heading,
 })
 
-export const radioStack = style({
+export const cardGrid = style({
   display: 'flex',
-  flexDirection: 'column',
+  flexWrap: 'wrap',
   gap: '0.75rem',
   marginTop: '0.75rem',
 })
 
-export const radioLabel = style({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-  fontFamily: vars.fontFamily.sans,
-  fontSize: '0.9375rem',
-  color: vars.color.text,
-  cursor: 'pointer',
-})
-
-export const customRow = style({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-  flexWrap: 'wrap',
+export const radioCard = style({
+  flex: '1 1 10rem',
+  minWidth: '7.5rem',
+  maxWidth: '100%',
 })
 
 export const numberInput = style({
+  boxSizing: 'border-box',
+  width: '100%',
   fontFamily: vars.fontFamily.sans,
   fontSize: '0.9375rem',
   padding: '0.35rem 0.5rem',
   borderRadius: vars.radii.sm,
   border: `1px solid ${vars.color.text}`,
-  minWidth: '5rem',
-  maxWidth: '8rem',
+  backgroundColor: vars.color.background,
 })
 
 export const numberInputInactive = style({

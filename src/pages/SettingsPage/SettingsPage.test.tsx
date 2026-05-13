@@ -56,7 +56,7 @@ describe('SettingsPage', () => {
   it('shows 10 preset on first load and does not write on Save without edits', () => {
     renderSettingsPage()
 
-    const ten = screen.getByRole('radio', { name: '10' })
+    const ten = screen.getByRole('radio', { name: /Quick play/ })
     expect(ten).toBeChecked()
     const customInput = screen.getByRole('spinbutton', {
       name: 'Custom round size',
@@ -75,12 +75,12 @@ describe('SettingsPage', () => {
   it('selects Custom when the custom round size input is focused', () => {
     renderSettingsPage()
 
-    expect(screen.getByRole('radio', { name: '10' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: /Quick play/ })).toBeChecked()
     const customInput = screen.getByRole('spinbutton', {
       name: 'Custom round size',
     })
     fireEvent.focus(customInput)
-    expect(screen.getByRole('radio', { name: 'Custom' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: /Custom/ })).toBeChecked()
     expect(customInput.className).not.toContain(
       settingsStyles.numberInputInactive,
     )
@@ -89,7 +89,7 @@ describe('SettingsPage', () => {
   it('persists 25 when that preset is saved', () => {
     renderSettingsPage()
 
-    fireEvent.click(screen.getByRole('radio', { name: '25' }))
+    fireEvent.click(screen.getByRole('radio', { name: /Classic/ }))
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(writeSpy).toHaveBeenCalledTimes(1)
@@ -115,7 +115,7 @@ describe('SettingsPage', () => {
 
     renderSettingsPage()
 
-    fireEvent.click(screen.getByRole('radio', { name: '25' }))
+    fireEvent.click(screen.getByRole('radio', { name: /Classic/ }))
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(writeSpy).toHaveBeenCalledTimes(1)
@@ -128,11 +128,7 @@ describe('SettingsPage', () => {
   it('persists all-countries when the All preset is saved', () => {
     renderSettingsPage()
 
-    fireEvent.click(
-      screen.getByRole('radio', {
-        name: new RegExp(`^All \\(${catalogSize}\\)$`),
-      }),
-    )
+    fireEvent.click(screen.getByRole('radio', { name: /Every country/ }))
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(writeSpy).toHaveBeenCalledTimes(1)
@@ -150,7 +146,7 @@ describe('SettingsPage', () => {
   it('persists a custom fixed value when Custom is valid and Save is pressed', () => {
     renderSettingsPage()
 
-    fireEvent.click(screen.getByRole('radio', { name: 'Custom' }))
+    fireEvent.click(screen.getByRole('radio', { name: /Custom/ }))
     const customInput = screen.getByRole('spinbutton', {
       name: 'Custom round size',
     })
@@ -172,7 +168,7 @@ describe('SettingsPage', () => {
   it('disables Save and marks the custom input invalid when Custom is active but the value is empty', () => {
     renderSettingsPage()
 
-    fireEvent.click(screen.getByRole('radio', { name: 'Custom' }))
+    fireEvent.click(screen.getByRole('radio', { name: /Custom/ }))
     const customInput = screen.getByRole('spinbutton', {
       name: 'Custom round size',
     })
@@ -185,7 +181,7 @@ describe('SettingsPage', () => {
   it('disables Save when the custom value is not a positive integer string', () => {
     renderSettingsPage()
 
-    fireEvent.click(screen.getByRole('radio', { name: 'Custom' }))
+    fireEvent.click(screen.getByRole('radio', { name: /Custom/ }))
     const customInput = screen.getByRole('spinbutton', {
       name: 'Custom round size',
     })
@@ -198,7 +194,7 @@ describe('SettingsPage', () => {
   it('clamps 0 to 1 on blur when Custom is selected', () => {
     renderSettingsPage()
 
-    fireEvent.click(screen.getByRole('radio', { name: 'Custom' }))
+    fireEvent.click(screen.getByRole('radio', { name: /Custom/ }))
     const customInput = screen.getByRole('spinbutton', {
       name: 'Custom round size',
     })
@@ -211,7 +207,7 @@ describe('SettingsPage', () => {
   it('clamps values above the catalog size down to the catalog size on blur', () => {
     renderSettingsPage()
 
-    fireEvent.click(screen.getByRole('radio', { name: 'Custom' }))
+    fireEvent.click(screen.getByRole('radio', { name: /Custom/ }))
     const customInput = screen.getByRole('spinbutton', {
       name: 'Custom round size',
     })
@@ -234,7 +230,7 @@ describe('SettingsPage', () => {
 
     renderSettingsPage()
 
-    expect(screen.getByRole('radio', { name: 'Custom' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: /Custom/ })).toBeChecked()
     expect(
       screen.getByRole('spinbutton', { name: 'Custom round size' }),
     ).toHaveValue(17)
