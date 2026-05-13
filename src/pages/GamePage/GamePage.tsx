@@ -1,8 +1,8 @@
-import { Clock, Volume2, VolumeX } from 'lucide-react'
+import { Clock } from 'lucide-react'
 import { Fragment, useCallback, useState } from 'react'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
-import { preferencesService } from '@entities/preferences'
+import { preferencesService, SfxToggleButton } from '@entities/preferences'
 import { type QuizQuestion, quizService } from '@entities/quiz'
 import { statisticsService } from '@entities/statistics'
 import { useKeyPress, useSfx, useStopwatch } from '@shared/hooks'
@@ -175,22 +175,8 @@ export function GamePage() {
           </span>
           <span>Score: {score}</span>
           <div className={styles.progressHeaderRight}>
-            <Button
-              type="button"
-              variant="transparent"
-              aria-pressed={sfxEnabled}
-              aria-label={
-                sfxEnabled
-                  ? 'Sound effects on. Press to turn off.'
-                  : 'Sound effects off. Press to turn on.'
-              }
-              icon={
-                sfxEnabled ? (
-                  <Volume2 size={18} strokeWidth={3} aria-hidden />
-                ) : (
-                  <VolumeX size={18} strokeWidth={3} aria-hidden />
-                )
-              }
+            <SfxToggleButton
+              sfxEnabled={sfxEnabled}
               onClick={handleToggleSfx}
             />
             <div className={styles.timer}>
