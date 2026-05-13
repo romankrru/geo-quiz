@@ -1,17 +1,25 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { PREFERENCES_STORAGE_KEY } from './preferences.constants'
+import {
+  DEFAULT_SETTINGS,
+  PREFERENCES_STORAGE_KEY,
+} from './preferences.constants'
 import { preferencesService } from './preferences.service'
+
+const defaultPrefs = () => ({
+  round: { kind: 'fixed' as const, value: DEFAULT_SETTINGS.fixedRoundSize },
+  sfxEnabled: DEFAULT_SETTINGS.sfxEnabled,
+})
 
 describe('Quiz preferences store: read and write', () => {
   afterEach(() => {
     localStorage.clear()
   })
 
-  it('returns the default Configured round size when nothing is stored', () => {
+  it('returns the default AppPreferences when nothing is stored', () => {
     const setSpy = vi.spyOn(Storage.prototype, 'setItem')
 
-    expect(preferencesService.read()).toEqual({ kind: 'fixed', value: 10 })
+    expect(preferencesService.read()).toEqual(defaultPrefs())
     expect(setSpy).not.toHaveBeenCalled()
 
     setSpy.mockRestore()
@@ -20,28 +28,52 @@ describe('Quiz preferences store: read and write', () => {
   it('falls back to the default when the persisted blob is not JSON', () => {
     localStorage.setItem(PREFERENCES_STORAGE_KEY, '{not json')
 
-    expect(preferencesService.read()).toEqual({ kind: 'fixed', value: 10 })
+    expect(preferencesService.read()).toEqual(defaultPrefs())
   })
 
   it('falls back to the default when the persisted shape does not match', () => {
     localStorage.setItem(
       PREFERENCES_STORAGE_KEY,
-      JSON.stringify({ kind: 'fixed', value: -3 }),
+      JSON.stringify({
+        round: { kind: 'fixed', value: -3 },
+        sfxEnabled: false,
+      }),
     )
 
-    expect(preferencesService.read()).toEqual({ kind: 'fixed', value: 10 })
+    expect(preferencesService.read()).toEqual(defaultPrefs())
   })
 
-  it('round-trips a fixed Configured round size', () => {
-    preferencesService.write({ kind: 'fixed', value: 25 })
+  it('falls back to the default for the legacy top-level round shape', () => {
+    localStorage.setItem(
+      PREFERENCES_STORAGE_KEY,
+      JSON.stringify({ kind: 'fixed', value: 25 }),
+    )
 
-    expect(preferencesService.read()).toEqual({ kind: 'fixed', value: 25 })
+    expect(preferencesService.read()).toEqual(defaultPrefs())
+  })
+
+  it('round-trips round and sfx', () => {
+    preferencesService.write({
+      round: { kind: 'fixed', value: 25 },
+      sfxEnabled: true,
+    })
+
+    expect(preferencesService.read()).toEqual({
+      round: { kind: 'fixed', value: 25 },
+      sfxEnabled: true,
+    })
   })
 
   it('round-trips the All countries in catalog intent', () => {
-    preferencesService.write({ kind: 'all-countries' })
+    preferencesService.write({
+      round: { kind: 'all-countries' },
+      sfxEnabled: false,
+    })
 
-    expect(preferencesService.read()).toEqual({ kind: 'all-countries' })
+    expect(preferencesService.read()).toEqual({
+      round: { kind: 'all-countries' },
+      sfxEnabled: false,
+    })
   })
 
   it('logs storage errors on write without throwing', () => {
@@ -54,7 +86,10 @@ describe('Quiz preferences store: read and write', () => {
 
     try {
       expect(() =>
-        preferencesService.write({ kind: 'fixed', value: 25 }),
+        preferencesService.write({
+          round: { kind: 'fixed', value: 25 },
+          sfxEnabled: false,
+        }),
       ).not.toThrow()
       expect(consoleSpy).toHaveBeenCalled()
     } finally {

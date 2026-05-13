@@ -14,11 +14,19 @@ export const configuredRoundSizeSchema = z.discriminatedUnion('kind', [
 
 export type ConfiguredRoundSize = z.infer<typeof configuredRoundSizeSchema>
 
+/** Full document stored under `PREFERENCES_STORAGE_KEY`. */
+export const appPreferencesSchema = z.object({
+  round: configuredRoundSizeSchema,
+  sfxEnabled: z.boolean(),
+})
+
+export type AppPreferences = z.infer<typeof appPreferencesSchema>
+
 /**
- * Full body from `localStorage`: valid UTF-8 JSON that matches a Configured round size.
+ * Full body from `localStorage`: valid UTF-8 JSON that matches app preferences.
  * Invalid JSON becomes a Zod issue (no uncaught `SyntaxError` from `JSON.parse`).
  */
-export const persistedPreferencesFromStorageStringSchema = z
+export const persistedAppPreferencesFromStorageStringSchema = z
   .string()
   .transform((str, ctx) => {
     try {
@@ -28,4 +36,4 @@ export const persistedPreferencesFromStorageStringSchema = z
       return str
     }
   })
-  .pipe(configuredRoundSizeSchema)
+  .pipe(appPreferencesSchema)

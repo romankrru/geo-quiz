@@ -13,7 +13,8 @@ const catalogSize = COUNTRIES.length
 
 export const SettingsPage = () => {
   const initial = useMemo(
-    () => preferencesService.persistedToSelection(preferencesService.read()),
+    () =>
+      preferencesService.persistedToSelection(preferencesService.read().round),
     [],
   )
   const [selection, setSelection] = useState<RoundSelection>(initial.selection)
@@ -35,8 +36,10 @@ export const SettingsPage = () => {
       catalogSize,
     )
     const persisted = preferencesService.read()
-    if (!preferencesService.configuredRoundSizesEqual(intent, persisted)) {
-      preferencesService.write(intent)
+    if (
+      !preferencesService.configuredRoundSizesEqual(intent, persisted.round)
+    ) {
+      preferencesService.write({ ...persisted, round: intent })
       toast.success('Settings saved')
       return
     }

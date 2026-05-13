@@ -1,4 +1,4 @@
-import { Clock } from 'lucide-react'
+import { Clock, Volume2, VolumeX } from 'lucide-react'
 import { Fragment, useCallback, useState } from 'react'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
@@ -25,7 +25,7 @@ type GameStatus = 'idle' | 'playing' | 'finished'
 
 function resolveRoundQuestionCount(): number {
   return preferencesService.resolveQuestionCount(
-    preferencesService.read(),
+    preferencesService.read().round,
     COUNTRIES.length,
   )
 }
@@ -38,6 +38,9 @@ export function GamePage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
+  const [sfxEnabled, setSfxEnabled] = useState(
+    () => preferencesService.read().sfxEnabled,
+  )
 
   const playSuccess = useSfx(successSoundUrl)
   const playFail = useSfx(failSoundUrl)
@@ -59,6 +62,7 @@ export function GamePage() {
     setCurrentQuestionIndex(0)
     setScore(0)
     setSelectedAnswer(null)
+    setSfxEnabled(preferencesService.read().sfxEnabled)
     setGameStatus('playing')
   }
 
@@ -71,12 +75,14 @@ export function GamePage() {
       )
       if (correct) {
         setScore((s) => s + 1)
-        playSuccess()
-      } else {
+        if (sfxEnabled) {
+          playSuccess()
+        }
+      } else if (sfxEnabled) {
         playFail()
       }
     },
-    [questions, currentQuestionIndex, playSuccess, playFail],
+    [questions, currentQuestionIndex, playSuccess, playFail, sfxEnabled],
   )
 
   useKeyPress(
@@ -135,6 +141,15 @@ export function GamePage() {
   const answeredQuestionsCount =
     currentQuestionIndex + (selectedAnswer !== null ? 1 : 0)
 
+  const handleToggleSfx = () => {
+    setSfxEnabled((prev) => {
+      const next = !prev
+      const prefs = preferencesService.read()
+      preferencesService.write({ ...prefs, sfxEnabled: next })
+      return next
+    })
+  }
+
   const getOptionVariant = (option: string): ButtonQuizVariant => {
     if (selectedAnswer === null) {
       return 'default'
@@ -159,9 +174,31 @@ export function GamePage() {
             Progress: {answeredQuestionsCount} / {questions.length}
           </span>
           <span>Score: {score}</span>
-          <div className={styles.timer}>
-            <Clock className={styles.timerIcon} strokeWidth={3} size={20} />
-            {formatElapsed(elapsedMs)}
+          <div className={styles.progressHeaderRight}>
+            <Button
+              type="button"
+              variant="transparent"
+              aria-pressed={sfxEnabled}
+              aria-label={
+                sfxEnabled
+                  ? 'Sound effects on. Press to turn off.'
+                  : 'Sound effects off. Press to turn on.'
+              }
+              icon={
+                sfxEnabled ? (
+                  <Volume2 size={18} strokeWidth={3} aria-hidden />
+                ) : (
+                  <VolumeX size={18} strokeWidth={3} aria-hidden />
+                )
+              }
+              onClick={handleToggleSfx}
+            >
+              {sfxEnabled ? 'Sound on' : 'Sound off'}
+            </Button>
+            <div className={styles.timer}>
+              <Clock className={styles.timerIcon} strokeWidth={3} size={20} />
+              {formatElapsed(elapsedMs)}
+            </div>
           </div>
         </div>
         <ProgressBar value={answeredQuestionsCount} max={questions.length} />

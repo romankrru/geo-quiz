@@ -1,4 +1,8 @@
 export const PREFERENCES_STORAGE_KEY = 'geo-quiz.preferences'
 
-/** Default Configured round size when no preference is persisted (or the blob is unreadable). */
-export const DEFAULT_ROUND_SIZE = 10
+/** Defaults when nothing is persisted or the stored blob is invalid. */
+export const DEFAULT_SETTINGS = {
+  /** Default fixed round count (`{ kind: 'fixed', value }`). */
+  fixedRoundSize: 10,
+  sfxEnabled: false,
+} as const

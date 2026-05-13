@@ -1,23 +1,33 @@
 import {
-  DEFAULT_ROUND_SIZE,
+  DEFAULT_SETTINGS,
   PREFERENCES_STORAGE_KEY,
 } from './preferences.constants'
 import {
-  configuredRoundSizeSchema,
-  persistedPreferencesFromStorageStringSchema,
+  appPreferencesSchema,
+  persistedAppPreferencesFromStorageStringSchema,
 } from './preferences.schema'
-import type { ConfiguredRoundSize, RoundSelection } from './preferences.types'
+import type {
+  AppPreferences,
+  ConfiguredRoundSize,
+  RoundSelection,
+} from './preferences.types'
+
+const defaultAppPreferences = (): AppPreferences => ({
+  round: { kind: 'fixed', value: DEFAULT_SETTINGS.fixedRoundSize },
+  sfxEnabled: DEFAULT_SETTINGS.sfxEnabled,
+})
 
 export const preferencesService = {
-  read(): ConfiguredRoundSize {
+  read(): AppPreferences {
     try {
       const raw = localStorage.getItem(PREFERENCES_STORAGE_KEY)
       if (raw === null) {
-        return { kind: 'fixed', value: DEFAULT_ROUND_SIZE }
+        return defaultAppPreferences()
       }
-      const parsed = persistedPreferencesFromStorageStringSchema.safeParse(raw)
+      const parsed =
+        persistedAppPreferencesFromStorageStringSchema.safeParse(raw)
       if (!parsed.success) {
-        return { kind: 'fixed', value: DEFAULT_ROUND_SIZE }
+        return defaultAppPreferences()
       }
       return parsed.data
     } catch (error) {
@@ -25,12 +35,12 @@ export const preferencesService = {
         '[preferencesService.read] localStorage read failed; using defaults',
         error,
       )
-      return { kind: 'fixed', value: DEFAULT_ROUND_SIZE }
+      return defaultAppPreferences()
     }
   },
 
-  write(value: ConfiguredRoundSize): void {
-    if (!configuredRoundSizeSchema.safeParse(value).success) {
+  write(value: AppPreferences): void {
+    if (!appPreferencesSchema.safeParse(value).success) {
       return
     }
     try {

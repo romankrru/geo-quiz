@@ -19,9 +19,18 @@ export const progressHeader = style({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
+  flexWrap: 'wrap',
+  gap: 12,
   marginBottom: 8,
   color: vars.color.primary,
   fontWeight: 600,
+})
+
+export const progressHeaderRight = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  flexWrap: 'wrap',
 })
 
 export const questionCard = style({

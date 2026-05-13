@@ -93,9 +93,36 @@ describe('SettingsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(writeSpy).toHaveBeenCalledTimes(1)
-    expect(writeSpy).toHaveBeenCalledWith({ kind: 'fixed', value: 25 })
-    expect(preferencesService.read()).toEqual({ kind: 'fixed', value: 25 })
+    expect(writeSpy).toHaveBeenCalledWith({
+      round: { kind: 'fixed', value: 25 },
+      sfxEnabled: false,
+    })
+    expect(preferencesService.read()).toEqual({
+      round: { kind: 'fixed', value: 25 },
+      sfxEnabled: false,
+    })
     expect(toast.success).toHaveBeenCalledWith('Settings saved')
+  })
+
+  it('preserves sfxEnabled when the round preset is saved', () => {
+    localStorage.setItem(
+      PREFERENCES_STORAGE_KEY,
+      JSON.stringify({
+        round: { kind: 'fixed', value: 10 },
+        sfxEnabled: true,
+      }),
+    )
+
+    renderSettingsPage()
+
+    fireEvent.click(screen.getByRole('radio', { name: '25' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+    expect(writeSpy).toHaveBeenCalledTimes(1)
+    expect(preferencesService.read()).toEqual({
+      round: { kind: 'fixed', value: 25 },
+      sfxEnabled: true,
+    })
   })
 
   it('persists all-countries when the All preset is saved', () => {
@@ -109,8 +136,14 @@ describe('SettingsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(writeSpy).toHaveBeenCalledTimes(1)
-    expect(writeSpy).toHaveBeenCalledWith({ kind: 'all-countries' })
-    expect(preferencesService.read()).toEqual({ kind: 'all-countries' })
+    expect(writeSpy).toHaveBeenCalledWith({
+      round: { kind: 'all-countries' },
+      sfxEnabled: false,
+    })
+    expect(preferencesService.read()).toEqual({
+      round: { kind: 'all-countries' },
+      sfxEnabled: false,
+    })
     expect(toast.success).toHaveBeenCalledWith('Settings saved')
   })
 
@@ -125,8 +158,14 @@ describe('SettingsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(writeSpy).toHaveBeenCalledTimes(1)
-    expect(writeSpy).toHaveBeenCalledWith({ kind: 'fixed', value: 17 })
-    expect(preferencesService.read()).toEqual({ kind: 'fixed', value: 17 })
+    expect(writeSpy).toHaveBeenCalledWith({
+      round: { kind: 'fixed', value: 17 },
+      sfxEnabled: false,
+    })
+    expect(preferencesService.read()).toEqual({
+      round: { kind: 'fixed', value: 17 },
+      sfxEnabled: false,
+    })
     expect(toast.success).toHaveBeenCalledWith('Settings saved')
   })
 
@@ -187,7 +226,10 @@ describe('SettingsPage', () => {
   it('rehydrates Custom with the saved value after reopening the page', () => {
     localStorage.setItem(
       PREFERENCES_STORAGE_KEY,
-      JSON.stringify({ kind: 'fixed', value: 17 }),
+      JSON.stringify({
+        round: { kind: 'fixed', value: 17 },
+        sfxEnabled: false,
+      }),
     )
 
     renderSettingsPage()

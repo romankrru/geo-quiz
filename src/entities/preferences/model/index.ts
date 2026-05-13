@@ -1,6 +1,10 @@
 export {
-  DEFAULT_ROUND_SIZE,
+  DEFAULT_SETTINGS,
   PREFERENCES_STORAGE_KEY,
 } from './preferences.constants'
 export { preferencesService } from './preferences.service'
-export type { ConfiguredRoundSize, RoundSelection } from './preferences.types'
+export type {
+  AppPreferences,
+  ConfiguredRoundSize,
+  RoundSelection,
+} from './preferences.types'
