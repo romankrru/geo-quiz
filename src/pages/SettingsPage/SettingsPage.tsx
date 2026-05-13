@@ -76,6 +76,10 @@ export const SettingsPage = () => {
           <fieldset className={styles.fieldset}>
             <span>
               <legend className={styles.legend}>Round size</legend>
+              <p>
+                How many countries are shown per game. Smaller rounds are
+                friendlier for warm-ups; bigger ones are a real test of memory.
+              </p>
             </span>
             <div className={styles.radioStack}>
               <label className={styles.radioLabel}>
