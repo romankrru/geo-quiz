@@ -1,4 +1,5 @@
 import type { Country } from '@entities/country/model/country.types'
+import { SITE_URL } from '@shared/config/config'
 
 import type { QuizQuestion } from './quiz.types'
 
@@ -41,5 +42,17 @@ export const quizService = {
     const s = Math.floor((totalTenths % 600) / 10)
     const t = totalTenths % 10
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${t}`
+  },
+
+  formatShareText(input: {
+    score: number
+    totalQuestions: number
+    durationMs: number
+  }): string {
+    const totalSeconds = Math.floor(input.durationMs / 1000)
+    const m = Math.floor(totalSeconds / 60)
+    const s = totalSeconds % 60
+    const mmss = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+    return `🌍 My result in Geo Quiz: ${input.score}/${input.totalQuestions} in ${mmss}\nTry it yourself → ${SITE_URL}`
   },
 }
