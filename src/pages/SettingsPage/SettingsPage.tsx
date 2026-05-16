@@ -7,20 +7,13 @@ import toast from 'react-hot-toast'
 import { COUNTRIES } from '@entities/country/model/country.data'
 import { preferencesService, type RoundSelection } from '@entities/preferences'
 import { Button } from '@shared/ui/Button/Button'
-import { RadioCard, RadioCardFooterDots } from '@shared/ui/RadioCard/RadioCard'
+import { RadioCard } from '@shared/ui/RadioCard/RadioCard'
 
 import * as styles from './SettingsPage.css'
 
 const catalogSize = COUNTRIES.length
 
 const ROUND_GROUP = 'configured-round-size'
-const DOT_SEGMENTS = 10
-
-const filledDotsForCount = (count: number) =>
-  Math.min(
-    DOT_SEGMENTS,
-    Math.max(1, Math.round((count / catalogSize) * DOT_SEGMENTS)),
-  )
 
 export const SettingsPage = () => {
   const initial = useMemo(
@@ -117,11 +110,9 @@ export const SettingsPage = () => {
                 title="Quick play"
                 subtitle="≈ 3 min"
                 footer={
-                  <RadioCardFooterDots
-                    totalDots={DOT_SEGMENTS}
-                    filledDots={filledDotsForCount(10)}
-                    caption={`10/${catalogSize}`}
-                  />
+                  <span className={styles.radioCardFooterCaption}>
+                    {`10 / ${catalogSize}`}
+                  </span>
                 }
               />
               <RadioCard
@@ -134,11 +125,9 @@ export const SettingsPage = () => {
                 title="Classic"
                 subtitle="≈ 8 min"
                 footer={
-                  <RadioCardFooterDots
-                    totalDots={DOT_SEGMENTS}
-                    filledDots={filledDotsForCount(25)}
-                    caption={`25/${catalogSize}`}
-                  />
+                  <span className={styles.radioCardFooterCaption}>
+                    {`25 / ${catalogSize}`}
+                  </span>
                 }
               />
               <RadioCard
@@ -151,11 +140,9 @@ export const SettingsPage = () => {
                 title="Every country"
                 subtitle="≈ 45 min"
                 footer={
-                  <RadioCardFooterDots
-                    totalDots={DOT_SEGMENTS}
-                    filledDots={DOT_SEGMENTS}
-                    caption="full"
-                  />
+                  <span className={styles.radioCardFooterCaption}>
+                    Full catalog
+                  </span>
                 }
               />
               <RadioCard

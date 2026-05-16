@@ -119,39 +119,3 @@ export const footer = style({
   marginTop: 'auto',
   paddingTop: '0.25rem',
 })
-
-export const footerDotsRow = style({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: '0.75rem',
-  width: '100%',
-})
-
-export const dotsTrack = style({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.2rem',
-  flexWrap: 'wrap',
-  minHeight: '0.5rem',
-})
-
-export const dot = style({
-  width: '0.375rem',
-  height: '0.375rem',
-  borderRadius: '50%',
-  backgroundColor: borderMuted,
-  flexShrink: 0,
-})
-
-export const dotFilled = style({
-  backgroundColor: vars.color.primary,
-})
-
-export const footerCaption = style({
-  fontFamily: vars.fontFamily.sans,
-  fontSize: '0.75rem',
-  fontWeight: 600,
-  color: vars.color.text,
-  flexShrink: 0,
-})

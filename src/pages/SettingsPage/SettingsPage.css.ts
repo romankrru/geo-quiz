@@ -65,6 +65,13 @@ export const radioCard = style({
   maxWidth: '100%',
 })
 
+export const radioCardFooterCaption = style({
+  fontFamily: vars.fontFamily.sans,
+  fontSize: '0.75rem',
+  fontWeight: 600,
+  color: vars.color.text,
+})
+
 export const numberInput = style({
   boxSizing: 'border-box',
   width: '100%',

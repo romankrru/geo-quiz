@@ -90,28 +90,3 @@ export const RadioCard = (props: Props) => {
     </div>
   )
 }
-
-type FooterDotsProps = {
-  totalDots: number
-  filledDots: number
-  caption: React.ReactNode
-}
-
-export const RadioCardFooterDots = (props: FooterDotsProps) => {
-  const safeTotal = Math.max(1, props.totalDots)
-  const filled = Math.min(Math.max(props.filledDots, 0), safeTotal)
-
-  return (
-    <div className={styles.footerDotsRow}>
-      <div className={styles.dotsTrack}>
-        {Array.from({ length: safeTotal }, (_, index) => (
-          <span
-            key={index}
-            className={clsx(styles.dot, index < filled && styles.dotFilled)}
-          />
-        ))}
-      </div>
-      <span className={styles.footerCaption}>{props.caption}</span>
-    </div>
-  )
-}
