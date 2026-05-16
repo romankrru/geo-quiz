@@ -17,8 +17,6 @@ export const root = style({
   backgroundColor: cardSurface,
   border: `1px solid ${borderMuted}`,
   cursor: 'pointer',
-  transition:
-    'border-color 0.15s ease, box-shadow 0.15s ease, outline-color 0.15s ease',
   selectors: {
     '&:has(input:disabled)': {
       cursor: 'not-allowed',
@@ -33,7 +31,6 @@ export const root = style({
 export const rootSelected = style({
   border: `1px solid ${vars.color.primary}`,
   outline: `2px solid ${vars.color.primary}`,
-  outlineOffset: '2px',
   boxShadow: vars.shadows.primary,
 })
 
