@@ -5,7 +5,7 @@ import { type ChangeEvent, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
-import { type RoundSelection,settingsService } from '@entities/settings'
+import { type RoundSelection, settingsService } from '@entities/settings'
 import { Button } from '@shared/ui/Button/Button'
 import { RadioCard } from '@shared/ui/RadioCard/RadioCard'
 
