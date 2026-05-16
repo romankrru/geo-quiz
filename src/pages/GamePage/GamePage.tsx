@@ -21,14 +21,6 @@ import { useQuizRound } from './hooks/useQuizRound'
 import * as styles from './GamePage.css'
 import * as homeCornerStyles from './HomeCorner/HomeCorner.css'
 
-function formatElapsed(ms: number): string {
-  const totalTenths = Math.floor(ms / 100)
-  const m = Math.floor(totalTenths / 600)
-  const s = Math.floor((totalTenths % 600) / 10)
-  const t = totalTenths % 10
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${t}`
-}
-
 export function GamePage() {
   const round = useQuizRound(COUNTRIES)
   const [sfxEnabled, setSfxEnabled] = useState(
@@ -79,7 +71,7 @@ export function GamePage() {
       <FinishedState
         score={round.score}
         totalQuestions={round.questions.length}
-        timeLabel={formatElapsed(round.elapsedMs)}
+        timeLabel={quizService.formatRoundDuration(round.elapsedMs)}
         onPlayAgain={handlePlayAgain}
       />
     )
@@ -129,7 +121,7 @@ export function GamePage() {
             />
             <div className={styles.timer}>
               <Clock className={styles.timerIcon} strokeWidth={3} size={20} />
-              {formatElapsed(round.elapsedMs)}
+              {quizService.formatRoundDuration(round.elapsedMs)}
             </div>
           </div>
         </div>

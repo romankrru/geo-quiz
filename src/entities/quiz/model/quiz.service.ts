@@ -33,4 +33,13 @@ export const quizService = {
   isCorrectAnswer(question: QuizQuestion, selectedAnswer: string): boolean {
     return selectedAnswer === question.correctAnswer
   },
+
+  /** Stopwatch-style label for a round's elapsed/finished time: `MM:SS.t`. */
+  formatRoundDuration(ms: number): string {
+    const totalTenths = Math.floor(ms / 100)
+    const m = Math.floor(totalTenths / 600)
+    const s = Math.floor((totalTenths % 600) / 10)
+    const t = totalTenths % 10
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${t}`
+  },
 }
