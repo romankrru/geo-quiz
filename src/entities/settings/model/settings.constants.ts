@@ -1,4 +1,5 @@
-export const PREFERENCES_STORAGE_KEY = 'geo-quiz.preferences'
+/** Device-local blob key; unchanged so existing installs keep their saved values. */
+export const SETTINGS_STORAGE_KEY = 'geo-quiz.preferences'
 
 /** Defaults when nothing is persisted or the stored blob is invalid. */
 export const DEFAULT_SETTINGS = {

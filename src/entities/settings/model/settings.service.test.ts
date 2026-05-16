@@ -1,76 +1,73 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import {
-  DEFAULT_SETTINGS,
-  PREFERENCES_STORAGE_KEY,
-} from './preferences.constants'
-import { preferencesService } from './preferences.service'
+import { DEFAULT_SETTINGS, SETTINGS_STORAGE_KEY } from './settings.constants'
+import { settingsService } from './settings.service'
 
 const defaultPrefs = () => ({
   round: { kind: 'fixed' as const, value: DEFAULT_SETTINGS.fixedRoundSize },
   sfxEnabled: DEFAULT_SETTINGS.sfxEnabled,
 })
 
-describe('Quiz preferences store: read and write', () => {
+describe('Quiz settings store: read and write', () => {
   afterEach(() => {
     localStorage.clear()
   })
 
-  it('returns the default AppPreferences when nothing is stored', () => {
+  it('returns the default AppSettings when nothing is stored', () => {
     const setSpy = vi.spyOn(Storage.prototype, 'setItem')
 
-    expect(preferencesService.read()).toEqual(defaultPrefs())
+    expect(settingsService.read()).toEqual(defaultPrefs())
     expect(setSpy).not.toHaveBeenCalled()
 
     setSpy.mockRestore()
   })
 
   it('falls back to the default when the persisted blob is not JSON', () => {
-    localStorage.setItem(PREFERENCES_STORAGE_KEY, '{not json')
+    localStorage.setItem(SETTINGS_STORAGE_KEY, '{not json')
 
-    expect(preferencesService.read()).toEqual(defaultPrefs())
+    expect(settingsService.read()).toEqual(defaultPrefs())
   })
 
   it('falls back to the default when the persisted shape does not match', () => {
     localStorage.setItem(
-      PREFERENCES_STORAGE_KEY,
+      SETTINGS_STORAGE_KEY,
       JSON.stringify({
         round: { kind: 'fixed', value: -3 },
         sfxEnabled: false,
       }),
     )
 
-    expect(preferencesService.read()).toEqual(defaultPrefs())
+    expect(settingsService.read()).toEqual(defaultPrefs())
   })
 
   it('falls back to the default for the legacy top-level round shape', () => {
     localStorage.setItem(
-      PREFERENCES_STORAGE_KEY,
+      SETTINGS_STORAGE_KEY,
       JSON.stringify({ kind: 'fixed', value: 25 }),
     )
 
-    expect(preferencesService.read()).toEqual(defaultPrefs())
+    expect(settingsService.read()).toEqual(defaultPrefs())
   })
 
   it('round-trips round and sfx', () => {
-    preferencesService.write({
+    settingsService.write({
       round: { kind: 'fixed', value: 25 },
       sfxEnabled: true,
     })
 
-    expect(preferencesService.read()).toEqual({
+    expect(settingsService.read()).toEqual({
       round: { kind: 'fixed', value: 25 },
       sfxEnabled: true,
     })
   })
 
   it('round-trips the All countries in catalog intent', () => {
-    preferencesService.write({
+    settingsService.write({
       round: { kind: 'all-countries' },
       sfxEnabled: false,
     })
 
-    expect(preferencesService.read()).toEqual({
+    expect(settingsService.read()).toEqual({
       round: { kind: 'all-countries' },
       sfxEnabled: false,
     })
@@ -86,7 +83,7 @@ describe('Quiz preferences store: read and write', () => {
 
     try {
       expect(() =>
-        preferencesService.write({
+        settingsService.write({
           round: { kind: 'fixed', value: 25 },
           sfxEnabled: false,
         }),
@@ -99,32 +96,29 @@ describe('Quiz preferences store: read and write', () => {
   })
 })
 
-describe('Quiz preferences store: resolve question count', () => {
+describe('Quiz settings store: resolve question count', () => {
   it('returns the fixed value for the fixed intent', () => {
     expect(
-      preferencesService.resolveQuestionCount(
-        { kind: 'fixed', value: 17 },
-        197,
-      ),
+      settingsService.resolveQuestionCount({ kind: 'fixed', value: 17 }, 197),
     ).toBe(17)
   })
 
   it('returns the live catalog size for the all-countries intent', () => {
     expect(
-      preferencesService.resolveQuestionCount({ kind: 'all-countries' }, 197),
+      settingsService.resolveQuestionCount({ kind: 'all-countries' }, 197),
     ).toBe(197)
 
     expect(
-      preferencesService.resolveQuestionCount({ kind: 'all-countries' }, 198),
+      settingsService.resolveQuestionCount({ kind: 'all-countries' }, 198),
     ).toBe(198)
   })
 })
 
 describe('formatApproxRoundMinutesLabel', () => {
   it('uses ~1 min per 10 questions, rounded, with a 1-minute floor', () => {
-    expect(preferencesService.formatApproxRoundMinutesLabel(10)).toBe('≈ 1 min')
-    expect(preferencesService.formatApproxRoundMinutesLabel(25)).toBe('≈ 3 min')
-    expect(preferencesService.formatApproxRoundMinutesLabel(1)).toBe('≈ 1 min')
+    expect(settingsService.formatApproxRoundMinutesLabel(10)).toBe('≈ 1 min')
+    expect(settingsService.formatApproxRoundMinutesLabel(25)).toBe('≈ 3 min')
+    expect(settingsService.formatApproxRoundMinutesLabel(1)).toBe('≈ 1 min')
   })
 })
 
@@ -132,37 +126,29 @@ describe('isValidCustomRoundSize', () => {
   const catalogSize = 197
 
   it('rejects zero and negatives', () => {
-    expect(preferencesService.isValidCustomRoundSize(0, catalogSize)).toBe(
-      false,
-    )
-    expect(preferencesService.isValidCustomRoundSize(-1, catalogSize)).toBe(
-      false,
-    )
+    expect(settingsService.isValidCustomRoundSize(0, catalogSize)).toBe(false)
+    expect(settingsService.isValidCustomRoundSize(-1, catalogSize)).toBe(false)
   })
 
   it('accepts the lower bound', () => {
-    expect(preferencesService.isValidCustomRoundSize(1, catalogSize)).toBe(true)
+    expect(settingsService.isValidCustomRoundSize(1, catalogSize)).toBe(true)
   })
 
   it('accepts the catalog size', () => {
     expect(
-      preferencesService.isValidCustomRoundSize(catalogSize, catalogSize),
+      settingsService.isValidCustomRoundSize(catalogSize, catalogSize),
     ).toBe(true)
   })
 
   it('rejects values past the catalog size', () => {
     expect(
-      preferencesService.isValidCustomRoundSize(catalogSize + 1, catalogSize),
+      settingsService.isValidCustomRoundSize(catalogSize + 1, catalogSize),
     ).toBe(false)
   })
 
   it('rejects non-integer floats and NaN', () => {
-    expect(preferencesService.isValidCustomRoundSize(3.5, catalogSize)).toBe(
-      false,
-    )
-    expect(preferencesService.isValidCustomRoundSize(NaN, catalogSize)).toBe(
-      false,
-    )
+    expect(settingsService.isValidCustomRoundSize(3.5, catalogSize)).toBe(false)
+    expect(settingsService.isValidCustomRoundSize(NaN, catalogSize)).toBe(false)
   })
 })
 
@@ -170,48 +156,46 @@ describe('clampCustomRoundSize', () => {
   const catalogSize = 197
 
   it('clamps below-range integers to 1', () => {
-    expect(preferencesService.clampCustomRoundSize(0, catalogSize)).toBe(1)
-    expect(preferencesService.clampCustomRoundSize(-5, catalogSize)).toBe(1)
+    expect(settingsService.clampCustomRoundSize(0, catalogSize)).toBe(1)
+    expect(settingsService.clampCustomRoundSize(-5, catalogSize)).toBe(1)
   })
 
   it('clamps above-range integers to the catalog size', () => {
     expect(
-      preferencesService.clampCustomRoundSize(catalogSize + 1, catalogSize),
+      settingsService.clampCustomRoundSize(catalogSize + 1, catalogSize),
     ).toBe(catalogSize)
-    expect(preferencesService.clampCustomRoundSize(10_000, catalogSize)).toBe(
+    expect(settingsService.clampCustomRoundSize(10_000, catalogSize)).toBe(
       catalogSize,
     )
   })
 
   it('returns in-range integers unchanged', () => {
-    expect(preferencesService.clampCustomRoundSize(50, catalogSize)).toBe(50)
-    expect(preferencesService.clampCustomRoundSize(1, catalogSize)).toBe(1)
-    expect(
-      preferencesService.clampCustomRoundSize(catalogSize, catalogSize),
-    ).toBe(catalogSize)
+    expect(settingsService.clampCustomRoundSize(50, catalogSize)).toBe(50)
+    expect(settingsService.clampCustomRoundSize(1, catalogSize)).toBe(1)
+    expect(settingsService.clampCustomRoundSize(catalogSize, catalogSize)).toBe(
+      catalogSize,
+    )
   })
 
   it('rounds finite floats to the nearest integer before clamping', () => {
-    expect(preferencesService.clampCustomRoundSize(5.4, catalogSize)).toBe(5)
-    expect(preferencesService.clampCustomRoundSize(5.6, catalogSize)).toBe(6)
-    expect(preferencesService.clampCustomRoundSize(0.4, catalogSize)).toBe(1)
+    expect(settingsService.clampCustomRoundSize(5.4, catalogSize)).toBe(5)
+    expect(settingsService.clampCustomRoundSize(5.6, catalogSize)).toBe(6)
+    expect(settingsService.clampCustomRoundSize(0.4, catalogSize)).toBe(1)
     expect(
-      preferencesService.clampCustomRoundSize(catalogSize + 0.6, catalogSize),
+      settingsService.clampCustomRoundSize(catalogSize + 0.6, catalogSize),
     ).toBe(catalogSize)
   })
 
   it('falls back to 1 for non-finite inputs', () => {
-    expect(preferencesService.clampCustomRoundSize(NaN, catalogSize)).toBe(1)
-    expect(preferencesService.clampCustomRoundSize(Infinity, catalogSize)).toBe(
-      1,
-    )
+    expect(settingsService.clampCustomRoundSize(NaN, catalogSize)).toBe(1)
+    expect(settingsService.clampCustomRoundSize(Infinity, catalogSize)).toBe(1)
   })
 })
 
 describe('configuredRoundSizesEqual', () => {
   it('returns true for identical fixed values', () => {
     expect(
-      preferencesService.configuredRoundSizesEqual(
+      settingsService.configuredRoundSizesEqual(
         { kind: 'fixed', value: 10 },
         { kind: 'fixed', value: 10 },
       ),
@@ -220,7 +204,7 @@ describe('configuredRoundSizesEqual', () => {
 
   it('returns false when fixed values differ', () => {
     expect(
-      preferencesService.configuredRoundSizesEqual(
+      settingsService.configuredRoundSizesEqual(
         { kind: 'fixed', value: 10 },
         { kind: 'fixed', value: 25 },
       ),
@@ -229,7 +213,7 @@ describe('configuredRoundSizesEqual', () => {
 
   it('returns true for two all-countries intents', () => {
     expect(
-      preferencesService.configuredRoundSizesEqual(
+      settingsService.configuredRoundSizesEqual(
         { kind: 'all-countries' },
         { kind: 'all-countries' },
       ),
@@ -238,7 +222,7 @@ describe('configuredRoundSizesEqual', () => {
 
   it('returns false when kinds differ', () => {
     expect(
-      preferencesService.configuredRoundSizesEqual(
+      settingsService.configuredRoundSizesEqual(
         { kind: 'fixed', value: 10 },
         { kind: 'all-countries' },
       ),
@@ -248,28 +232,28 @@ describe('configuredRoundSizesEqual', () => {
 
 describe('parsePositiveIntegerDigits', () => {
   it('parses a non-empty digit string', () => {
-    expect(preferencesService.parsePositiveIntegerDigits(' 17 ')).toBe(17)
+    expect(settingsService.parsePositiveIntegerDigits(' 17 ')).toBe(17)
   })
 
   it('returns null for empty or non-digit strings', () => {
-    expect(preferencesService.parsePositiveIntegerDigits('')).toBe(null)
-    expect(preferencesService.parsePositiveIntegerDigits('12a')).toBe(null)
+    expect(settingsService.parsePositiveIntegerDigits('')).toBe(null)
+    expect(settingsService.parsePositiveIntegerDigits('12a')).toBe(null)
   })
 })
 
 describe('persistedToSelection', () => {
   it('maps all-countries, 10, 25, and other fixed values', () => {
     expect(
-      preferencesService.persistedToSelection({ kind: 'all-countries' }),
+      settingsService.persistedToSelection({ kind: 'all-countries' }),
     ).toEqual({ selection: 'all', customDigits: '' })
     expect(
-      preferencesService.persistedToSelection({ kind: 'fixed', value: 10 }),
+      settingsService.persistedToSelection({ kind: 'fixed', value: 10 }),
     ).toEqual({ selection: 'ten', customDigits: '' })
     expect(
-      preferencesService.persistedToSelection({ kind: 'fixed', value: 25 }),
+      settingsService.persistedToSelection({ kind: 'fixed', value: 25 }),
     ).toEqual({ selection: 'twenty_five', customDigits: '' })
     expect(
-      preferencesService.persistedToSelection({ kind: 'fixed', value: 17 }),
+      settingsService.persistedToSelection({ kind: 'fixed', value: 17 }),
     ).toEqual({ selection: 'custom', customDigits: '17' })
   })
 })
@@ -278,33 +262,33 @@ describe('intentFromSelection', () => {
   const catalogSize = 197
 
   it('maps presets and all-countries', () => {
+    expect(settingsService.intentFromSelection('ten', '', catalogSize)).toEqual(
+      { kind: 'fixed', value: 10 },
+    )
     expect(
-      preferencesService.intentFromSelection('ten', '', catalogSize),
-    ).toEqual({ kind: 'fixed', value: 10 })
-    expect(
-      preferencesService.intentFromSelection('twenty_five', '', catalogSize),
+      settingsService.intentFromSelection('twenty_five', '', catalogSize),
     ).toEqual({ kind: 'fixed', value: 25 })
-    expect(
-      preferencesService.intentFromSelection('all', '', catalogSize),
-    ).toEqual({ kind: 'all-countries' })
+    expect(settingsService.intentFromSelection('all', '', catalogSize)).toEqual(
+      { kind: 'all-countries' },
+    )
   })
 
   it('maps a valid custom digit string to fixed', () => {
     expect(
-      preferencesService.intentFromSelection('custom', '42', catalogSize),
+      settingsService.intentFromSelection('custom', '42', catalogSize),
     ).toEqual({ kind: 'fixed', value: 42 })
   })
 
   it('falls back to 10 when custom is invalid for the catalog', () => {
     expect(
-      preferencesService.intentFromSelection(
+      settingsService.intentFromSelection(
         'custom',
         String(catalogSize + 1),
         catalogSize,
       ),
     ).toEqual({ kind: 'fixed', value: 10 })
     expect(
-      preferencesService.intentFromSelection('custom', '', catalogSize),
+      settingsService.intentFromSelection('custom', '', catalogSize),
     ).toEqual({ kind: 'fixed', value: 10 })
   })
 })

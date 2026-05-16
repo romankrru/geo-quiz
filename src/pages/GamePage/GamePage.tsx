@@ -2,8 +2,8 @@ import { Clock } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
-import { preferencesService, SfxToggleButton } from '@entities/preferences'
 import { type QuizQuestion, quizService } from '@entities/quiz'
+import { settingsService, SfxToggleButton } from '@entities/settings'
 import { statisticsService } from '@entities/statistics'
 import { useKeyPress, useSfx, useStopwatch } from '@shared/hooks'
 import { Button, ProgressBar } from '@shared/ui'
@@ -24,8 +24,8 @@ import * as homeCornerStyles from './HomeCorner/HomeCorner.css'
 type GameStatus = 'idle' | 'playing' | 'finished'
 
 function resolveRoundQuestionCount(): number {
-  return preferencesService.resolveQuestionCount(
-    preferencesService.read().round,
+  return settingsService.resolveQuestionCount(
+    settingsService.read().round,
     COUNTRIES.length,
   )
 }
@@ -39,7 +39,7 @@ export function GamePage() {
   const [score, setScore] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
   const [sfxEnabled, setSfxEnabled] = useState(
-    () => preferencesService.read().sfxEnabled,
+    () => settingsService.read().sfxEnabled,
   )
 
   const playSuccess = useSfx(successSoundUrl)
@@ -75,7 +75,7 @@ export function GamePage() {
     setCurrentQuestionIndex(0)
     setScore(0)
     setSelectedAnswer(null)
-    setSfxEnabled(preferencesService.read().sfxEnabled)
+    setSfxEnabled(settingsService.read().sfxEnabled)
     setGameStatus('playing')
   }
 
@@ -163,8 +163,8 @@ export function GamePage() {
   const handleToggleSfx = () => {
     setSfxEnabled((prev) => {
       const next = !prev
-      const prefs = preferencesService.read()
-      preferencesService.write({ ...prefs, sfxEnabled: next })
+      const prefs = settingsService.read()
+      settingsService.write({ ...prefs, sfxEnabled: next })
       return next
     })
   }

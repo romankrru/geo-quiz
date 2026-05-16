@@ -1,53 +1,49 @@
+import { DEFAULT_SETTINGS, SETTINGS_STORAGE_KEY } from './settings.constants'
 import {
-  DEFAULT_SETTINGS,
-  PREFERENCES_STORAGE_KEY,
-} from './preferences.constants'
-import {
-  appPreferencesSchema,
-  persistedAppPreferencesFromStorageStringSchema,
-} from './preferences.schema'
+  appSettingsSchema,
+  persistedAppSettingsFromStorageStringSchema,
+} from './settings.schema'
 import type {
-  AppPreferences,
+  AppSettings,
   ConfiguredRoundSize,
   RoundSelection,
-} from './preferences.types'
+} from './settings.types'
 
-const defaultAppPreferences = (): AppPreferences => ({
+const defaultAppSettings = (): AppSettings => ({
   round: { kind: 'fixed', value: DEFAULT_SETTINGS.fixedRoundSize },
   sfxEnabled: DEFAULT_SETTINGS.sfxEnabled,
 })
 
-export const preferencesService = {
-  read(): AppPreferences {
+export const settingsService = {
+  read(): AppSettings {
     try {
-      const raw = localStorage.getItem(PREFERENCES_STORAGE_KEY)
+      const raw = localStorage.getItem(SETTINGS_STORAGE_KEY)
       if (raw === null) {
-        return defaultAppPreferences()
+        return defaultAppSettings()
       }
-      const parsed =
-        persistedAppPreferencesFromStorageStringSchema.safeParse(raw)
+      const parsed = persistedAppSettingsFromStorageStringSchema.safeParse(raw)
       if (!parsed.success) {
-        return defaultAppPreferences()
+        return defaultAppSettings()
       }
       return parsed.data
     } catch (error) {
       console.error(
-        '[preferencesService.read] localStorage read failed; using defaults',
+        '[settingsService.read] localStorage read failed; using defaults',
         error,
       )
-      return defaultAppPreferences()
+      return defaultAppSettings()
     }
   },
 
-  write(value: AppPreferences): void {
-    if (!appPreferencesSchema.safeParse(value).success) {
+  write(value: AppSettings): void {
+    if (!appSettingsSchema.safeParse(value).success) {
       return
     }
     try {
-      localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(value))
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(value))
     } catch (error) {
       console.error(
-        '[preferencesService.write] localStorage.setItem failed',
+        '[settingsService.write] localStorage.setItem failed',
         error,
       )
     }

@@ -4,10 +4,7 @@ import toast from 'react-hot-toast'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
-import {
-  PREFERENCES_STORAGE_KEY,
-  preferencesService,
-} from '@entities/preferences'
+import { SETTINGS_STORAGE_KEY, settingsService } from '@entities/settings'
 
 import { SettingsPage } from './SettingsPage'
 
@@ -45,7 +42,7 @@ describe('SettingsPage', () => {
 
   beforeEach(() => {
     localStorage.clear()
-    writeSpy = vi.spyOn(preferencesService, 'write')
+    writeSpy = vi.spyOn(settingsService, 'write')
   })
 
   afterEach(() => {
@@ -97,7 +94,7 @@ describe('SettingsPage', () => {
       round: { kind: 'fixed', value: 25 },
       sfxEnabled: false,
     })
-    expect(preferencesService.read()).toEqual({
+    expect(settingsService.read()).toEqual({
       round: { kind: 'fixed', value: 25 },
       sfxEnabled: false,
     })
@@ -106,7 +103,7 @@ describe('SettingsPage', () => {
 
   it('preserves sfxEnabled when the round preset is saved', () => {
     localStorage.setItem(
-      PREFERENCES_STORAGE_KEY,
+      SETTINGS_STORAGE_KEY,
       JSON.stringify({
         round: { kind: 'fixed', value: 10 },
         sfxEnabled: true,
@@ -119,7 +116,7 @@ describe('SettingsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(writeSpy).toHaveBeenCalledTimes(1)
-    expect(preferencesService.read()).toEqual({
+    expect(settingsService.read()).toEqual({
       round: { kind: 'fixed', value: 25 },
       sfxEnabled: true,
     })
@@ -136,7 +133,7 @@ describe('SettingsPage', () => {
       round: { kind: 'all-countries' },
       sfxEnabled: false,
     })
-    expect(preferencesService.read()).toEqual({
+    expect(settingsService.read()).toEqual({
       round: { kind: 'all-countries' },
       sfxEnabled: false,
     })
@@ -158,7 +155,7 @@ describe('SettingsPage', () => {
       round: { kind: 'fixed', value: 17 },
       sfxEnabled: false,
     })
-    expect(preferencesService.read()).toEqual({
+    expect(settingsService.read()).toEqual({
       round: { kind: 'fixed', value: 17 },
       sfxEnabled: false,
     })
@@ -221,7 +218,7 @@ describe('SettingsPage', () => {
 
   it('rehydrates Custom with the saved value after reopening the page', () => {
     localStorage.setItem(
-      PREFERENCES_STORAGE_KEY,
+      SETTINGS_STORAGE_KEY,
       JSON.stringify({
         round: { kind: 'fixed', value: 17 },
         sfxEnabled: false,

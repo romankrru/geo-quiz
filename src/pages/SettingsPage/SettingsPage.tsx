@@ -5,7 +5,7 @@ import { type ChangeEvent, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
-import { preferencesService, type RoundSelection } from '@entities/preferences'
+import { type RoundSelection,settingsService } from '@entities/settings'
 import { Button } from '@shared/ui/Button/Button'
 import { RadioCard } from '@shared/ui/RadioCard/RadioCard'
 
@@ -17,24 +17,22 @@ const ROUND_GROUP = 'configured-round-size'
 
 export const SettingsPage = () => {
   const initial = useMemo(
-    () =>
-      preferencesService.persistedToSelection(preferencesService.read().round),
+    () => settingsService.persistedToSelection(settingsService.read().round),
     [],
   )
   const [selection, setSelection] = useState<RoundSelection>(initial.selection)
   const [customDigits, setCustomDigits] = useState(initial.customDigits)
 
-  const customParsed =
-    preferencesService.parsePositiveIntegerDigits(customDigits)
+  const customParsed = settingsService.parsePositiveIntegerDigits(customDigits)
   const customInvalid =
     selection === 'custom' &&
     (customParsed === null ||
-      !preferencesService.isValidCustomRoundSize(customParsed, catalogSize))
+      !settingsService.isValidCustomRoundSize(customParsed, catalogSize))
 
   const customSubtitle =
     customParsed !== null &&
-    preferencesService.isValidCustomRoundSize(customParsed, catalogSize)
-      ? preferencesService.formatApproxRoundMinutesLabel(customParsed)
+    settingsService.isValidCustomRoundSize(customParsed, catalogSize)
+      ? settingsService.formatApproxRoundMinutesLabel(customParsed)
       : 'your call'
 
   const saveDisabled = selection === 'custom' ? customInvalid : false
@@ -52,16 +50,14 @@ export const SettingsPage = () => {
   }
 
   const handleSave = () => {
-    const intent = preferencesService.intentFromSelection(
+    const intent = settingsService.intentFromSelection(
       selection,
       customDigits,
       catalogSize,
     )
-    const persisted = preferencesService.read()
-    if (
-      !preferencesService.configuredRoundSizesEqual(intent, persisted.round)
-    ) {
-      preferencesService.write({ ...persisted, round: intent })
+    const persisted = settingsService.read()
+    if (!settingsService.configuredRoundSizesEqual(intent, persisted.round)) {
+      settingsService.write({ ...persisted, round: intent })
       toast.success('Settings saved')
       return
     }
@@ -72,15 +68,15 @@ export const SettingsPage = () => {
     if (selection !== 'custom') {
       return
     }
-    const parsed = preferencesService.parsePositiveIntegerDigits(customDigits)
+    const parsed = settingsService.parsePositiveIntegerDigits(customDigits)
     if (parsed === null) {
       return
     }
-    if (preferencesService.isValidCustomRoundSize(parsed, catalogSize)) {
+    if (settingsService.isValidCustomRoundSize(parsed, catalogSize)) {
       return
     }
     setCustomDigits(
-      String(preferencesService.clampCustomRoundSize(parsed, catalogSize)),
+      String(settingsService.clampCustomRoundSize(parsed, catalogSize)),
     )
   }
 
@@ -114,7 +110,7 @@ export const SettingsPage = () => {
                 onChange={handleRoundChange}
                 headline="10"
                 title="Quick play"
-                subtitle={preferencesService.formatApproxRoundMinutesLabel(10)}
+                subtitle={settingsService.formatApproxRoundMinutesLabel(10)}
                 footer={
                   <span className={styles.radioCardFooterCaption}>
                     {`10 / ${catalogSize}`}
@@ -129,7 +125,7 @@ export const SettingsPage = () => {
                 onChange={handleRoundChange}
                 headline="25"
                 title="Classic"
-                subtitle={preferencesService.formatApproxRoundMinutesLabel(25)}
+                subtitle={settingsService.formatApproxRoundMinutesLabel(25)}
                 footer={
                   <span className={styles.radioCardFooterCaption}>
                     {`25 / ${catalogSize}`}
@@ -144,7 +140,7 @@ export const SettingsPage = () => {
                 onChange={handleRoundChange}
                 headline={String(catalogSize)}
                 title="Every country"
-                subtitle={preferencesService.formatApproxRoundMinutesLabel(
+                subtitle={settingsService.formatApproxRoundMinutesLabel(
                   catalogSize,
                 )}
                 footer={
