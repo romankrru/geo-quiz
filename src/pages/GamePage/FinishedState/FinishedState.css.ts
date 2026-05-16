@@ -44,12 +44,9 @@ export const actions = style({
   marginTop: 8,
 })
 
-/** Wrapper for `HomeCorner` under the finished-game card (flow, not fixed). */
 export const homeCornerBelowCard = style({
   maxWidth: 720,
   margin: '0 auto',
   padding: '0 20px',
   marginTop: 20,
-  display: 'flex',
-  justifyContent: 'center',
 })
