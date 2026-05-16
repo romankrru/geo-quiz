@@ -1,5 +1,5 @@
 import { Clock } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
 import { preferencesService, SfxToggleButton } from '@entities/preferences'
@@ -47,6 +47,19 @@ export function GamePage() {
 
   const elapsedMs = useStopwatch(gameStatus === 'playing')
 
+  const finishRound = useCallback(
+    (finalScore: number) => {
+      statisticsService.appendSession({
+        completedAt: new Date().toISOString(),
+        score: finalScore,
+        questionCount: questions.length,
+        roundDurationMs: Math.round(elapsedMs),
+      })
+      setGameStatus('finished')
+    },
+    [questions.length, elapsedMs],
+  )
+
   const formatElapsed = (ms: number) => {
     const totalTenths = Math.floor(ms / 100)
     const m = Math.floor(totalTenths / 600)
@@ -73,6 +86,7 @@ export function GamePage() {
         questions[currentQuestionIndex],
         answer,
       )
+      const nextScore = correct ? score + 1 : score
       if (correct) {
         setScore((s) => s + 1)
         if (sfxEnabled) {
@@ -81,8 +95,19 @@ export function GamePage() {
       } else if (sfxEnabled) {
         playFail()
       }
+      if (currentQuestionIndex === questions.length - 1) {
+        finishRound(nextScore)
+      }
     },
-    [questions, currentQuestionIndex, playSuccess, playFail, sfxEnabled],
+    [
+      questions,
+      currentQuestionIndex,
+      score,
+      finishRound,
+      playSuccess,
+      playFail,
+      sfxEnabled,
+    ],
   )
 
   useKeyPress(
@@ -95,24 +120,21 @@ export function GamePage() {
     { enabled: gameStatus === 'playing' && selectedAnswer === null },
   )
 
-  const handleNext = () => {
-    if (currentQuestionIndex === questions.length - 1) {
-      statisticsService.appendSession({
-        completedAt: new Date().toISOString(),
-        score,
-        questionCount: questions.length,
-        roundDurationMs: Math.round(elapsedMs),
-      })
-      setGameStatus('finished')
-    } else {
+  const handleNext = useCallback(() => {
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((i) => i + 1)
       setSelectedAnswer(null)
     }
-  }
+  }, [currentQuestionIndex, questions.length])
 
-  useKeyPress([' '], handleNext, {
-    enabled: gameStatus === 'playing' && selectedAnswer !== null,
-  })
+  const canPressNext = useMemo(() => {
+    if (gameStatus !== 'playing' || selectedAnswer === null) {
+      return false
+    }
+    return currentQuestionIndex < questions.length - 1
+  }, [gameStatus, selectedAnswer, currentQuestionIndex, questions.length])
+
+  useKeyPress([' '], handleNext, { enabled: canPressNext })
 
   if (gameStatus === 'idle') {
     return (
@@ -210,16 +232,15 @@ export function GamePage() {
           <HomeCorner className={homeCornerStyles.inBottomBar} />
         </div>
         <div className={styles.bottomBarCenter}>
-          {selectedAnswer !== null && (
-            <>
-              <Button onClick={handleNext} className={styles.nextButton}>
-                {currentQuestionIndex === questions.length - 1
-                  ? 'See Results'
-                  : 'Next'}
-              </Button>
-              <span className={styles.nextHint}>or press Space</span>
-            </>
-          )}
+          {selectedAnswer !== null &&
+            currentQuestionIndex < questions.length - 1 && (
+              <>
+                <Button onClick={handleNext} className={styles.nextButton}>
+                  Next
+                </Button>
+                <span className={styles.nextHint}>or press Space</span>
+              </>
+            )}
         </div>
         <div className={styles.bottomBarRight} aria-hidden />
       </div>
