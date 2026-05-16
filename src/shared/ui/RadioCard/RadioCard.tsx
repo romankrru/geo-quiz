@@ -1,11 +1,5 @@
 import { clsx } from 'clsx'
-import {
-  type ChangeEvent,
-  type ComponentProps,
-  type MouseEvent,
-  useId,
-  useRef,
-} from 'react'
+import { type ChangeEvent, type ComponentProps, useId } from 'react'
 
 import * as styles from './RadioCard.css'
 
@@ -19,38 +13,21 @@ type Props = {
   subtitle?: React.ReactNode
   footer?: React.ReactNode
   disabled?: boolean
-} & Pick<ComponentProps<'div'>, 'className'>
+} & Pick<ComponentProps<'label'>, 'className'>
 
 export const RadioCard = (props: Props) => {
   const reactId = useId()
   const radioId = `radio-card-${reactId}`
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  const handleRootClick = (event: MouseEvent<HTMLDivElement>) => {
-    if (props.disabled) {
-      return
-    }
-    if (
-      (event.target as HTMLElement).closest(
-        'input,textarea,select,button,a[href]',
-      )
-    ) {
-      return
-    }
-    inputRef.current?.click()
-  }
 
   return (
-    <div
+    <label
       className={clsx(
         styles.root,
         props.checked && styles.rootSelected,
         props.className,
       )}
-      onClick={handleRootClick}
     >
       <input
-        ref={inputRef}
         id={radioId}
         className={styles.nativeInput}
         type="radio"
@@ -60,7 +37,7 @@ export const RadioCard = (props: Props) => {
         disabled={props.disabled}
         onChange={props.onChange}
       />
-      <label htmlFor={radioId} className={styles.upper}>
+      <div className={styles.upper}>
         <span className={styles.indicatorRow}>
           <span
             className={clsx(
@@ -82,10 +59,10 @@ export const RadioCard = (props: Props) => {
         {props.subtitle !== undefined && props.subtitle !== null ? (
           <span className={styles.subtitle}>{props.subtitle}</span>
         ) : null}
-      </label>
+      </div>
       {props.footer !== undefined ? (
         <div className={styles.footer}>{props.footer}</div>
       ) : null}
-    </div>
+    </label>
   )
 }
