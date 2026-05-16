@@ -29,6 +29,11 @@ Elapsed time from the start of the quiz round until the player reaches the resul
 
 _Avoid_: treating post-game browsing or time on the home screen as part of round duration.
 
+**Quiz result share text**:
+A short, plain-text snippet generated on the results screen of a **Completed quiz (recorded)** so the player can copy it to the clipboard and share their outcome with others. It contains the player’s score, that round’s **question count per round**, the round’s **Round duration (recorded)** (rendered without tenths of a second — `MM:SS` — distinct from the in-round timer and on-screen `Time:` label, which include tenths), a brand line naming Geo Quiz, and a link to the public site. Intended as a marketing artifact for player-driven acquisition — not a serialization of the **Quiz session record** in the **Statistics store**, and not subject to its schema-version contract.
+
+_Avoid_: treating the share text and **Quiz session record** as the same artifact — the record persists for statistics; the share text is ephemeral and carries marketing copy plus a site URL. Don’t propagate UI label changes (e.g. emoji, wording on `Score:`/`Time:`) into the share text or vice versa — they are separate views of the same underlying numbers.
+
 **Average score (statistics)**:
 The mean, across **Quiz session records**, of each session’s score divided by that session’s question count — expressed as a percentage. Each completed quiz contributes equally to this average.
 
@@ -95,6 +100,7 @@ _Avoid_: expecting **Outdated client (statistics)**-style behaviour for the **Qu
 - Changing **Configured round size** while a round is in progress does not resize or regenerate that round’s question list; only the **next** round uses the newly saved preference.
 - When **Configured round size** is **All countries in catalog**, the implemented question count for that round is the current catalog length at **start of round** time; **Quiz session records** still store that concrete **question count per round** for history.
 - **Quiz preferences store** is independent of **Statistics store**; resetting statistics does not reset **Configured round size**. Corrupt or unreadable preference JSON yields the **Configured round size** default until valid preferences are saved again.
+- The **Quiz result share text** is derived from the same numeric fields that go into a **Quiz session record** (score, question count per round, round duration), but is **not** persisted, **not** schema-versioned, and additionally embeds Geo Quiz branding and the site URL. The share text’s formatting decisions (e.g. dropping tenths of a second from the duration) are independent of the on-screen results UI.
 
 ## Example dialogue
 
