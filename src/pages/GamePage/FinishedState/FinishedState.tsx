@@ -1,6 +1,10 @@
 import { Link } from '@tanstack/react-router'
+import { Share } from 'lucide-react'
 import Confetti from 'react-confetti-boom'
+import toast from 'react-hot-toast'
 
+import { quizService } from '@entities/quiz'
+import { useCopyToClipboard } from '@shared/hooks'
 import { cssColorToHex, themeLiterals } from '@shared/theme'
 import { Button } from '@shared/ui'
 
@@ -19,10 +23,27 @@ type Props = {
   score: number
   totalQuestions: number
   timeLabel: string
+  durationMs: number
   onPlayAgain: () => void
 }
 
 export const FinishedState = (props: Props) => {
+  const copy = useCopyToClipboard()
+
+  const handleShare = async () => {
+    const text = quizService.formatShareText({
+      score: props.score,
+      totalQuestions: props.totalQuestions,
+      durationMs: props.durationMs,
+    })
+    const ok = await copy(text)
+    if (ok) {
+      toast.success('Copied to clipboard')
+    } else {
+      toast.error("Couldn't copy")
+    }
+  }
+
   return (
     <div className={styles.root}>
       <div className={styles.content}>
@@ -36,6 +57,14 @@ export const FinishedState = (props: Props) => {
             <Button onClick={props.onPlayAgain}>Play Again</Button>
             <Button as={Link} to="/stats" variant="transparent">
               View Statistics
+            </Button>
+            <Button
+              variant="transparent"
+              icon={<Share size={18} strokeWidth={2} aria-hidden />}
+              iconPosition="start"
+              onClick={handleShare}
+            >
+              Share
             </Button>
           </div>
           <div className={styles.confettiLayer} aria-hidden>
