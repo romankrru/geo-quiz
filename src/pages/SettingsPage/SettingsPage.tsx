@@ -31,6 +31,12 @@ export const SettingsPage = () => {
     (customParsed === null ||
       !preferencesService.isValidCustomRoundSize(customParsed, catalogSize))
 
+  const customSubtitle =
+    customParsed !== null &&
+    preferencesService.isValidCustomRoundSize(customParsed, catalogSize)
+      ? preferencesService.formatApproxRoundMinutesLabel(customParsed)
+      : 'your call'
+
   const saveDisabled = selection === 'custom' ? customInvalid : false
 
   const handleRoundChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -108,7 +114,7 @@ export const SettingsPage = () => {
                 onChange={handleRoundChange}
                 headline="10"
                 title="Quick play"
-                subtitle="≈ 3 min"
+                subtitle={preferencesService.formatApproxRoundMinutesLabel(10)}
                 footer={
                   <span className={styles.radioCardFooterCaption}>
                     {`10 / ${catalogSize}`}
@@ -123,7 +129,7 @@ export const SettingsPage = () => {
                 onChange={handleRoundChange}
                 headline="25"
                 title="Classic"
-                subtitle="≈ 8 min"
+                subtitle={preferencesService.formatApproxRoundMinutesLabel(25)}
                 footer={
                   <span className={styles.radioCardFooterCaption}>
                     {`25 / ${catalogSize}`}
@@ -138,7 +144,9 @@ export const SettingsPage = () => {
                 onChange={handleRoundChange}
                 headline={String(catalogSize)}
                 title="Every country"
-                subtitle="≈ 45 min"
+                subtitle={preferencesService.formatApproxRoundMinutesLabel(
+                  catalogSize,
+                )}
                 footer={
                   <span className={styles.radioCardFooterCaption}>
                     Full catalog
@@ -153,7 +161,7 @@ export const SettingsPage = () => {
                 onChange={handleRoundChange}
                 headline={customHeadline}
                 title="Custom"
-                subtitle="your call"
+                subtitle={customSubtitle}
                 footer={
                   <input
                     id="settings-custom-round-size"

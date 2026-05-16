@@ -120,6 +120,14 @@ describe('Quiz preferences store: resolve question count', () => {
   })
 })
 
+describe('formatApproxRoundMinutesLabel', () => {
+  it('uses ~1 min per 10 questions, rounded, with a 1-minute floor', () => {
+    expect(preferencesService.formatApproxRoundMinutesLabel(10)).toBe('≈ 1 min')
+    expect(preferencesService.formatApproxRoundMinutesLabel(25)).toBe('≈ 3 min')
+    expect(preferencesService.formatApproxRoundMinutesLabel(1)).toBe('≈ 1 min')
+  })
+})
+
 describe('isValidCustomRoundSize', () => {
   const catalogSize = 197
 

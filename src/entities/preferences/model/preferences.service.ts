@@ -68,6 +68,14 @@ export const preferencesService = {
     return value.value
   },
 
+  /**
+   * Format rough duration from question count (~1 min per 10 questions, rounded)
+   */
+  formatApproxRoundMinutesLabel(questionCount: number): string {
+    const minutes = Math.max(1, Math.round(questionCount / 10))
+    return `≈ ${minutes} min`
+  },
+
   isValidCustomRoundSize(value: number, catalogSize: number): boolean {
     if (!Number.isInteger(value)) {
       return false
