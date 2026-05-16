@@ -72,6 +72,7 @@ export function GamePage() {
         score={round.score}
         totalQuestions={round.questions.length}
         timeLabel={quizService.formatRoundDuration(round.elapsedMs)}
+        durationMs={round.elapsedMs}
         onPlayAgain={handlePlayAgain}
       />
     )
