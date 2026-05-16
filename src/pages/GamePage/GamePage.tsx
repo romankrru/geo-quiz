@@ -1,11 +1,10 @@
 import { Clock } from 'lucide-react'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { COUNTRIES } from '@entities/country/model/country.data'
-import { type QuizQuestion, quizService } from '@entities/quiz'
+import { quizService } from '@entities/quiz'
 import { settingsService, SfxToggleButton } from '@entities/settings'
-import { statisticsService } from '@entities/statistics'
-import { useKeyPress, useSfx, useStopwatch } from '@shared/hooks'
+import { useKeyPress, useSfx } from '@shared/hooks'
 import { Button, ProgressBar } from '@shared/ui'
 import {
   ButtonQuiz,
@@ -17,27 +16,21 @@ import successSoundUrl from '../../assets/success.wav?url'
 
 import { FinishedState } from './FinishedState/FinishedState'
 import { HomeCorner } from './HomeCorner/HomeCorner'
+import { useQuizRound } from './hooks/useQuizRound'
 
 import * as styles from './GamePage.css'
 import * as homeCornerStyles from './HomeCorner/HomeCorner.css'
 
-type GameStatus = 'idle' | 'playing' | 'finished'
-
-function resolveRoundQuestionCount(): number {
-  return settingsService.resolveQuestionCount(
-    settingsService.read().round,
-    COUNTRIES.length,
-  )
+function formatElapsed(ms: number): string {
+  const totalTenths = Math.floor(ms / 100)
+  const m = Math.floor(totalTenths / 600)
+  const s = Math.floor((totalTenths % 600) / 10)
+  const t = totalTenths % 10
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${t}`
 }
 
 export function GamePage() {
-  const [questions, setQuestions] = useState<QuizQuestion[]>(() =>
-    quizService.generateQuizQuestions(COUNTRIES, resolveRoundQuestionCount()),
-  )
-  const [gameStatus, setGameStatus] = useState<GameStatus>('playing')
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [score, setScore] = useState(0)
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
+  const round = useQuizRound(COUNTRIES)
   const [sfxEnabled, setSfxEnabled] = useState(
     () => settingsService.read().sfxEnabled,
   )
@@ -45,120 +38,56 @@ export function GamePage() {
   const playSuccess = useSfx(successSoundUrl)
   const playFail = useSfx(failSoundUrl)
 
-  const elapsedMs = useStopwatch(gameStatus === 'playing')
-
-  const finishRound = useCallback(
-    (finalScore: number) => {
-      statisticsService.appendSession({
-        completedAt: new Date().toISOString(),
-        score: finalScore,
-        questionCount: questions.length,
-        roundDurationMs: Math.round(elapsedMs),
-      })
-      setGameStatus('finished')
-    },
-    [questions.length, elapsedMs],
-  )
-
-  const formatElapsed = (ms: number) => {
-    const totalTenths = Math.floor(ms / 100)
-    const m = Math.floor(totalTenths / 600)
-    const s = Math.floor((totalTenths % 600) / 10)
-    const t = totalTenths % 10
-    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${t}`
+  const handleSelectAnswer = (answer: string) => {
+    const { correct } = round.selectAnswer(answer)
+    if (sfxEnabled) {
+      ;(correct ? playSuccess : playFail)()
+    }
   }
 
-  const handleStart = () => {
-    setQuestions(
-      quizService.generateQuizQuestions(COUNTRIES, resolveRoundQuestionCount()),
-    )
-    setCurrentQuestionIndex(0)
-    setScore(0)
-    setSelectedAnswer(null)
+  const handlePlayAgain = () => {
     setSfxEnabled(settingsService.read().sfxEnabled)
-    setGameStatus('playing')
+    round.playAgain()
   }
-
-  const handleSelectAnswer = useCallback(
-    (answer: string) => {
-      setSelectedAnswer(answer)
-      const correct = quizService.isCorrectAnswer(
-        questions[currentQuestionIndex],
-        answer,
-      )
-      const nextScore = correct ? score + 1 : score
-      if (correct) {
-        setScore((s) => s + 1)
-        if (sfxEnabled) {
-          playSuccess()
-        }
-      } else if (sfxEnabled) {
-        playFail()
-      }
-      if (currentQuestionIndex === questions.length - 1) {
-        finishRound(nextScore)
-      }
-    },
-    [
-      questions,
-      currentQuestionIndex,
-      score,
-      finishRound,
-      playSuccess,
-      playFail,
-      sfxEnabled,
-    ],
-  )
 
   useKeyPress(
     ['1', '2', '3', '4'],
     (e) => {
       const idx = Number(e.key) - 1
-      const option = questions[currentQuestionIndex]?.options[idx]
+      const option = round.questions[round.currentQuestionIndex]?.options[idx]
       if (option) handleSelectAnswer(option)
     },
-    { enabled: gameStatus === 'playing' && selectedAnswer === null },
+    { enabled: round.status === 'playing' && round.selectedAnswer === null },
   )
 
-  const handleNext = useCallback(() => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex((i) => i + 1)
-      setSelectedAnswer(null)
-    }
-  }, [currentQuestionIndex, questions.length])
-
   const canPressNext = useMemo(() => {
-    if (gameStatus !== 'playing' || selectedAnswer === null) {
+    if (round.status !== 'playing' || round.selectedAnswer === null) {
       return false
     }
-    return currentQuestionIndex < questions.length - 1
-  }, [gameStatus, selectedAnswer, currentQuestionIndex, questions.length])
+    return round.currentQuestionIndex < round.questions.length - 1
+  }, [
+    round.status,
+    round.selectedAnswer,
+    round.currentQuestionIndex,
+    round.questions.length,
+  ])
 
-  useKeyPress([' '], handleNext, { enabled: canPressNext })
+  useKeyPress([' '], round.next, { enabled: canPressNext })
 
-  if (gameStatus === 'idle') {
-    return (
-      <div>
-        <h1>Geo Quiz</h1>
-        <Button onClick={handleStart}>Start Game</Button>
-      </div>
-    )
-  }
-
-  if (gameStatus === 'finished') {
+  if (round.status === 'finished') {
     return (
       <FinishedState
-        score={score}
-        totalQuestions={questions.length}
-        timeLabel={formatElapsed(elapsedMs)}
-        onPlayAgain={handleStart}
+        score={round.score}
+        totalQuestions={round.questions.length}
+        timeLabel={formatElapsed(round.elapsedMs)}
+        onPlayAgain={handlePlayAgain}
       />
     )
   }
 
-  const question = questions[currentQuestionIndex]
+  const question = round.questions[round.currentQuestionIndex]
   const answeredQuestionsCount =
-    currentQuestionIndex + (selectedAnswer !== null ? 1 : 0)
+    round.currentQuestionIndex + (round.selectedAnswer !== null ? 1 : 0)
 
   const handleToggleSfx = () => {
     setSfxEnabled((prev) => {
@@ -170,7 +99,7 @@ export function GamePage() {
   }
 
   const getOptionVariant = (option: string): ButtonQuizVariant => {
-    if (selectedAnswer === null) {
+    if (round.selectedAnswer === null) {
       return 'default'
     }
 
@@ -178,7 +107,7 @@ export function GamePage() {
       return 'success'
     }
 
-    if (option === selectedAnswer) {
+    if (option === round.selectedAnswer) {
       return 'error'
     }
 
@@ -190,9 +119,9 @@ export function GamePage() {
       <div className={styles.progressSection}>
         <div className={styles.progressHeader}>
           <span>
-            Progress: {answeredQuestionsCount} / {questions.length}
+            Progress: {answeredQuestionsCount} / {round.questions.length}
           </span>
-          <span>Score: {score}</span>
+          <span>Score: {round.score}</span>
           <div className={styles.progressHeaderRight}>
             <SfxToggleButton
               sfxEnabled={sfxEnabled}
@@ -200,11 +129,14 @@ export function GamePage() {
             />
             <div className={styles.timer}>
               <Clock className={styles.timerIcon} strokeWidth={3} size={20} />
-              {formatElapsed(elapsedMs)}
+              {formatElapsed(round.elapsedMs)}
             </div>
           </div>
         </div>
-        <ProgressBar value={answeredQuestionsCount} max={questions.length} />
+        <ProgressBar
+          value={answeredQuestionsCount}
+          max={round.questions.length}
+        />
       </div>
       <div className={styles.questionCard}>
         <h2 className={styles.title}>
@@ -219,7 +151,7 @@ export function GamePage() {
               count={index + 1}
               key={option}
               onClick={() => handleSelectAnswer(option)}
-              disabled={selectedAnswer !== null}
+              disabled={round.selectedAnswer !== null}
               variant={getOptionVariant(option)}
             >
               {option}
@@ -232,10 +164,10 @@ export function GamePage() {
           <HomeCorner className={homeCornerStyles.inBottomBar} />
         </div>
         <div className={styles.bottomBarCenter}>
-          {selectedAnswer !== null &&
-            currentQuestionIndex < questions.length - 1 && (
+          {round.selectedAnswer !== null &&
+            round.currentQuestionIndex < round.questions.length - 1 && (
               <>
-                <Button onClick={handleNext} className={styles.nextButton}>
+                <Button onClick={round.next} className={styles.nextButton}>
                   Next
                 </Button>
                 <span className={styles.nextHint}>or press Space</span>
