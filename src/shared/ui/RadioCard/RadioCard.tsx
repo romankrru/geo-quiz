@@ -26,7 +26,7 @@ export const RadioCard = (props: Props) => {
   const radioId = `radio-card-${reactId}`
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const handleFooterClick = (event: MouseEvent<HTMLDivElement>) => {
+  const handleRootClick = (event: MouseEvent<HTMLDivElement>) => {
     if (props.disabled) {
       return
     }
@@ -47,6 +47,7 @@ export const RadioCard = (props: Props) => {
         props.checked && styles.rootSelected,
         props.className,
       )}
+      onClick={handleRootClick}
     >
       <input
         ref={inputRef}
@@ -83,9 +84,7 @@ export const RadioCard = (props: Props) => {
         ) : null}
       </label>
       {props.footer !== undefined ? (
-        <div className={styles.footer} onClick={handleFooterClick}>
-          {props.footer}
-        </div>
+        <div className={styles.footer}>{props.footer}</div>
       ) : null}
     </div>
   )
