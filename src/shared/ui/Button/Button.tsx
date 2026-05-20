@@ -8,7 +8,7 @@ import {
 
 import * as style from './Buttons.css'
 
-export type ButtonVariant = keyof typeof style.buttonAppearance
+export type ButtonVariant = 'solid' | 'transparent' | 'danger'
 
 export type ButtonProps<E extends ElementType = 'button'> = {
   as?: E

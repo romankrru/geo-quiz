@@ -4,6 +4,7 @@ import { darken } from 'polished'
 import { themeLiterals, vars } from '@shared/theme'
 
 export const buttonBase = style({
+  fontSize: 14,
   border: 'none',
   cursor: 'pointer',
   fontWeight: 'bold',
