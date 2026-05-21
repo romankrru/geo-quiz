@@ -1,4 +1,6 @@
 // url=https://www.figma.com/design/mF6ueBDvbEV3CzIFCZgpja/geo-quiz-—-UI-library?node-id=8-7
+// source=https://geo-quiz-storybook-nf449ky6o-romankrrus-projects.vercel.app/?path=/docs/shared-ui-button--docs
+// component=Button
 import figma from 'figma'
 
 const instance = figma.selectedInstance
