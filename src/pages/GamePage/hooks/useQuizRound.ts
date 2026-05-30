@@ -1,7 +1,11 @@
 import { useCallback, useState } from 'react'
 
 import type { Country } from '@entities/country/model/country.types'
-import { type QuizQuestion, quizService } from '@entities/quiz'
+import {
+  type QuizQuestion,
+  quizService,
+  type RoundAnswerReviewEntry,
+} from '@entities/quiz'
 import { settingsService } from '@entities/settings'
 import { statisticsService } from '@entities/statistics'
 import { useStopwatch } from '@shared/hooks'
@@ -17,6 +21,7 @@ export type UseQuizRoundReturn = {
   selectedAnswer: string | null
   status: RoundStatus
   elapsedMs: number
+  answerReview: RoundAnswerReviewEntry[]
   selectAnswer: (answer: string) => SelectAnswerResult
   next: () => void
   playAgain: () => void
@@ -44,6 +49,7 @@ export function useQuizRound(countries: Country[]): UseQuizRoundReturn {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
+  const [answerReview, setAnswerReview] = useState<RoundAnswerReviewEntry[]>([])
 
   const elapsedMs = useStopwatch(status === 'playing')
 
@@ -55,6 +61,16 @@ export function useQuizRound(countries: Country[]): UseQuizRoundReturn {
       if (correct) {
         setScore((s) => s + 1)
       }
+      setAnswerReview((prev) => [
+        ...prev,
+        {
+          questionNumber: currentQuestionIndex + 1,
+          flagEmoji: question.flagEmoji,
+          correctAnswer: question.correctAnswer,
+          selectedAnswer: answer,
+          correct,
+        },
+      ])
       const isLast = currentQuestionIndex === questions.length - 1
       if (isLast) {
         const finalScore = correct ? score + 1 : score
@@ -83,6 +99,7 @@ export function useQuizRound(countries: Country[]): UseQuizRoundReturn {
     setCurrentQuestionIndex(0)
     setScore(0)
     setSelectedAnswer(null)
+    setAnswerReview([])
     setStatus('playing')
   }, [countries])
 
@@ -93,6 +110,7 @@ export function useQuizRound(countries: Country[]): UseQuizRoundReturn {
     selectedAnswer,
     status,
     elapsedMs,
+    answerReview,
     selectAnswer,
     next,
     playAgain,

@@ -4,3 +4,11 @@ export type QuizQuestion = {
   options: string[]
   correctAnswer: string
 }
+
+export type RoundAnswerReviewEntry = {
+  questionNumber: number
+  flagEmoji: string
+  correctAnswer: string
+  selectedAnswer: string
+  correct: boolean
+}

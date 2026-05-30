@@ -241,4 +241,120 @@ describe('useQuizRound', () => {
     expect(result.current.questions).toHaveLength(3)
     expect(result.current.status).toBe('playing')
   })
+
+  it('answerReview length equals question count after a full round', () => {
+    const { result } = renderHook(() => useQuizRound(TEST_COUNTRIES))
+    const total = result.current.questions.length
+
+    for (let i = 0; i < total; i++) {
+      act(() => {
+        result.current.selectAnswer(result.current.questions[i].correctAnswer)
+      })
+      if (i < total - 1) {
+        act(() => {
+          result.current.next()
+        })
+      }
+    }
+
+    expect(result.current.status).toBe('finished')
+    expect(result.current.answerReview).toHaveLength(total)
+  })
+
+  it('answerReview entries have 1-based questionNumber values in play order', () => {
+    const { result } = renderHook(() => useQuizRound(TEST_COUNTRIES))
+    const total = result.current.questions.length
+
+    for (let i = 0; i < total; i++) {
+      act(() => {
+        result.current.selectAnswer(result.current.questions[i].correctAnswer)
+      })
+      if (i < total - 1) {
+        act(() => {
+          result.current.next()
+        })
+      }
+    }
+
+    for (let i = 0; i < total; i++) {
+      expect(result.current.answerReview[i].questionNumber).toBe(i + 1)
+    }
+  })
+
+  it('each answerReview entry reflects flag, answers, and correct flag', () => {
+    const { result } = renderHook(() => useQuizRound(TEST_COUNTRIES))
+    const q0 = result.current.questions[0]
+    const wrong = pickWrongOption(q0.options, q0.correctAnswer)
+
+    act(() => {
+      result.current.selectAnswer(wrong)
+    })
+    act(() => {
+      result.current.next()
+    })
+
+    const entry = result.current.answerReview[0]
+    expect(entry.flagEmoji).toBe(q0.flagEmoji)
+    expect(entry.correctAnswer).toBe(q0.correctAnswer)
+    expect(entry.selectedAnswer).toBe(wrong)
+    expect(entry.correct).toBe(false)
+
+    const q1 = result.current.questions[1]
+    act(() => {
+      result.current.selectAnswer(q1.correctAnswer)
+    })
+
+    const entry1 = result.current.answerReview[1]
+    expect(entry1.correct).toBe(true)
+    expect(entry1.selectedAnswer).toBe(q1.correctAnswer)
+  })
+
+  it('last-question answer is present in answerReview when status is finished', () => {
+    const { result } = renderHook(() => useQuizRound(TEST_COUNTRIES))
+    const total = result.current.questions.length
+    const lastQ = result.current.questions[total - 1]
+
+    for (let i = 0; i < total - 1; i++) {
+      act(() => {
+        result.current.selectAnswer(result.current.questions[i].correctAnswer)
+      })
+      act(() => {
+        result.current.next()
+      })
+    }
+    act(() => {
+      result.current.selectAnswer(lastQ.correctAnswer)
+    })
+
+    expect(result.current.status).toBe('finished')
+    expect(result.current.answerReview).toHaveLength(total)
+    expect(result.current.answerReview[total - 1].questionNumber).toBe(total)
+    expect(result.current.answerReview[total - 1].correctAnswer).toBe(
+      lastQ.correctAnswer,
+    )
+  })
+
+  it('playAgain clears answerReview to empty array', () => {
+    const { result } = renderHook(() => useQuizRound(TEST_COUNTRIES))
+    const total = result.current.questions.length
+
+    for (let i = 0; i < total; i++) {
+      act(() => {
+        result.current.selectAnswer(result.current.questions[i].correctAnswer)
+      })
+      if (i < total - 1) {
+        act(() => {
+          result.current.next()
+        })
+      }
+    }
+
+    expect(result.current.answerReview).toHaveLength(total)
+
+    act(() => {
+      result.current.playAgain()
+    })
+
+    expect(result.current.answerReview).toHaveLength(0)
+  })
 })
