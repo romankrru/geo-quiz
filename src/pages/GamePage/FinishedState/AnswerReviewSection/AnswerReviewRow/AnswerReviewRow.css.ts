@@ -3,37 +3,52 @@ import { style } from '@vanilla-extract/css'
 import { vars } from '@shared/theme'
 
 export const row = style({
-  display: 'flex',
-  alignItems: 'center',
-  gap: 12,
-  padding: '10px 0',
   borderBottom: `1px solid ${vars.color.secondary}`,
   ':last-child': {
     borderBottom: 'none',
   },
 })
 
-export const number = style({
+const bodyCell = style({
   color: vars.color.text,
-  minWidth: 28,
-  flexShrink: 0,
-  paddingTop: 2,
+  padding: '10px 8px',
+  verticalAlign: 'middle',
+  wordBreak: 'break-word',
 })
 
-export const flag = style({
-  fontSize: '2.5rem',
-  lineHeight: 1,
-  flexShrink: 0,
-})
+export const numberCell = style([
+  bodyCell,
+  {
+    textAlign: 'center',
+  },
+])
 
-export const answers = style({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-  flex: 1,
-})
+export const flagCell = style([
+  bodyCell,
+  {
+    fontSize: '2.5rem',
+    lineHeight: 1,
+    textAlign: 'center',
+  },
+])
 
-export const correctAnswer = style({
+export const correctAnswerCell = style([
+  bodyCell,
+  {
+    color: vars.color.success,
+    fontWeight: 500,
+    textAlign: 'left',
+  },
+])
+
+export const yourAnswerCell = style([
+  bodyCell,
+  {
+    textAlign: 'left',
+  },
+])
+
+export const correctMark = style({
   color: vars.color.success,
   fontWeight: 500,
 })
@@ -42,6 +57,14 @@ export const selectedWrong = style({
   color: vars.color.error,
 })
 
-export const correctRight = style({
-  color: vars.color.success,
+export const srOnly = style({
+  border: 0,
+  clip: 'rect(0 0 0 0)',
+  height: '1px',
+  margin: '-1px',
+  overflow: 'hidden',
+  padding: 0,
+  position: 'absolute',
+  whiteSpace: 'nowrap',
+  width: '1px',
 })

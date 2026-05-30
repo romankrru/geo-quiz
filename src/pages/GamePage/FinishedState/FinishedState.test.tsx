@@ -87,23 +87,39 @@ describe('FinishedState', () => {
       />,
     )
 
-    expect(screen.getByText('1.')).toBeInTheDocument()
-    expect(screen.getByText('2.')).toBeInTheDocument()
+    const table = screen.getByRole('table')
+    const rows = within(table).getAllByRole('row')
+
+    expect(within(rows[1]).getByRole('cell', { name: '1' })).toBeInTheDocument()
+    expect(within(rows[2]).getByRole('cell', { name: '2' })).toBeInTheDocument()
   })
 
-  it('renders correct entry with country name once, no Answer / Correct labels', () => {
+  it('renders correct entry with country in Correct answer and checkmark in Your answer', () => {
     render(<FinishedState {...BASE_PROPS} answerReview={[CORRECT_ENTRY]} />)
 
-    expect(screen.getByText('Aland')).toBeInTheDocument()
+    const table = screen.getByRole('table')
+    const row = within(table).getAllByRole('row')[1]
+
+    expect(
+      within(row).getByRole('cell', { name: 'Aland' }),
+    ).toBeInTheDocument()
+    expect(within(row).getByText('✓')).toBeInTheDocument()
     expect(screen.queryByText(/^answer:/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/^correct:/i)).not.toBeInTheDocument()
   })
 
-  it('renders incorrect entry with Answer and Correct labels', () => {
+  it('renders incorrect entry with country names in answer columns', () => {
     render(<FinishedState {...BASE_PROPS} answerReview={[INCORRECT_ENTRY]} />)
 
-    expect(screen.getByText(/^answer:\s*Cland/i)).toBeInTheDocument()
-    expect(screen.getByText(/^correct:\s*Bland/i)).toBeInTheDocument()
+    const table = screen.getByRole('table')
+    const row = within(table).getAllByRole('row')[1]
+
+    expect(
+      within(row).getByRole('cell', { name: 'Bland' }),
+    ).toBeInTheDocument()
+    expect(
+      within(row).getByRole('cell', { name: 'Cland' }),
+    ).toBeInTheDocument()
   })
 
   it('renders confetti when score equals totalQuestions', () => {
@@ -154,7 +170,7 @@ describe('FinishedState', () => {
     )
   })
 
-  it('renders all entries from the review list in order', () => {
+  it('renders all entries from the review table in order', () => {
     const entries: RoundAnswerReviewEntry[] = [
       CORRECT_ENTRY,
       INCORRECT_ENTRY,
@@ -169,10 +185,11 @@ describe('FinishedState', () => {
 
     render(<FinishedState {...BASE_PROPS} answerReview={entries} />)
 
-    const rows = screen.getAllByRole('listitem')
-    expect(rows).toHaveLength(3)
-    expect(within(rows[0]).getByText('1.')).toBeInTheDocument()
-    expect(within(rows[1]).getByText('2.')).toBeInTheDocument()
-    expect(within(rows[2]).getByText('3.')).toBeInTheDocument()
+    const table = screen.getByRole('table')
+    const rows = within(table).getAllByRole('row')
+    expect(rows).toHaveLength(4)
+    expect(within(rows[1]).getByRole('cell', { name: '1' })).toBeInTheDocument()
+    expect(within(rows[2]).getByRole('cell', { name: '2' })).toBeInTheDocument()
+    expect(within(rows[3]).getByRole('cell', { name: '3' })).toBeInTheDocument()
   })
 })

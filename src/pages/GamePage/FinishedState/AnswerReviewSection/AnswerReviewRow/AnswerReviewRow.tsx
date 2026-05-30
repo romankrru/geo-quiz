@@ -8,25 +8,24 @@ type Props = {
 
 export const AnswerReviewRow = (props: Props) => {
   return (
-    <li className={styles.row}>
-      <span className={styles.number}>{props.entry.questionNumber}.</span>
-      <span className={styles.flag}>{props.entry.flagEmoji}</span>
-      <div className={styles.answers}>
+    <tr className={styles.row}>
+      <td className={styles.numberCell}>{props.entry.questionNumber}</td>
+      <td className={styles.flagCell}>{props.entry.flagEmoji}</td>
+      <td className={styles.correctAnswerCell}>{props.entry.correctAnswer}</td>
+      <td className={styles.yourAnswerCell}>
         {props.entry.isCorrect ? (
-          <span className={styles.correctAnswer}>
-            {props.entry.correctAnswer}
-          </span>
-        ) : (
           <>
-            <span className={styles.correctRight}>
-              Correct: {props.entry.correctAnswer}
+            <span aria-hidden="true" className={styles.correctMark}>
+              ✓
             </span>
-            <span className={styles.selectedWrong}>
-              Answer: {props.entry.selectedAnswer}
-            </span>
+            <span className={styles.srOnly}>Correct</span>
           </>
+        ) : (
+          <span className={styles.selectedWrong}>
+            {props.entry.selectedAnswer}
+          </span>
         )}
-      </div>
-    </li>
+      </td>
+    </tr>
   )
 }

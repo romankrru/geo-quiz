@@ -16,8 +16,39 @@ export const heading = style({
   marginBottom: 16,
 })
 
-export const list = style({
-  listStyle: 'none',
-  margin: 0,
-  padding: 0,
+export const table = style({
+  borderCollapse: 'collapse',
+  tableLayout: 'fixed',
+  width: '100%',
 })
+
+const headerCell = style({
+  color: vars.color.text,
+  fontWeight: 600,
+  padding: '0 8px 12px',
+  textAlign: 'left',
+  verticalAlign: 'bottom',
+})
+
+export const numberHeader = style([
+  headerCell,
+  {
+    textAlign: 'center',
+    width: '10%',
+  },
+])
+
+export const flagHeader = style([
+  headerCell,
+  {
+    textAlign: 'center',
+    width: '15%',
+  },
+])
+
+export const answerHeader = style([
+  headerCell,
+  {
+    width: '37.5%',
+  },
+])

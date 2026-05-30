@@ -16,11 +16,31 @@ export const AnswerReviewSection = (props: Props) => {
   return (
     <section className={styles.section}>
       <h3 className={styles.heading}>Your answers</h3>
-      <ul className={styles.list}>
-        {props.answerReview.map((entry) => (
-          <AnswerReviewRow key={entry.questionNumber} entry={entry} />
-        ))}
-      </ul>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th className={styles.numberHeader} scope="col">
+              №
+            </th>
+            <th
+              className={styles.flagHeader}
+              scope="col"
+              aria-label="Flag"
+            ></th>
+            <th className={styles.answerHeader} scope="col">
+              Correct answer
+            </th>
+            <th className={styles.answerHeader} scope="col">
+              Your answer
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {props.answerReview.map((entry) => (
+            <AnswerReviewRow key={entry.questionNumber} entry={entry} />
+          ))}
+        </tbody>
+      </table>
     </section>
   )
 }
