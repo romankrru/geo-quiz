@@ -74,6 +74,7 @@ export function GamePage() {
         timeLabel={quizService.formatRoundDuration(round.elapsedMs)}
         durationMs={round.elapsedMs}
         onPlayAgain={handlePlayAgain}
+        answerReview={round.answerReview}
       />
     )
   }
