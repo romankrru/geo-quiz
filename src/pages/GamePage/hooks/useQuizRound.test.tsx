@@ -297,6 +297,9 @@ describe('useQuizRound', () => {
     expect(entry.flagEmoji).toBe(q0.flagEmoji)
     expect(entry.correctAnswer).toBe(q0.correctAnswer)
     expect(entry.selectedAnswer).toBe(wrong)
+    expect(entry.selectedAnswerFlagEmoji).toBe(
+      TEST_COUNTRIES.find((c) => c.name === wrong)!.flagEmoji,
+    )
     expect(entry.isCorrect).toBe(false)
 
     const q1 = result.current.questions[1]

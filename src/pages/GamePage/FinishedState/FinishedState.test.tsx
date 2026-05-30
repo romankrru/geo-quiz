@@ -38,6 +38,7 @@ const CORRECT_ENTRY: RoundAnswerReviewEntry = {
   flagEmoji: '🇦🇦',
   correctAnswer: 'Aland',
   selectedAnswer: 'Aland',
+  selectedAnswerFlagEmoji: '🇦🇦',
   isCorrect: true,
 }
 
@@ -46,6 +47,7 @@ const INCORRECT_ENTRY: RoundAnswerReviewEntry = {
   flagEmoji: '🇧🇧',
   correctAnswer: 'Bland',
   selectedAnswer: 'Cland',
+  selectedAnswerFlagEmoji: '🇨🇨',
   isCorrect: false,
 }
 
@@ -117,9 +119,8 @@ describe('FinishedState', () => {
     expect(
       within(row).getByRole('cell', { name: 'Bland' }),
     ).toBeInTheDocument()
-    expect(
-      within(row).getByRole('cell', { name: 'Cland' }),
-    ).toBeInTheDocument()
+    const yourAnswerCell = within(row).getByRole('cell', { name: 'Cland' })
+    expect(within(yourAnswerCell).getByText('🇨🇨')).toBeInTheDocument()
   })
 
   it('renders confetti when score equals totalQuestions', () => {
@@ -179,6 +180,7 @@ describe('FinishedState', () => {
         flagEmoji: '🇨🇨',
         correctAnswer: 'Cland',
         selectedAnswer: 'Cland',
+        selectedAnswerFlagEmoji: '🇨🇨',
         isCorrect: true,
       },
     ]

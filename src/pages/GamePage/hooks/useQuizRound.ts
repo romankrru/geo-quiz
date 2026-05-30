@@ -68,6 +68,8 @@ export function useQuizRound(countries: Country[]): UseQuizRoundReturn {
           flagEmoji: question.flagEmoji,
           correctAnswer: question.correctAnswer,
           selectedAnswer: answer,
+          selectedAnswerFlagEmoji:
+            countries.find((c) => c.name === answer)?.flagEmoji ?? '',
           isCorrect,
         },
       ])
@@ -84,7 +86,7 @@ export function useQuizRound(countries: Country[]): UseQuizRoundReturn {
       }
       return { correct: isCorrect }
     },
-    [questions, currentQuestionIndex, score, elapsedMs],
+    [questions, currentQuestionIndex, score, elapsedMs, countries],
   )
 
   const next = useCallback(() => {

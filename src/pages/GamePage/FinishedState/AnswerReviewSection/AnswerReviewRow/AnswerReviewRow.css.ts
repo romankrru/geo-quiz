@@ -54,7 +54,16 @@ export const correctMark = style({
 })
 
 export const selectedWrong = style({
+  alignItems: 'center',
   color: vars.color.error,
+  display: 'inline-flex',
+  gap: 8,
+})
+
+export const selectedAnswerFlag = style({
+  flexShrink: 0,
+  fontSize: '1.5rem',
+  lineHeight: 1,
 })
 
 export const srOnly = style({

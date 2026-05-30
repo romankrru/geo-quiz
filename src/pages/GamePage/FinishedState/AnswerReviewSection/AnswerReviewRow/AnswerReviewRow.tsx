@@ -22,6 +22,12 @@ export const AnswerReviewRow = (props: Props) => {
           </>
         ) : (
           <span className={styles.selectedWrong}>
+            <span
+              aria-hidden="true"
+              className={styles.selectedAnswerFlag}
+            >
+              {props.entry.selectedAnswerFlagEmoji}
+            </span>
             {props.entry.selectedAnswer}
           </span>
         )}
