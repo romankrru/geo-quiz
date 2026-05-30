@@ -50,23 +50,3 @@ export const homeCornerBelowCard = style({
   padding: '0 20px',
   marginTop: 20,
 })
-
-export const reviewSection = style({
-  backgroundColor: vars.color.background,
-  boxShadow: vars.shadows.primary,
-  borderRadius: vars.radii.lg,
-  margin: '20px auto',
-  maxWidth: 720,
-  padding: 48,
-})
-
-export const reviewHeading = style({
-  color: vars.color.heading,
-  marginBottom: 16,
-})
-
-export const reviewList = style({
-  listStyle: 'none',
-  margin: 0,
-  padding: 0,
-})

@@ -10,7 +10,7 @@ import { Button } from '@shared/ui'
 
 import { HomeCorner } from '../HomeCorner/HomeCorner'
 
-import { AnswerReviewRow } from './AnswerReviewRow/AnswerReviewRow'
+import { AnswerReviewSection } from './AnswerReviewSection/AnswerReviewSection'
 
 import * as styles from './FinishedState.css'
 
@@ -87,16 +87,7 @@ export const FinishedState = (props: Props) => {
             </div>
           )}
         </div>
-        {props.answerReview.length > 0 && (
-          <section className={styles.reviewSection}>
-            <h3 className={styles.reviewHeading}>Your answers</h3>
-            <ul className={styles.reviewList}>
-              {props.answerReview.map((entry) => (
-                <AnswerReviewRow key={entry.questionNumber} entry={entry} />
-              ))}
-            </ul>
-          </section>
-        )}
+        <AnswerReviewSection answerReview={props.answerReview} />
         <HomeCorner className={styles.homeCornerBelowCard} />
       </div>
     </div>

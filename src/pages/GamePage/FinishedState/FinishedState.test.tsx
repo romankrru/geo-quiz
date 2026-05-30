@@ -91,18 +91,18 @@ describe('FinishedState', () => {
     expect(screen.getByText('2.')).toBeInTheDocument()
   })
 
-  it('renders correct entry with country name once, no Your answer / Correct labels', () => {
+  it('renders correct entry with country name once, no Answer / Correct labels', () => {
     render(<FinishedState {...BASE_PROPS} answerReview={[CORRECT_ENTRY]} />)
 
     expect(screen.getByText('Aland')).toBeInTheDocument()
-    expect(screen.queryByText(/your answer:/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/^answer:/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/^correct:/i)).not.toBeInTheDocument()
   })
 
-  it('renders incorrect entry with Your answer and Correct labels', () => {
+  it('renders incorrect entry with Answer and Correct labels', () => {
     render(<FinishedState {...BASE_PROPS} answerReview={[INCORRECT_ENTRY]} />)
 
-    expect(screen.getByText(/your answer:\s*Cland/i)).toBeInTheDocument()
+    expect(screen.getByText(/^answer:\s*Cland/i)).toBeInTheDocument()
     expect(screen.getByText(/^correct:\s*Bland/i)).toBeInTheDocument()
   })
 
