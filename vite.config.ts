@@ -3,9 +3,10 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import babel from '@rolldown/plugin-babel'
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin'
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
-import react from '@vitejs/plugin-react'
+import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import { playwright } from '@vitest/browser-playwright'
 import { defineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
@@ -16,7 +17,14 @@ const dirname =
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-  plugins: [react(), tsconfigPaths(), vanillaExtractPlugin()],
+  plugins: [
+    react(),
+    tsconfigPaths(),
+    vanillaExtractPlugin(),
+    babel({
+      presets: [reactCompilerPreset()],
+    }),
+  ],
   test: {
     projects: [
       {
