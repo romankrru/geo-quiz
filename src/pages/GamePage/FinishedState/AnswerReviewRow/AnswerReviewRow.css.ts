@@ -4,7 +4,7 @@ import { vars } from '@shared/theme'
 
 export const row = style({
   display: 'flex',
-  alignItems: 'flex-start',
+  alignItems: 'center',
   gap: 12,
   padding: '10px 0',
   borderBottom: `1px solid ${vars.color.secondary}`,
