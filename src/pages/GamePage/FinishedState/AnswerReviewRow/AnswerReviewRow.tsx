@@ -18,11 +18,11 @@ export const AnswerReviewRow = (props: Props) => {
           </span>
         ) : (
           <>
-            <span className={styles.selectedWrong}>
-              Your answer: {props.entry.selectedAnswer}
-            </span>
             <span className={styles.correctRight}>
               Correct: {props.entry.correctAnswer}
+            </span>
+            <span className={styles.selectedWrong}>
+              Answer: {props.entry.selectedAnswer}
             </span>
           </>
         )}
