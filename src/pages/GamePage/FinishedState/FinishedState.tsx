@@ -3,12 +3,14 @@ import { Share } from 'lucide-react'
 import Confetti from 'react-confetti-boom'
 import toast from 'react-hot-toast'
 
-import { quizService } from '@entities/quiz'
+import { quizService, type RoundAnswerReviewEntry } from '@entities/quiz'
 import { useCopyToClipboard } from '@shared/hooks'
 import { cssColorToHex, themeLiterals } from '@shared/theme'
 import { Button } from '@shared/ui'
 
 import { HomeCorner } from '../HomeCorner/HomeCorner'
+
+import { AnswerReviewSection } from './AnswerReviewSection/AnswerReviewSection'
 
 import * as styles from './FinishedState.css'
 
@@ -25,10 +27,12 @@ type Props = {
   timeLabel: string
   durationMs: number
   onPlayAgain: () => void
+  answerReview: RoundAnswerReviewEntry[]
 }
 
 export const FinishedState = (props: Props) => {
   const copy = useCopyToClipboard()
+  const isPerfect = props.score === props.totalQuestions
 
   const handleShare = async () => {
     const text = quizService.formatShareText({
@@ -67,20 +71,23 @@ export const FinishedState = (props: Props) => {
               Share
             </Button>
           </div>
-          <div className={styles.confettiLayer} aria-hidden>
-            <Confetti
-              mode="boom"
-              x={0.5}
-              y={0.35}
-              particleCount={400}
-              spreadDeg={70}
-              effectInterval={2600}
-              effectCount={1}
-              colors={confettiColors}
-              launchSpeed={1.05}
-            />
-          </div>
+          {isPerfect && (
+            <div className={styles.confettiLayer} aria-hidden>
+              <Confetti
+                mode="boom"
+                x={0.5}
+                y={0.35}
+                particleCount={400}
+                spreadDeg={70}
+                effectInterval={2600}
+                effectCount={1}
+                colors={confettiColors}
+                launchSpeed={1.05}
+              />
+            </div>
+          )}
         </div>
+        <AnswerReviewSection answerReview={props.answerReview} />
         <HomeCorner className={styles.homeCornerBelowCard} />
       </div>
     </div>
