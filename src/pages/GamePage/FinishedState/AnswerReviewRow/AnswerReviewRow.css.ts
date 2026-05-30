@@ -21,7 +21,7 @@ export const number = style({
 })
 
 export const flag = style({
-  fontSize: '1.5rem',
+  fontSize: '2.5rem',
   lineHeight: 1,
   flexShrink: 0,
 })
