@@ -56,9 +56,9 @@ export function useQuizRound(countries: Country[]): UseQuizRoundReturn {
   const selectAnswer = useCallback(
     (answer: string): SelectAnswerResult => {
       const question = questions[currentQuestionIndex]
-      const correct = quizService.isCorrectAnswer(question, answer)
+      const isCorrect = quizService.isCorrectAnswer(question, answer)
       setSelectedAnswer(answer)
-      if (correct) {
+      if (isCorrect) {
         setScore((s) => s + 1)
       }
       setAnswerReview((prev) => [
@@ -68,12 +68,12 @@ export function useQuizRound(countries: Country[]): UseQuizRoundReturn {
           flagEmoji: question.flagEmoji,
           correctAnswer: question.correctAnswer,
           selectedAnswer: answer,
-          correct,
+          isCorrect,
         },
       ])
       const isLast = currentQuestionIndex === questions.length - 1
       if (isLast) {
-        const finalScore = correct ? score + 1 : score
+        const finalScore = isCorrect ? score + 1 : score
         statisticsService.appendSession({
           completedAt: new Date().toISOString(),
           score: finalScore,
@@ -82,7 +82,7 @@ export function useQuizRound(countries: Country[]): UseQuizRoundReturn {
         })
         setStatus('finished')
       }
-      return { correct }
+      return { correct: isCorrect }
     },
     [questions, currentQuestionIndex, score, elapsedMs],
   )

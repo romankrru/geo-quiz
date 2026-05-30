@@ -12,7 +12,7 @@ export const AnswerReviewRow = (props: Props) => {
       <span className={styles.number}>{props.entry.questionNumber}.</span>
       <span className={styles.flag}>{props.entry.flagEmoji}</span>
       <div className={styles.answers}>
-        {props.entry.correct ? (
+        {props.entry.isCorrect ? (
           <span className={styles.correctAnswer}>
             {props.entry.correctAnswer}
           </span>

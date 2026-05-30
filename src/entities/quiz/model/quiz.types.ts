@@ -10,5 +10,5 @@ export type RoundAnswerReviewEntry = {
   flagEmoji: string
   correctAnswer: string
   selectedAnswer: string
-  correct: boolean
+  isCorrect: boolean
 }

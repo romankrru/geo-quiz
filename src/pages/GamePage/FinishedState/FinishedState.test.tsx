@@ -38,7 +38,7 @@ const CORRECT_ENTRY: RoundAnswerReviewEntry = {
   flagEmoji: '🇦🇦',
   correctAnswer: 'Aland',
   selectedAnswer: 'Aland',
-  correct: true,
+  isCorrect: true,
 }
 
 const INCORRECT_ENTRY: RoundAnswerReviewEntry = {
@@ -46,7 +46,7 @@ const INCORRECT_ENTRY: RoundAnswerReviewEntry = {
   flagEmoji: '🇧🇧',
   correctAnswer: 'Bland',
   selectedAnswer: 'Cland',
-  correct: false,
+  isCorrect: false,
 }
 
 describe('FinishedState', () => {
@@ -163,7 +163,7 @@ describe('FinishedState', () => {
         flagEmoji: '🇨🇨',
         correctAnswer: 'Cland',
         selectedAnswer: 'Cland',
-        correct: true,
+        isCorrect: true,
       },
     ]
 
