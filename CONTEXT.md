@@ -29,6 +29,16 @@ Elapsed time from the start of the quiz round until the player reaches the resul
 
 _Avoid_: treating post-game browsing or time on the home screen as part of round duration.
 
+**Round answer review**:
+An ephemeral per-question breakdown shown on the results screen of a **Completed quiz (recorded)**: every question in that round, in play order, each row prefixed with its **1-based question number**, with the flag shown during play, the correct country name, the country name the player selected, and a clear correct/incorrect indicator. Correct rows show the country name once with a success indicator; incorrect rows label the player's choice (error styling) and the correct country (success styling) explicitly. Does not repeat the four answer options from the question screen. Rendered in a separate block below the results summary card (score, time, and the sole action buttons for this screen), headed **Your answers** in the UI; the page scrolls naturally through the full list. Lives only in the in-memory round state until the player leaves the results screen or starts a new round — not persisted to the **Statistics store** or **Quiz result share text** in current scope.
+
+_Avoid_: treating this as part of a **Quiz session record** today — per-answer history in statistics is planned separately.
+
+**Round answer review entry**:
+One answered question within a **Round answer review**: its 1-based question number, the flag shown during play, the correct country name, the country name the player selected, and whether that selection was correct. The shape is owned by the quiz domain model (not page-local UI state) so a future statistics feature can reuse the same contract.
+
+_Avoid_: duplicating a parallel ad-hoc type under `pages/` for the results screen only.
+
 **Quiz result share text**:
 A short, plain-text snippet generated on the results screen of a **Completed quiz (recorded)** so the player can copy it to the clipboard and share their outcome with others. It contains the player’s score, that round’s **question count per round**, the round’s **Round duration (recorded)** (rendered without tenths of a second — `MM:SS` — distinct from the in-round timer and on-screen `Time:` label, which include tenths), a brand line naming Geo Quiz, and a link to the public site. Intended as a marketing artifact for player-driven acquisition — not a serialization of the **Quiz session record** in the **Statistics store**, and not subject to its schema-version contract.
 
@@ -101,6 +111,8 @@ _Avoid_: expecting **Outdated client (statistics)**-style behaviour for the **Qu
 - When **Configured round size** is **All countries in catalog**, the implemented question count for that round is the current catalog length at **start of round** time; **Quiz session records** still store that concrete **question count per round** for history.
 - **Quiz preferences store** is independent of **Statistics store**; resetting statistics does not reset **Configured round size**. Corrupt or unreadable preference JSON yields the **Configured round size** default until valid preferences are saved again.
 - The **Quiz result share text** is derived from the same numeric fields that go into a **Quiz session record** (score, question count per round, round duration), but is **not** persisted, **not** schema-versioned, and additionally embeds Geo Quiz branding and the site URL. The share text’s formatting decisions (e.g. dropping tenths of a second from the duration) are independent of the on-screen results UI.
+- A **Round answer review** is built from the same in-flight round as a **Completed quiz (recorded)** but is discarded when the player starts a new round or navigates away; it does not affect **Quiz session record** shape or **Statistics store schema version** in current scope.
+- A **Round answer review** contains one **Round answer review entry** per question in that round, in play order.
 
 ## Example dialogue
 
@@ -148,6 +160,12 @@ _Avoid_: expecting **Outdated client (statistics)**-style behaviour for the **Qu
 
 > **Dev:** "If `localStorage` for preferences is garbage, do we still play?"
 > **Domain expert:** "We fall back to the default **Configured round size** (10) and keep going — we don’t version the **Quiz preferences store** like the **Statistics store**."
+
+> **Dev:** "Can the player see which flags they got wrong after the round?"
+> **Domain expert:** "Yes — **Round answer review** on the results screen: flag, correct country, what they picked. It's not saved to statistics yet; that would be a separate feature."
+
+> **Dev:** "Confetti on every finish, even with mistakes?"
+> **Domain expert:** "No — celebration only on a perfect round. If they missed any question, skip confetti and let the review speak for itself."
 
 ## Flagged ambiguities
 
