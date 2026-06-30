@@ -96,6 +96,53 @@ _Avoid_: lumping preference persistence into the **Statistics store** envelope �
 
 _Avoid_: expecting **Outdated client (statistics)**-style behaviour for the **Quiz preferences store** — preference blobs use parse-and-default without a separate schema-version handshake.
 
+**Flag similarity**:
+A numeric score from 0 to 1 for a pair of countries measuring how visually alike their flags appear to a player — 0 means unrelated, 1 means very hard to tell apart. Symmetric: the score for (A, B) equals (B, A).
+
+_Avoid_: treating **Flag similarity** as geographic or cultural closeness — it is a visual flag cue only.
+
+**Flag similarity catalog**:
+A sparse, hand-curated artifact in the repository holding **Flag similarity** scores only for country pairs worth using as hard distractors, keyed by ISO country ids. Pairs omitted from the catalog are treated as similarity 0. Populated and updated manually — no build-time generation script. Stored as a flat list of triples `[countryA, countryB, score]` in `src/entities/distractor/model/flag-similarity.data.json`; one entry per unordered pair (runtime treats scores as symmetric). Owned by the **distractor** entity.
+
+_Avoid_: storing a full dense matrix — only visually confusable pairs belong in the catalog.
+
+_Avoid_: implying the catalog is derived live from emoji or flag assets in the browser.
+
+_Avoid_: expecting an automated pipeline to refresh scores when the country catalog changes — curators add or edit entries by hand.
+
+Initial catalog: a hand-picked set of well-known visually confusable pairs (e.g. Slovenia↔Slovakia, Ireland↔Côte d'Ivoire) sufficient to exercise **Distractor selection** in tests and feel the feature in play — expanded iteratively, not a full matrix.
+
+**Distractor selection**:
+The process of picking three wrong answer options for a quiz question from eligible country candidates, weighted by **Flag similarity** to the correct country, with stochastic noise so outcomes are not fully predictable. Question hardness is emergent from this process — there is no player-facing difficulty preference in current scope.
+
+Each distractor is chosen by weighted random sampling without replacement from eligible candidates. Per candidate: `weight = ε + similarity^γ`, then multiplied by a per-question jitter in `0.85…1.15`. Defaults: ε = 0.08, γ = 2. Candidates with no catalog entry have similarity 0. Eligible candidates are all countries in the catalog passed into question generation, minus the correct country and minus **Forbidden country pair** partners of the correct country. Game-mode or regional filtering is out of scope — the caller supplies the country pool.
+
+_Avoid_: conflating **Distractor selection** with **Configured round size** or other **Quiz preferences store** fields — round length is configurable; distractor hardness is not.
+
+_Avoid_: baking game-mode filters into **Distractor selection** — when modes exist, the page passes a pre-filtered country list.
+
+_Avoid_: generating a question with fewer than four answer options — the country pool must contain at least four countries; question generation fails fast if a question cannot yield three distractors plus the correct answer.
+
+**Question country selection**:
+Which countries become quiz questions in a round — whose flags are shown — is chosen by uniform random shuffle of the caller’s country pool, unchanged by **Distractor selection**. Only wrong-answer options are similarity-weighted.
+
+_Avoid_: conflating **Question country selection** with **Distractor selection** — the latter does not bias which flags appear as questions.
+
+**Forbidden country pair**:
+A bidirectional rule that two countries must not appear in the same question when one of them is the **correct country** for that question — the forbidden partner is removed from distractor candidates. When neither country is the correct answer, both may appear as distractors in the same question.
+
+_Avoid_: treating the rule as absolute across all four options regardless of which country is correct — the ban is relative to the correct country only.
+
+**Forbidden country pairs catalog**:
+A curated list of **Forbidden country pair** entries in the repository, keyed by ISO country ids. Lookup is symmetric: banning (A, B) also bans (B, A). Stored as a flat list of pairs `[countryA, countryB]` in `src/entities/distractor/model/forbidden-pairs.data.json`; one entry per unordered pair. Owned by the **distractor** entity. Initial catalog: RO↔TD (Romania↔Chad) only.
+
+_Avoid_: duplicating the pair in both directions in storage — one entry per unordered pair is enough if the runtime treats the rule as bidirectional.
+
+**Distractor entity**:
+The `entities/distractor/` bounded context: hand-curated **Flag similarity catalog** and **Forbidden country pairs catalog**, plus stateless **Distractor selection** logic exposed via `distractorService`. The quiz entity calls into it when building questions; distractor does not import quiz types beyond `Country` ids/names passed as arguments.
+
+_Avoid_: placing similarity/forbidden data under `entities/quiz/` — catalogs and selection logic live with **Distractor entity**.
+
 ## Relationships
 
 - One **Completed quiz (recorded)** appends one **Quiz session record** to the **Statistics store** when the player finishes the final question and sees results.
@@ -113,6 +160,10 @@ _Avoid_: expecting **Outdated client (statistics)**-style behaviour for the **Qu
 - The **Quiz result share text** is derived from the same numeric fields that go into a **Quiz session record** (score, question count per round, round duration), but is **not** persisted, **not** schema-versioned, and additionally embeds Geo Quiz branding and the site URL. The share text’s formatting decisions (e.g. dropping tenths of a second from the duration) are independent of the on-screen results UI.
 - A **Round answer review** is built from the same in-flight round as a **Completed quiz (recorded)** but is discarded when the player starts a new round or navigates away; it does not affect **Quiz session record** shape or **Statistics store schema version** in current scope.
 - A **Round answer review** contains one **Round answer review entry** per question in that round, in play order.
+- **Flag similarity catalog** entries reference country ids from the country catalog; when the country catalog gains or loses rows, curators update the similarity artifact manually in the same release if needed.
+- **Distractor selection** reads **Flag similarity** from the **Flag similarity catalog** and applies **Forbidden country pairs catalog** when building each question’s wrong options — excluding forbidden partners of the correct country from distractor candidates. Implemented in the **Distractor entity**; consumed by quiz question generation.
+- The **quiz** entity depends on the **Distractor entity** for wrong-option picking; **Distractor entity** depends on **Country** ids from the country catalog, not on quiz round state.
+- **Question country selection** is independent of **Flag similarity catalog** — similarity affects distractors only.
 
 ## Example dialogue
 
@@ -166,6 +217,9 @@ _Avoid_: expecting **Outdated client (statistics)**-style behaviour for the **Qu
 
 > **Dev:** "Confetti on every finish, even with mistakes?"
 > **Domain expert:** "No — celebration only on a perfect round. If they missed any question, skip confetti and let the review speak for itself."
+
+> **Dev:** "Where do flag-similarity numbers like Slovenia vs Slovakia come from?"
+> **Domain expert:** "From the **Flag similarity catalog** in the repo — hand-curated pairs and scores. The game reads them at question-generation time; it doesn't analyse emoji on the fly."
 
 ## Flagged ambiguities
 
