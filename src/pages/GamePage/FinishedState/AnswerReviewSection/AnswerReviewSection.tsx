@@ -15,7 +15,7 @@ export const AnswerReviewSection = (props: Props) => {
 
   return (
     <section className={styles.section}>
-      <h3 className={styles.heading}>Your answers</h3>
+      <h3 className={styles.heading}>Answer review</h3>
       <table className={styles.table}>
         <thead>
           <tr>
