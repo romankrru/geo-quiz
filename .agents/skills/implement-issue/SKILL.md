@@ -18,7 +18,7 @@ The user (or ralph) passes an issue number, URL, or `gh` reference. Everything e
 - `AGENTS.md` — stack, scripts, codebase conventions.
 - `CONTEXT.md` — domain glossary; titles, commits and PR bodies must use this vocabulary.
 - `docs/adr/` — respect prior decisions in the area you are touching.
-- Sibling skills: `tdd` for the inner loop, `grill-with-docs` if the brief is ambiguous, `babysit` to land the PR.
+- Sibling skills: `tdd` for the inner loop, `grill-with-docs` if the brief is ambiguous, `loop-on-ci` to make the PR checks green.
 
 ## Process
 
@@ -34,9 +34,10 @@ Stop and report back to the caller (do **not** start work) if any of these is tr
 - Labels do **not** include `ready-for-agent`.
 - Labels include `needs-info`, `needs-triage`, `ready-for-human`, or `wontfix`.
 - The body lists "Blocked by" issues that are still open.
-- An open PR already exists with `Closes #<n>` in its body — switch to `babysit` on that PR instead.
 
 When stopping, leave a one-line comment on the issue explaining why and exit. Don't silently skip.
+
+If an open PR already exists with `Closes #<n>` in its body, check out its head with `gh pr checkout <pr>` and resume at step 6 with that PR instead of creating another one.
 
 If a `ralph/<n>-*` branch already exists locally or on origin (a previous iteration crashed mid-run) but has no associated PR, check it out, push it if not yet on origin, and jump straight to step 5 to open the PR. Don't redo the TDD work.
 
@@ -111,9 +112,23 @@ EOF
 
 Title mirrors the issue title (so the merge commit stays grep-able). Body must contain `Closes #<n>` so GitHub auto-closes the issue when the **epic** PR eventually merges into `main` (it does not fire when the child PR merges into the epic branch — that's expected). The `--label "prd-$prd"` keeps the child PR discoverable from the same routing label as the epic.
 
-### 6. Babysit and squash-merge into the epic
+### 6. Make CI green and squash-merge into the epic
 
-Hand off to the `babysit` skill on the PR you just opened. Loop until the PR is mergeable, CI is green, and all unresolved comments are addressed.
+Read the PR's actual base branch, then follow `.agents/skills/loop-on-ci/SKILL.md` on the checked-out PR:
+
+```bash
+epic="$(gh pr view <pr> --json baseRefName --jq .baseRefName)"
+```
+
+Loop until every PR-attached check is green. CI is the landing gate; do not wait for or process review comments. When the skill refers to updating from `main`, use `$epic` instead.
+
+Confirm the PR is mergeable after CI passes. If GitHub reports `UNKNOWN`, wait briefly and retry up to three times:
+
+```bash
+gh pr view <pr> --json mergeable,mergeStateStatus
+```
+
+If it conflicts with its base branch, stop and report the conflict instead of resolving it automatically.
 
 Then squash-merge into the epic branch:
 
@@ -123,7 +138,7 @@ gh pr merge <pr> --squash --delete-branch
 
 Squash keeps the epic-branch history one-commit-per-issue, which makes the eventual epic→main diff readable for QA. `--delete-branch` cleans up `ralph/<n>-*` on origin.
 
-If `babysit` reports a blocker it cannot resolve (design disagreement in review, requested change you cannot evaluate, repeated CI flake on a flaky test that is not yours), stop. Add `needs-info` to the **issue** (not the PR), comment on the issue with the blocker, and exit.
+If `loop-on-ci` reports a blocker it cannot resolve (a repeated failure, an unrelated failure, or a persistent CI flake), stop. Add `needs-info` to the **issue** (not the PR), comment on the issue with the blocker, and exit.
 
 ### 7. Comment, do not close
 

@@ -13,7 +13,7 @@ You are ralph. You take **one** small step toward implementing a PRD, then exit.
 - `docs/agents/issue-tracker.md` — `gh` conventions for this repo.
 - `docs/agents/triage-labels.md` — what each label means.
 - `.agents/skills/implement-issue/SKILL.md` — how to take one issue to merged.
-- `.agents/skills/babysit/SKILL.md` (or the cursor-level `babysit` skill) — how to land an in-flight PR.
+- `.agents/skills/loop-on-ci/SKILL.md` — how to make an in-flight PR's checks green.
 
 ## Process
 
@@ -97,7 +97,7 @@ Buckets (mutually exclusive, evaluate top-down):
 Apply the first rule that matches:
 
 1. All children **done** → post a one-line-per-child summary comment on the **epic PR** (each child + its merge PR), take the epic PR out of draft (`gh pr ready <epic-pr-number>`), and post a comment on the PRD linking to the epic PR for human QA. Do **not** close the PRD — the maintainer closes it after merging the epic into `main`. Print `STATUS=done`, exit.
-2. There is at least one **in-flight** child → run `babysit` on its PR (oldest first if multiple). Print `STATUS=progress`, exit.
+2. There is at least one **in-flight** child → take its oldest PR, check out its head with `gh pr checkout <pr>`, and read its `baseRefName`. Follow `loop-on-ci` until every PR-attached check is green, using that actual base branch instead of the skill's generic `main` fallback. Confirm the PR is mergeable (retry `UNKNOWN` up to three times), then squash-merge it into the epic with `gh pr merge <pr> --squash --delete-branch`. Do not wait for or process review comments. If the PR conflicts with its base or CI cannot be fixed, comment on the child with the blocker, apply `needs-info`, print `STATUS=blocked`, and exit. Otherwise, comment on the child with the merged PR, print `STATUS=progress`, and exit.
 3. There is at least one **ready** child → take the first one in discovery order (lowest issue number) and follow `.agents/skills/implement-issue/SKILL.md` to completion (merged into the epic branch). Print `STATUS=progress`, exit.
 4. Everything left is **blocked** → comment on the PRD listing each blocked child and the specific reason (missing label, needs-info, blocker open). Print `STATUS=blocked`, exit.
 
@@ -120,6 +120,7 @@ The driver greps the log for this sentinel. Anything else aborts the loop.
 - **Never apply or remove triage labels** (`needs-info`, `ready-for-agent`, …) on the PRD itself. You may apply `needs-info` to a _child_ if `implement-issue` reports a blocker — that's allowed.
 - **Branch child work off the epic branch `prd/$PRD-<slug>`**, never off `main` directly. The epic branch is the only ralph-owned branch that targets `main`. If you see stale `ralph/<n>-*` branches with no open PR, ignore them and let the maintainer clean up.
 - **Never merge anything into `main`.** Only the maintainer merges the epic PR after QA.
+- **CI is the child PR landing gate.** Do not wait for or process review comments. Use the child PR's actual epic base branch whenever `loop-on-ci` refers generically to `main`.
 - **Disagree and stop, never disagree and ship.** If a brief contradicts an ADR or `CONTEXT.md`, mark the child `needs-info` and exit `STATUS=blocked`.
 
 ## Failure modes you may encounter

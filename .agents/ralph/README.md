@@ -4,14 +4,15 @@ A simple loop that takes a PRD on the project tracker and drives its child issue
 
 ## Idea
 
-Ralph is a `while not done: agent_step()` loop. Each iteration the agent re-reads GitHub from scratch, picks **one** ready child issue of the PRD, and either implements it (via the `implement-issue` skill) or babysits an in-flight PR. State lives in issues and PRs, never in memory.
+Ralph is a `while not done: agent_step()` loop. Each iteration the agent re-reads GitHub from scratch, picks **one** ready child issue of the PRD, and either implements it (via the `implement-issue` skill) or drives an in-flight PR's CI to green. State lives in issues and PRs, never in memory.
 
-This works because the inner skills (`implement-issue`, `babysit`) are already idempotent: if you run them twice on the same issue or PR, the second run notices the work is in progress and continues from there.
+This works because the inner skills (`implement-issue`, `loop-on-ci`) are idempotent: if you run them twice on the same issue or PR, the second run notices the work is in progress and continues from there.
 
 ## Prerequisites
 
 - `gh` CLI authenticated (`gh auth status` is green).
 - Claude Code CLI `claude` on `PATH`.
+- `.agents/skills/loop-on-ci/SKILL.md` available to Codex, Cursor, OpenCode, and Zed; Ralph instructs Claude Code to read the same shared file directly.
 - The PRD lives in this repo and uses one of the supported child-discovery formats (see below).
 - All children you want ralph to work on carry the `ready-for-agent` label. Anything HITL stays unlabeled or carries `ready-for-human` and ralph leaves it alone.
 
@@ -35,7 +36,7 @@ The loop invokes `claude --allowed-tools=Bash,Read,Edit,Write,MultiEdit,Grep,Glo
 
 | Code | Meaning                                                                                         |
 | ---- | ----------------------------------------------------------------------------------------------- |
-| 0    | PRD finished — all children merged, PRD closed.                                                 |
+| 0    | All children merged; the epic PR is ready for human QA.                                         |
 | 2    | Blocked. A child needs human attention; see the last log and the comment ralph left on the PRD. |
 | 3    | Agent returned without a `STATUS=...` line. Bug in the prompt or agent crash.                   |
 | 4    | Hit `MAX_ITERS`. Either raise the cap or investigate why progress is slow.                      |
@@ -56,20 +57,20 @@ If the PRD or its children are missing these labels, ralph leaves a comment aski
 
 - Implement HITL slices. Anything without `ready-for-agent` is left for a human.
 - Edit the PRD body. The `## Tasks` checklist is owned by `to-issues` and humans. GitHub itself ticks the boxes when child issues close.
-- Resolve merge conflicts of substance. `babysit` resolves trivial conflicts; anything with conflicting _intent_ gets `STATUS=blocked`.
+- Resolve merge conflicts automatically. A conflicting child or epic PR gets `STATUS=blocked`.
+- Wait for or process PR review comments. Green CI is the child PR landing gate.
 - Run in parallel. Sequential is intentional — concurrent ralph runs on the same PRD will fight over branches and CI.
 - Persist state between iterations. If a run dies mid-way, just start it again.
 
 ## Failure recovery
 
 - **Stuck on the same child for many iterations** — kill the loop, look at the latest log, fix the brief on the issue (more acceptance criteria, ADR pointer, clarified vocabulary), re-run.
-- **PR review left a substantive comment** — ralph stops with `blocked`. Address it (or have a human do so), then re-run.
-- **CI flake** — `babysit` retries small fixes a few times, then gives up with `blocked`. Re-run after the flake clears.
+- **CI flake** — `loop-on-ci` retries it once, then gives up with `blocked`. Re-run after the flake clears.
 
 ## Related
 
 - `.agents/skills/to-issues/SKILL.md` — the upstream of this loop. Breaks a PRD into the children ralph then chews through.
 - `.agents/skills/implement-issue/SKILL.md` — the per-issue worker called by ralph.
-- `.agents/skills/babysit/SKILL.md` (or the cursor-level `babysit` skill) — used to land an open PR.
+- `.agents/skills/loop-on-ci/SKILL.md` — used to make an open PR's checks green before landing it.
 - `docs/agents/issue-tracker.md` — `gh` conventions.
 - `docs/agents/triage-labels.md` — label vocabulary.
