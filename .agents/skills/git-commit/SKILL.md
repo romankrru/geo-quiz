@@ -1,7 +1,6 @@
 ---
 name: git-commit
 description: Stages current repo changes and creates a git commit with a message following geo-quiz conventions (short imperative title, no Conventional Commits prefixes). Use when the user asks for a commit, invokes git-commit, or wants changes committed without a separate confirm step.
-disable-model-invocation: true
 ---
 
 # Git commit (geo-quiz)
@@ -12,7 +11,7 @@ disable-model-invocation: true
 2. If there is **nothing** to commit (clean tree), say so and stop.
 3. **Stage**: from the repository root, run `git add -A` unless the user **in the same request** named specific paths — then stage only those paths.
 4. **Message**: follow [Message format](#message-format) below. Prefer a single `-m` for title only; add a second `-m` for body when needed.
-5. Run `git commit` with the chosen message(s). Use shell permissions that allow **git_write** when the environment requires it.
+5. Run `git commit` with the chosen message(s). Request the environment permission needed to stage and commit when required.
 6. **Reply** with the exact commit message used, the short hash from `git log -1 --oneline`, and a one-line summary of what went in (no paste-only instructions unless the commit failed).
 
 If `git commit` fails (e.g. hook, empty message), report stderr and do not claim success.

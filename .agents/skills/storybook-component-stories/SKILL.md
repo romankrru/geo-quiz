@@ -1,7 +1,6 @@
 ---
 name: storybook-component-stories
 description: Adds co-located Storybook CSF stories for React components under src (shared/ui and elsewhere). Use when creating or editing *.stories files, documenting UI, or when the user asks for Storybook stories for a component.
-disable-model-invocation: true
 ---
 
 # Storybook component stories (geo-quiz)
