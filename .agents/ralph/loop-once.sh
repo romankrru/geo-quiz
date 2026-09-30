@@ -25,7 +25,7 @@ case "$RALPH_AGENT" in
     AGENT_COMMAND=(claude --allowed-tools=Bash,Read,Edit,Write,MultiEdit,Grep,Glob -p "$PROMPT_BODY")
     ;;
   opencode)
-    AGENT_COMMAND=(opencode --auto --prompt "$PROMPT_BODY")
+    AGENT_COMMAND=(opencode run --auto "$PROMPT_BODY")
     ;;
   *)
     echo "unsupported RALPH_AGENT '$RALPH_AGENT' (expected claude or opencode)" >&2
