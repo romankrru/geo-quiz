@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Ralph (single shot): runs exactly one `claude` iteration (see PROMPT.md) for the PRD.
+# Ralph (single shot): runs exactly one agent iteration (see PROMPT.md) for the PRD.
 # Usage: bash .agents/ralph/loop-once.sh <issue# or GitHub issue URL>
-# Logs under .agents/ralph/logs/.
-# Uses --allowed-tools to explicitly allow Bash + file/search tools so `gh` and other commands are not blocked on every prompt (required for this loop).
+# Optional: RALPH_AGENT=claude|opencode (default claude). Logs under .agents/ralph/logs/.
 
 set -euo pipefail
 
@@ -19,9 +18,23 @@ if ! [[ "$PRD" =~ ^[0-9]+$ ]]; then
 fi
 
 PROMPT_BODY="Follow .agents/ralph/PROMPT.md for PRD=$PRD. End your response with exactly one line: STATUS=done | STATUS=progress | STATUS=blocked."
+RALPH_AGENT="${RALPH_AGENT:-claude}"
 
-if ! command -v claude >/dev/null 2>&1; then
-  echo "claude not found on PATH" >&2
+case "$RALPH_AGENT" in
+  claude)
+    AGENT_COMMAND=(claude --allowed-tools=Bash,Read,Edit,Write,MultiEdit,Grep,Glob -p "$PROMPT_BODY")
+    ;;
+  opencode)
+    AGENT_COMMAND=(opencode --auto --prompt "$PROMPT_BODY")
+    ;;
+  *)
+    echo "unsupported RALPH_AGENT '$RALPH_AGENT' (expected claude or opencode)" >&2
+    exit 5
+    ;;
+esac
+
+if ! command -v "$RALPH_AGENT" >/dev/null 2>&1; then
+  echo "$RALPH_AGENT not found on PATH" >&2
   exit 5
 fi
 
@@ -41,8 +54,8 @@ echo ""
 echo "── ralph single iter — PRD #$PRD ──"
 log="$LOG_DIR/iter-01.log"
 
-if ! claude --allowed-tools=Bash,Read,Edit,Write,MultiEdit,Grep,Glob "$PROMPT_BODY"; then
-  echo "claude failed; see $log" >&2
+if ! "${AGENT_COMMAND[@]}" 2>&1 | tee "$log"; then
+  echo "$RALPH_AGENT failed; see $log" >&2
   exit 3
 fi
 
