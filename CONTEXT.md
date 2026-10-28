@@ -89,6 +89,9 @@ The player’s persisted preference, on this device, for how many questions the 
 
 _Avoid_: calling this “session settings” or reusing **question count per round** for it — that term is reserved for the count stored on a finished record.
 
+**Save and play**:
+The settings action that immediately starts a new round with the selected **Configured round size**, saving any changes for future rounds first and stopping if saving fails.
+
 **Quiz preferences store**:
 Device-local persisted quiz UI preferences (including **Configured round size**) in `localStorage`, separate from the **Statistics store**. There is no schema-version envelope for this blob in current scope — unreadable or corrupt preference JSON falls back to the **Configured round size** default (fixed **10**).
 
@@ -154,6 +157,10 @@ _Avoid_: placing similarity/forbidden data under `entities/quiz/` — catalogs a
 - The persisted **Statistics store** carries a **Statistics store schema version** together with its **Quiz session records**.
 - An **Outdated client (statistics)** treats the **Statistics store** as read-only from that bundle’s perspective until the user loads a build that understands the on-disk **Statistics store schema version**.
 - The **Configured round size** is read at the start of a new round to decide how many questions to generate; it does not retroactively change any existing **Quiz session record**, whose **question count per round** stays as recorded.
+- **Save and play** replaces the save-only action in settings: it saves changes to **Configured round size**, if any, before starting a new round with the selected size.
+- **Save and play** uses the transition into the new round as confirmation; it shows neither a saved-settings notification nor an unchanged-settings notification.
+- If saving a changed **Configured round size** fails, **Save and play** keeps the player in settings with their selection intact and shows **Could not save settings. Please try again.**; no round starts until a retry succeeds or the player chooses an already-saved size.
+- Leaving settings through **Back to Start** discards unsaved changes to **Configured round size**; only **Save and play** applies the selection from the settings screen.
 - Changing **Configured round size** while a round is in progress does not resize or regenerate that round’s question list; only the **next** round uses the newly saved preference.
 - When **Configured round size** is **All countries in catalog**, the implemented question count for that round is the current catalog length at **start of round** time; **Quiz session records** still store that concrete **question count per round** for history.
 - **Quiz preferences store** is independent of **Statistics store**; resetting statistics does not reset **Configured round size**. Corrupt or unreadable preference JSON yields the **Configured round size** default until valid preferences are saved again.
@@ -205,6 +212,12 @@ _Avoid_: placing similarity/forbidden data under `entities/quiz/` — catalogs a
 
 > **Dev:** "Does wiping statistics reset round length?"
 > **Domain expert:** "No — **Statistics reset** clears **Quiz session records** only. **Configured round size** lives in the **Quiz preferences store**."
+
+> **Dev:** "What if the player opens settings and presses **Save and play** without changing anything?"
+> **Domain expert:** "Start a new round with the selected **Configured round size** anyway — playing does not require an edit."
+
+> **Dev:** "The player selects 25 questions, but saving fails. Should we start a round with the previously saved 10?"
+> **Domain expert:** "No — keep the player in settings with 25 still selected and show an error so they can retry."
 
 > **Dev:** "Player changes round length mid-quiz — does the current round jump?"
 > **Domain expert:** "No — **Configured round size** applies when the **next** round starts. The round already underway keeps its generated question list."
