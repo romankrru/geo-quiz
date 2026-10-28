@@ -35,17 +35,19 @@ export const settingsService = {
     }
   },
 
-  write(value: AppSettings): void {
+  write(value: AppSettings): boolean {
     if (!appSettingsSchema.safeParse(value).success) {
-      return
+      return false
     }
     try {
       localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(value))
+      return true
     } catch (error) {
       console.error(
         '[settingsService.write] localStorage.setItem failed',
         error,
       )
+      return false
     }
   },
 

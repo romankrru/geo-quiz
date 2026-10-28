@@ -10,6 +10,8 @@ import { SettingsPage } from './SettingsPage'
 
 import * as settingsStyles from './SettingsPage.css'
 
+const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }))
+
 vi.mock('react-hot-toast', () => {
   const success = vi.fn()
   const toastFn = vi.fn()
@@ -28,6 +30,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
         {props.children}
       </a>
     ),
+    useNavigate: () => navigate,
   }
 })
 
@@ -41,6 +44,7 @@ describe('SettingsPage', () => {
   let writeSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
+    vi.clearAllMocks()
     localStorage.clear()
     writeSpy = vi.spyOn(settingsService, 'write')
   })
@@ -50,7 +54,7 @@ describe('SettingsPage', () => {
     vi.restoreAllMocks()
   })
 
-  it('shows 10 preset on first load and does not write on Save without edits', () => {
+  it('starts a round without writing when Save and play is unchanged', () => {
     renderSettingsPage()
 
     const ten = screen.getByRole('radio', { name: /Quick play/ })
@@ -62,11 +66,13 @@ describe('SettingsPage', () => {
     expect(customInput).toHaveValue(null)
     expect(customInput.className).toContain(settingsStyles.numberInputInactive)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save and play' }))
 
     expect(writeSpy).not.toHaveBeenCalled()
-    expect(toast).toHaveBeenCalledWith('Already up to date')
+    expect(navigate).toHaveBeenCalledWith({ to: '/game' })
+    expect(toast).not.toHaveBeenCalled()
     expect(toast.success).not.toHaveBeenCalled()
+    expect(toast.error).not.toHaveBeenCalled()
   })
 
   it('selects Custom when the custom round size input is focused', () => {
@@ -87,7 +93,7 @@ describe('SettingsPage', () => {
     renderSettingsPage()
 
     fireEvent.click(screen.getByRole('radio', { name: /Classic/ }))
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save and play' }))
 
     expect(writeSpy).toHaveBeenCalledTimes(1)
     expect(writeSpy).toHaveBeenCalledWith({
@@ -98,7 +104,11 @@ describe('SettingsPage', () => {
       round: { kind: 'fixed', value: 25 },
       sfxEnabled: false,
     })
-    expect(toast.success).toHaveBeenCalledWith('Settings saved')
+    expect(navigate).toHaveBeenCalledWith({ to: '/game' })
+    expect(writeSpy.mock.invocationCallOrder[0]).toBeLessThan(
+      navigate.mock.invocationCallOrder[0],
+    )
+    expect(toast.success).not.toHaveBeenCalled()
   })
 
   it('preserves sfxEnabled when the round preset is saved', () => {
@@ -113,7 +123,7 @@ describe('SettingsPage', () => {
     renderSettingsPage()
 
     fireEvent.click(screen.getByRole('radio', { name: /Classic/ }))
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save and play' }))
 
     expect(writeSpy).toHaveBeenCalledTimes(1)
     expect(settingsService.read()).toEqual({
@@ -126,7 +136,7 @@ describe('SettingsPage', () => {
     renderSettingsPage()
 
     fireEvent.click(screen.getByRole('radio', { name: /Every country/ }))
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save and play' }))
 
     expect(writeSpy).toHaveBeenCalledTimes(1)
     expect(writeSpy).toHaveBeenCalledWith({
@@ -137,10 +147,11 @@ describe('SettingsPage', () => {
       round: { kind: 'all-countries' },
       sfxEnabled: false,
     })
-    expect(toast.success).toHaveBeenCalledWith('Settings saved')
+    expect(navigate).toHaveBeenCalledWith({ to: '/game' })
+    expect(toast.success).not.toHaveBeenCalled()
   })
 
-  it('persists a custom fixed value when Custom is valid and Save is pressed', () => {
+  it('persists a custom fixed value when Custom is valid', () => {
     renderSettingsPage()
 
     fireEvent.click(screen.getByRole('radio', { name: /Custom/ }))
@@ -148,7 +159,7 @@ describe('SettingsPage', () => {
       name: 'Custom round size',
     })
     fireEvent.change(customInput, { target: { value: '17' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save and play' }))
 
     expect(writeSpy).toHaveBeenCalledTimes(1)
     expect(writeSpy).toHaveBeenCalledWith({
@@ -159,10 +170,11 @@ describe('SettingsPage', () => {
       round: { kind: 'fixed', value: 17 },
       sfxEnabled: false,
     })
-    expect(toast.success).toHaveBeenCalledWith('Settings saved')
+    expect(navigate).toHaveBeenCalledWith({ to: '/game' })
+    expect(toast.success).not.toHaveBeenCalled()
   })
 
-  it('disables Save and marks the custom input invalid when Custom is active but the value is empty', () => {
+  it('disables Save and play and marks an empty Custom value invalid', () => {
     renderSettingsPage()
 
     fireEvent.click(screen.getByRole('radio', { name: /Custom/ }))
@@ -171,11 +183,17 @@ describe('SettingsPage', () => {
     })
     fireEvent.change(customInput, { target: { value: '' } })
 
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
+    const submit = screen.getByRole('button', { name: 'Save and play' })
+    expect(submit).toBeDisabled()
     expect(customInput).toHaveAttribute('aria-invalid', 'true')
+
+    fireEvent.submit(submit.closest('form')!)
+
+    expect(writeSpy).not.toHaveBeenCalled()
+    expect(navigate).not.toHaveBeenCalled()
   })
 
-  it('disables Save when the custom value is not a positive integer string', () => {
+  it('disables Save and play when Custom is not a positive integer string', () => {
     renderSettingsPage()
 
     fireEvent.click(screen.getByRole('radio', { name: /Custom/ }))
@@ -184,7 +202,7 @@ describe('SettingsPage', () => {
     })
     fireEvent.change(customInput, { target: { value: '12a' } })
 
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Save and play' })).toBeDisabled()
     expect(customInput).toHaveAttribute('aria-invalid', 'true')
   })
 
@@ -231,5 +249,36 @@ describe('SettingsPage', () => {
     expect(
       screen.getByRole('spinbutton', { name: 'Custom round size' }),
     ).toHaveValue(17)
+  })
+
+  it('retains the selection after a failed save and starts the round on retry', () => {
+    writeSpy.mockReturnValueOnce(false)
+    renderSettingsPage()
+
+    fireEvent.click(screen.getByRole('radio', { name: /Classic/ }))
+    const submit = screen.getByRole('button', { name: 'Save and play' })
+    fireEvent.click(submit)
+
+    expect(navigate).not.toHaveBeenCalled()
+    expect(toast.error).toHaveBeenCalledWith(
+      'Could not save settings. Please try again.',
+    )
+    expect(screen.getByRole('radio', { name: /Classic/ })).toBeChecked()
+
+    fireEvent.click(submit)
+
+    expect(settingsService.read().round).toEqual({ kind: 'fixed', value: 25 })
+    expect(navigate).toHaveBeenCalledWith({ to: '/game' })
+    expect(toast.success).not.toHaveBeenCalled()
+    expect(toast).not.toHaveBeenCalled()
+  })
+
+  it('Back to Start does not write an unsaved selection', () => {
+    renderSettingsPage()
+
+    fireEvent.click(screen.getByRole('radio', { name: /Classic/ }))
+    fireEvent.click(screen.getByRole('link', { name: 'Back to Start' }))
+
+    expect(writeSpy).not.toHaveBeenCalled()
   })
 })
