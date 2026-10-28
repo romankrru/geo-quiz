@@ -50,10 +50,12 @@ describe('Quiz settings store: read and write', () => {
   })
 
   it('round-trips round and sfx', () => {
-    settingsService.write({
-      round: { kind: 'fixed', value: 25 },
-      sfxEnabled: true,
-    })
+    expect(
+      settingsService.write({
+        round: { kind: 'fixed', value: 25 },
+        sfxEnabled: true,
+      }),
+    ).toBe(true)
 
     expect(settingsService.read()).toEqual({
       round: { kind: 'fixed', value: 25 },
@@ -73,7 +75,29 @@ describe('Quiz settings store: read and write', () => {
     })
   })
 
-  it('logs storage errors on write without throwing', () => {
+  it('rejects invalid settings without replacing saved preferences', () => {
+    settingsService.write({
+      round: { kind: 'fixed', value: 25 },
+      sfxEnabled: true,
+    })
+
+    expect(
+      settingsService.write({
+        round: { kind: 'fixed', value: 0 },
+        sfxEnabled: false,
+      }),
+    ).toBe(false)
+    expect(settingsService.read()).toEqual({
+      round: { kind: 'fixed', value: 25 },
+      sfxEnabled: true,
+    })
+  })
+
+  it('reports and logs storage errors without replacing saved preferences', () => {
+    settingsService.write({
+      round: { kind: 'fixed', value: 10 },
+      sfxEnabled: true,
+    })
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const setSpy = vi
       .spyOn(Storage.prototype, 'setItem')
@@ -82,12 +106,16 @@ describe('Quiz settings store: read and write', () => {
       })
 
     try {
-      expect(() =>
+      expect(
         settingsService.write({
           round: { kind: 'fixed', value: 25 },
           sfxEnabled: false,
         }),
-      ).not.toThrow()
+      ).toBe(false)
+      expect(settingsService.read()).toEqual({
+        round: { kind: 'fixed', value: 10 },
+        sfxEnabled: true,
+      })
       expect(consoleSpy).toHaveBeenCalled()
     } finally {
       setSpy.mockRestore()

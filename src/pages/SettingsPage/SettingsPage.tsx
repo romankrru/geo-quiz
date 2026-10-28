@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { clsx } from 'clsx'
 import { ArrowLeft } from 'lucide-react'
 import { type ChangeEvent, useMemo, useState } from 'react'
@@ -16,6 +16,7 @@ const catalogSize = COUNTRIES.length
 const ROUND_GROUP = 'configured-round-size'
 
 export const SettingsPage = () => {
+  const navigate = useNavigate()
   const initial = useMemo(
     () => settingsService.persistedToSelection(settingsService.read().round),
     [],
@@ -49,7 +50,10 @@ export const SettingsPage = () => {
     }
   }
 
-  const handleSave = () => {
+  const handleSaveAndPlay = () => {
+    if (customInvalid) {
+      return
+    }
     const intent = settingsService.intentFromSelection(
       selection,
       customDigits,
@@ -57,11 +61,12 @@ export const SettingsPage = () => {
     )
     const persisted = settingsService.read()
     if (!settingsService.configuredRoundSizesEqual(intent, persisted.round)) {
-      settingsService.write({ ...persisted, round: intent })
-      toast.success('Settings saved')
-      return
+      if (!settingsService.write({ ...persisted, round: intent })) {
+        toast.error('Could not save settings. Please try again.')
+        return
+      }
     }
-    toast('Already up to date')
+    void navigate({ to: '/game' })
   }
 
   const handleCustomBlur = () => {
@@ -90,7 +95,7 @@ export const SettingsPage = () => {
           className={styles.form}
           onSubmit={(event) => {
             event.preventDefault()
-            handleSave()
+            handleSaveAndPlay()
           }}
         >
           <fieldset className={styles.fieldset}>
@@ -197,7 +202,7 @@ export const SettingsPage = () => {
               Back to Start
             </Button>
             <Button type="submit" disabled={saveDisabled}>
-              Save
+              Save and play
             </Button>
           </div>
         </form>
