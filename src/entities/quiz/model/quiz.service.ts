@@ -1,4 +1,5 @@
 import type { Country } from '@entities/country/model/country.types'
+import { distractorService } from '@entities/distractor'
 import { SITE_URL } from '@shared/config/config'
 
 import type { QuizQuestion } from './quiz.types'
@@ -12,11 +13,12 @@ export const quizService = {
     const selected = shuffled.slice(0, questionCount)
 
     return selected.map((country) => {
-      const distractors = countries
-        .filter((c) => c.id !== country.id)
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 3)
-        .map((c) => c.name)
+      const distractors = distractorService
+        .pickDistractors({
+          correctCountryId: country.id,
+          candidates: countries.filter(({ id }) => id !== country.id),
+        })
+        .map(({ name }) => name)
 
       const options = [...distractors, country.name].sort(
         () => Math.random() - 0.5,
