@@ -1,8 +1,28 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type { Country } from '@entities/country'
 import { SITE_URL } from '@shared/config/config'
 
 import { quizService } from './quiz.service'
+
+describe('quizService.generateQuizQuestions', () => {
+  afterEach(() => vi.restoreAllMocks())
+
+  it('builds four options without a forbidden partner', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.99)
+    const countries: Country[] = ['RO', 'TD', 'FR', 'DE', 'ES'].map((id) => ({
+      id,
+      name: id,
+      flagEmoji: id,
+    }))
+
+    const questions = quizService.generateQuizQuestions(countries, 5)
+    const romaniaQuestion = questions.find(({ id }) => id === 'RO')
+
+    expect(questions.every(({ options }) => options.length === 4)).toBe(true)
+    expect(romaniaQuestion?.options).not.toContain('TD')
+  })
+})
 
 describe('quizService.formatShareText', () => {
   it('returns the exact two-line share text for a representative input', () => {
