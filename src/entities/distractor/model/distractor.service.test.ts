@@ -34,4 +34,21 @@ describe('distractorService.pickDistractors', () => {
       }),
     ).toThrow('At least three eligible distractors are required')
   })
+
+  it.each([
+    ['SI', 'SK'],
+    ['SK', 'SI'],
+  ])(
+    'prefers higher-similarity candidate %s to %s',
+    (correctCountryId, similarCountryId) => {
+      const randomValues = [0.99, 0.99, 0.99, 0.5, 0.5, 0, 0]
+      const distractors = distractorService.pickDistractors({
+        correctCountryId,
+        candidates: ['FR', 'DE', 'ES', similarCountryId].map(country),
+        random: () => randomValues.shift() ?? 0,
+      })
+
+      expect(distractors.map(({ id }) => id)).toContain(similarCountryId)
+    },
+  )
 })
